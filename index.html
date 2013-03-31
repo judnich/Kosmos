@@ -1,0 +1,54 @@
+<html>
+	<head>
+		<title>Kosmos</title>
+		<style>
+			body {
+				padding: 0;
+				border: 0;
+				margin: 0;
+			}
+			canvas {
+				float: left;
+				width: 100%;
+				height: 100%;
+				padding: 0;
+				border: 0;
+				margin: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas id="kosmosCanvas"/>
+
+		<script id="shader-fs" type="x-shader/x-fragment">
+		    precision mediump float;
+
+		    varying vec4 vColor;
+
+		    void main(void) {
+		        gl_FragColor = vec4(1, 1, 1, 1); //vColor;
+		    }
+		</script>
+
+		<script id="shader-vs" type="x-shader/x-vertex">
+		    attribute vec3 inPos;
+
+		    uniform mat4 modelViewMat;
+		    uniform mat4 projMat;
+
+		    varying vec4 vColor;
+
+		    void main(void) {
+		        gl_Position = projMat * modelViewMat * vec4(inPos, 1.0);
+		        vColor = vec4(1, 1, 1, 1);
+		    }
+		</script>
+
+		<script type="text/javascript" src="external/gl-matrix-min.js"></script>
+		<script type="text/javascript" src="external/webgl-utils.js"></script>
+		<script type="text/javascript" src="compiled/xgl.js"></script>
+		<script type="text/javascript" src="compiled/Camera.js"></script>
+		<script type="text/javascript" src="compiled/StarVolume.js"></script>
+		<script type="text/javascript" src="compiled/Main.js"></script>
+	</body>
+</html>
