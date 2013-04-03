@@ -24,7 +24,7 @@ kosmosMain = ->
 	root.gl = WebGLUtils.setupWebGL(canvas)
 	
 	camera = new Camera(canvas.width / canvas.height)
-	starField = new StarField(10000)
+	starField = new StarField(10000, 1.0)
 
 	camera.position = vec3.fromValues(0.5, 0.5, 0.5)
 	camera.target = vec3.fromValues(0, 0, 0)
@@ -36,24 +36,24 @@ kosmosMain = ->
 lastTime = 0
 
 tick = ->
-	#window.requestAnimFrame(tick) # schedule next frame to run
+	window.requestAnimFrame(tick) # schedule next frame to run
 
 	d = new Date()
 	timeNow = d.getTime()
 	elapsed = (timeNow - lastTime) / 1000.0
 	lastTime = timeNow
 
-	###cameraAngle += (elapsed * 100.0);
+	cameraAngle += (elapsed * 10.0);
 	rmat = mat4.create()
 	mat4.rotateY(rmat, rmat, xgl.degToRad(cameraAngle))
 	vec3.transformMat4(camera.position, vec3.fromValues(0, 0, 0.5), rmat)
-	camera.update()###
+	camera.update()
 
 	gl.viewport(0, 0, canvas.width, canvas.height);
 	gl.clearColor(0, 0, 0, 1)
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-	starField.renderBlock(camera, 0, 10000)
+	starField.render(camera)
 
 
 kosmosMain()
