@@ -47,17 +47,18 @@
 		<script id="starfield-fs" type="x-shader/x-fragment">
 		    precision mediump float;
 
-		    varying vec2 vUV;
+		    varying vec3 vUVA;
 
 		    void main(void) {
-		    	vec2 dv = vUV - vec2(0.5, 0.5);
+		    	// compute star color based on intensity = 1/dist^2 from center of sprite
+		    	vec2 dv = vUVA.xy - vec2(0.5, 0.5);
 		    	float d = dot(dv, dv);
 		    	float c = 1.0 / (d*100.0);
-
 		    	//float c = 1.0 / (d*10.0);
 		    	//c = clamp(0.5 - d, 0.0, 1.0) * c;
+		    	vec4 color = vec4(clamp(c*0.5, 0.0, 1.0), clamp(c*0.5, 0.0, 1.0), clamp(c, 0.0, 1.0), 1.0);
 
-		        gl_FragColor = vec4(c*0.5, c*0.5, c, 1); //vColor;
+		        gl_FragColor = color * vUVA.z;
 		    }
 		</script>
 
@@ -67,21 +68,29 @@
 
 		    uniform mat4 projMat;
 		    uniform mat4 modelViewMat;
+		    uniform vec2 starSizeAndViewRange;
 		    //uniform mat4 modelMat;
 		    //uniform mat4 viewMat;
 
-		    varying vec2 vUV;
+		    varying vec3 vUVA;
 
 		    void main(void) {
 		    	vec4 pos = vec4(aPos.xyz, 1.0);
-		    	vec2 offset = (aUV - 0.5) * 0.005;
+		    	vec2 offset = (aUV - 0.5) * starSizeAndViewRange.x;
 
 		    	//pos = viewMat * modelMat * pos;
 		    	pos = modelViewMat * pos;
 		    	pos.xy += offset;
 
-		        gl_Position = projMat * pos;
-		        vUV = aUV;
+		    	float dist = length(pos.xyz);
+		    	float alpha = clamp((1.0 - (dist / starSizeAndViewRange.y)) * 10.0, 0.0, 1.0);
+
+		    	if (alpha > 0.0)
+		        	gl_Position = projMat * pos;
+		        else
+		        	gl_Position = vec4(0, 0, 0, 0); // degenerate triangles for hidden stars
+
+		        vUVA = vec3(aUV, alpha);
 		    }
 		</script>
 

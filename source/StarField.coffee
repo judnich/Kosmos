@@ -3,10 +3,11 @@ root = exports ? this
 universeSeed = 31415
 
 class root.StarField
-	constructor: (maxStarsPerBlock, blockScale) ->
+	constructor: (maxStarsPerBlock, blockScale, starSize) ->
 		@maxBlockStars = maxStarsPerBlock
 		@blockScale = blockScale
 		@viewRange = @blockScale * 2
+		@starSize = starSize
 
 		@randomStream = new RandomStream(universeSeed)
 
@@ -14,7 +15,7 @@ class root.StarField
 
 		# load star shader
 		@shader = xgl.loadProgram("starfield-vs", "starfield-fs")
-		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat"])
+		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "starSizeAndViewRange"])
 		@shader.attribs = xgl.getProgramAttribs(@shader, ["aPos", "aUV"])
 
 		# generate star positions
@@ -69,10 +70,18 @@ class root.StarField
 	render: (camera) ->
 		@_startRender()
 
-		for i in [-1..1]
-			for j in [-1..1]
-				for k in [-1..1]
-					@_renderBlock(camera, 0, 1000, i,j,k)
+		[ci, cj, ck] = [Math.floor(camera.position[0]/@blockScale),
+						Math.floor(camera.position[1]/@blockScale),
+						Math.floor(camera.position[2]/@blockScale)]
+		r = Math.floor(@viewRange / @blockScale)
+
+		for i in [ci-r .. ci+r]
+			for j in [cj-r .. cj+r]
+				for k in [ck-r .. ck+r]
+					bpos = vec3.fromValues((i+0.5)*@blockScale, (j+0.5)*@blockScale, (k+0.5)*@blockScale)
+					minDist = vec3.distance(camera.position, bpos) - @blockScale*0.8660254 #sqrt(3)/2
+					if minDist <= @viewRange
+						@_renderBlock(camera, 0, 1000, i,j,k)
 
 		@_finishRender()
 
@@ -125,6 +134,7 @@ class root.StarField
 		# set shader uniforms
 		gl.uniformMatrix4fv(@shader.uniforms.projMat, false, camera.projMat)
 		gl.uniformMatrix4fv(@shader.uniforms.modelViewMat, false, modelViewMat)
+		gl.uniform2f(@shader.uniforms.starSizeAndViewRange, @starSize, @viewRange)
 
 		# issue draw operation
 		gl.drawElements(gl.TRIANGLES, starCount*6, gl.UNSIGNED_SHORT, 2*6*offset)
