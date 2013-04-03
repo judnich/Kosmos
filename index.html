@@ -53,7 +53,10 @@
 		    	vec2 dv = vUV - vec2(0.5, 0.5);
 		    	float d = dot(dv, dv);
 		    	float c = 1.0 / (d*100.0);
-		    	//c = vUV.x;
+
+		    	//float c = 1.0 / (d*10.0);
+		    	//c = clamp(0.5 - d, 0.0, 1.0) * c;
+
 		        gl_FragColor = vec4(c*0.5, c*0.5, c, 1); //vColor;
 		    }
 		</script>
@@ -85,6 +88,7 @@
 		<script type="text/javascript" src="external/gl-matrix-min.js"></script>
 		<script type="text/javascript" src="external/webgl-utils.js"></script>
 		<script type="text/javascript" src="compiled/xgl.js"></script>
+		<script type="text/javascript" src="compiled/RandomStream.js"></script>
 		<script type="text/javascript" src="compiled/Camera.js"></script>
 		<script type="text/javascript" src="compiled/StarField.js"></script>
 		<script type="text/javascript" src="compiled/Main.js"></script>

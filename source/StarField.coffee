@@ -1,8 +1,11 @@
 root = exports ? this
 
+universeSeed = 314159
+
 class root.StarField
 	constructor: (maxStarsPerBlock) ->
 		@maxBlockStars = maxStarsPerBlock
+		@randomStream = new RandomStream(universeSeed)
 
 		# load star shader
 		@shader = xgl.loadProgram("starfield-vs", "starfield-fs")
@@ -14,7 +17,7 @@ class root.StarField
 
 		j = 0
 		for i in [0 .. @maxBlockStars-1]
-			[x, y, z, w] = [Math.random(), Math.random(), Math.random(), Math.random()]
+			[x, y, z, w] = [@randomStream.unit(), @randomStream.unit(), @randomStream.unit(), @randomStream.unit()]
 			for uv in [[0,0], [0,1], [1,0], [1,1]]
 				buff[j] = x
 				buff[j+1] = y
@@ -48,11 +51,15 @@ class root.StarField
 		@iBuff.itemSize = 1
 		@iBuff.numItems = @maxBlockStars * 6
 
+		if @iBuff.numItems >= 0xFFFF
+			xgl.error("Index buffer too large for StarField")
+
 	render: (camera) ->
 		modelMat = mat4.create()
 		modelViewMat = mat4.create()
 		mat4.mul(modelViewMat, modelMat, camera.viewMat)
 
+		gl.disable(gl.DEPTH_TEST);
 		gl.enable(gl.BLEND);
 		gl.blendFunc(gl.ONE, gl.ONE);
 
