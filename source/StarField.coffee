@@ -1,12 +1,14 @@
 root = exports ? this
 
 universeSeed = 31415
+starBufferSize = 10000
 
 class root.StarField
-	constructor: (maxStarsPerBlock, blockScale, starSize) ->
-		@maxBlockStars = maxStarsPerBlock
+	constructor: (blockMinStars, blockMaxStars, blockScale, starSize, viewRange) ->
+		@blockMinStars = blockMinStars
+		@blockMaxStars = blockMaxStars
 		@blockScale = blockScale
-		@viewRange = @blockScale * 2
+		@viewRange = viewRange #@blockScale * 1.5
 		@starSize = starSize
 
 		@randomStream = new RandomStream(universeSeed)
@@ -20,14 +22,14 @@ class root.StarField
 
 		# generate star positions
 		@starPositions = []
-		for i in [0 .. @maxBlockStars-1]
+		for i in [0 .. starBufferSize-1]
 			pos = [@randomStream.unit(), @randomStream.unit(), @randomStream.unit(), @randomStream.unit()]
 			@starPositions[i] = pos
 
 		# generate vertex buffer
-		buff = new Float32Array(@maxBlockStars * 4 * 6)
+		buff = new Float32Array(starBufferSize * 4 * 6)
 		j = 0
-		for i in [0 .. @maxBlockStars-1]
+		for i in [0 .. starBufferSize-1]
 			[x, y, z, w] = @starPositions[i]
 			for uv in [[0,0], [0,1], [1,0], [1,1]]
 				buff[j] = x
@@ -42,11 +44,11 @@ class root.StarField
 		gl.bindBuffer(gl.ARRAY_BUFFER, @vBuff);
 		gl.bufferData(gl.ARRAY_BUFFER, buff, gl.STATIC_DRAW)
 		@vBuff.itemSize = 6
-		@vBuff.numItems = @maxBlockStars * 4
+		@vBuff.numItems = starBufferSize * 4
 
 		# generate index buffer
-		buff = new Uint16Array(@maxBlockStars * 6)
-		for i in [0 .. @maxBlockStars-1]
+		buff = new Uint16Array(starBufferSize * 6)
+		for i in [0 .. starBufferSize-1]
 			[j, k] = [i * 6, i * 4]
 			buff[j] = k+0
 			buff[j+1] = k+1
@@ -59,7 +61,7 @@ class root.StarField
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, @iBuff)
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, buff, gl.STATIC_DRAW)
 		@iBuff.itemSize = 1
-		@iBuff.numItems = @maxBlockStars * 6
+		@iBuff.numItems = starBufferSize * 6
 
 		if @iBuff.numItems >= 0xFFFF
 			xgl.error("Index buffer too large for StarField")
@@ -73,7 +75,7 @@ class root.StarField
 		[ci, cj, ck] = [Math.floor(camera.position[0]/@blockScale),
 						Math.floor(camera.position[1]/@blockScale),
 						Math.floor(camera.position[2]/@blockScale)]
-		r = Math.floor(@viewRange / @blockScale)
+		r = Math.ceil(@viewRange / @blockScale)
 
 		for i in [ci-r .. ci+r]
 			for j in [cj-r .. cj+r]
@@ -81,7 +83,9 @@ class root.StarField
 					bpos = vec3.fromValues((i+0.5)*@blockScale, (j+0.5)*@blockScale, (k+0.5)*@blockScale)
 					minDist = vec3.distance(camera.position, bpos) - @blockScale*0.8660254 #sqrt(3)/2
 					if minDist <= @viewRange
-						@_renderBlock(camera, 0, 1000, i,j,k)
+						seed = (i+1) * (j+65537) * (k+257)
+						rstr = new root.RandomStream(seed)
+						@_renderBlock(camera, seed, rstr.range(@blockMinStars, @blockMaxStars), i,j,k)
 
 		@_finishRender()
 
@@ -115,20 +119,26 @@ class root.StarField
 
 
 	_renderBlock: (camera, seed, starCount, i, j, k) ->
+		if starCount <= 0 then return
+		starCount = Math.floor(starCount)
+		seed = Math.floor(Math.abs(seed))
+
 		# ensure we're not drawing too many stars
 		if starCount*6 > @iBuff.numItems
 			starCount = @iBuff.numItems/6
 			console.log("Warning: Too many stars requested of starfield block render operation")
 
 		# choose a slice of the vertex buffer randomly based on the seed value
-		if @maxBlockStars > starCount
-			offset = ((Math.floor(seed) + 127) * 65537) % (1 + @maxBlockStars - starCount)
+		if starBufferSize > starCount
+			offset = ((seed + 127) * 65537) % (1 + starBufferSize - starCount)
 		else
 			offset = 0
 
-		# calculate model*view matrix based on block i,j,k position
+		# calculate model*view matrix based on block i,j,k position and block scale
 		modelViewMat = mat4.create()
-		mat4.translate(modelViewMat, modelViewMat, vec3.fromValues(i*@blockScale, j*@blockScale, k*@blockScale))
+		#mat4.translate(modelViewMat, modelViewMat, vec3.fromValues(i*@blockScale, j*@blockScale, k*@blockScale))
+		mat4.scale(modelViewMat, modelViewMat, vec3.fromValues(@blockScale, @blockScale, @blockScale))
+		mat4.translate(modelViewMat, modelViewMat, vec3.fromValues(i, j, k))
 		mat4.mul(modelViewMat, camera.viewMat, modelViewMat)
 
 		# set shader uniforms

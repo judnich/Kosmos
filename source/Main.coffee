@@ -24,11 +24,12 @@ kosmosMain = ->
 	root.gl = WebGLUtils.setupWebGL(canvas)
 	
 	camera = new Camera(canvas.width / canvas.height)
-	starField = new StarField(10000, 1.0, 0.005)
+	#starField = new StarField(125, 250, 0.5, 0.005, 1.5)
+	starField = new StarField(200, 300, 0.5, 0.005, 1.5)
 
 	camera.position = vec3.fromValues(0, 0, 0)
-	camera.target = vec3.fromValues(0, 0, -1)
-	camera.near = 0.01
+	camera.target = vec3.fromValues(0, -0.5, -1)
+	camera.near = 0.0001
 	camera.update()
 
 	tick()
@@ -49,9 +50,10 @@ tick = ->
 	#cameraAngle += (elapsed * 10.0);
 	#rmat = mat4.create()
 	#mat4.rotateY(rmat, rmat, xgl.degToRad(cameraAngle))
-	#vec3.transformMat4(camera.position, vec3.fromValues(0, 0, 0.5), rmat)
+	#vec3.transformMat4(camera.position, vec3.fromValues(0, 0, 1.0), rmat)
 	#camera.update()
-	camera.position[2] -= 0.5 * elapsed
+	
+	camera.position[2] += 0.01 * elapsed
 	camera.target[2] = camera.position[2] - 1
 	camera.update()
 
