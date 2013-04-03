@@ -8,7 +8,7 @@ class root.RandomStream
 		@rand = seed % modulus
 
 	unit: ->
-		@rand = (@rand * multiplier) % modulus
+		@rand = ((@rand+65537) * multiplier) % modulus
 		return @rand / modulus
 
 	symmetric: ->

@@ -1,23 +1,30 @@
 root = exports ? this
 
-universeSeed = 314159
+universeSeed = 31415
 
 class root.StarField
 	constructor: (maxStarsPerBlock) ->
 		@maxBlockStars = maxStarsPerBlock
 		@randomStream = new RandomStream(universeSeed)
 
+		console.log("Generating stars...")
+
 		# load star shader
 		@shader = xgl.loadProgram("starfield-vs", "starfield-fs")
 		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat"])
 		@shader.attribs = xgl.getProgramAttribs(@shader, ["aPos", "aUV"])
 
+		# generate star positions
+		@starPositions = []
+		for i in [0 .. @maxBlockStars-1]
+			pos = [@randomStream.unit(), @randomStream.unit(), @randomStream.unit(), @randomStream.unit()]
+			@starPositions[i] = pos
+
 		# generate vertex buffer
 		buff = new Float32Array(@maxBlockStars * 4 * 6)
-
 		j = 0
 		for i in [0 .. @maxBlockStars-1]
-			[x, y, z, w] = [@randomStream.unit(), @randomStream.unit(), @randomStream.unit(), @randomStream.unit()]
+			[x, y, z, w] = @starPositions[i]
 			for uv in [[0,0], [0,1], [1,0], [1,1]]
 				buff[j] = x
 				buff[j+1] = y
@@ -35,7 +42,6 @@ class root.StarField
 
 		# generate index buffer
 		buff = new Uint16Array(@maxBlockStars * 6)
-
 		for i in [0 .. @maxBlockStars-1]
 			[j, k] = [i * 6, i * 4]
 			buff[j] = k+0
@@ -54,7 +60,18 @@ class root.StarField
 		if @iBuff.numItems >= 0xFFFF
 			xgl.error("Index buffer too large for StarField")
 
-	render: (camera) ->
+		console.log("All stars generated.")
+
+	renderBlock: (camera, seed, starCount) ->
+		if starCount*6 > @iBuff.numItems
+			starCount = @iBuff.numItems/6
+			console.log("Warning: Too many stars requested of starfield block render operation")
+
+		if @maxBlockStars > starCount
+			offset = ((Math.floor(seed) + 127) * 65537) % (1 + @maxBlockStars - starCount)
+		else
+			offset = 0
+
 		modelMat = mat4.create()
 		modelViewMat = mat4.create()
 		mat4.mul(modelViewMat, modelMat, camera.viewMat)
@@ -75,7 +92,8 @@ class root.StarField
 		gl.vertexAttribPointer(@shader.attribs.aUV, 2, gl.FLOAT, false, @vBuff.itemSize*4, 4 *4)
 
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, @iBuff)
-		gl.drawElements(gl.TRIANGLES, @iBuff.numItems, gl.UNSIGNED_SHORT, 0);
+		#gl.drawElements(gl.TRIANGLES, @iBuff.numItems, gl.UNSIGNED_SHORT, 0);
+		gl.drawElements(gl.TRIANGLES, starCount*6, gl.UNSIGNED_SHORT, 2*6*offset);
 
 		gl.disableVertexAttribArray(@shader.attribs.aPos)
 		gl.disableVertexAttribArray(@shader.attribs.aUV)
