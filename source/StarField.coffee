@@ -83,7 +83,7 @@ class root.StarField
 					bpos = vec3.fromValues((i+0.5)*@blockScale, (j+0.5)*@blockScale, (k+0.5)*@blockScale)
 					minDist = vec3.distance(camera.position, bpos) - @blockScale*0.8660254 #sqrt(3)/2
 					if minDist <= @viewRange
-						seed = (i+1) * (j+65537) * (k+257)
+						seed = (i*7) + (j*65537) + (k*257)
 						rstr = new root.RandomStream(seed)
 						@_renderBlock(camera, seed, rstr.range(@blockMinStars, @blockMaxStars), i,j,k)
 
