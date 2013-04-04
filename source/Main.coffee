@@ -47,15 +47,15 @@ tick = ->
 		elapsed = 0.0
 	lastTime = timeNow
 
-	cameraAngle += (elapsed * 10.0);
-	rmat = mat4.create()
-	mat4.rotateY(rmat, rmat, xgl.degToRad(cameraAngle))
-	vec3.transformMat4(camera.position, vec3.fromValues(0, 0, 1.0), rmat)
-	camera.update()
-	
-	#camera.position[2] += 0.01 * elapsed
-	##camera.target[2] = camera.position[2] - 1
+	#cameraAngle += (elapsed * 10.0);
+	#rmat = mat4.create()
+	#mat4.rotateY(rmat, rmat, xgl.degToRad(cameraAngle))
+	#vec3.transformMat4(camera.position, vec3.fromValues(0, 0, 1.0), rmat)
 	#camera.update()
+	
+	camera.position[2] += 0.1 * elapsed
+	camera.target[2] = camera.position[2] - 1
+	camera.update()
 
 	gl.viewport(0, 0, canvas.width, canvas.height);
 	gl.clearColor(0, 0, 0, 1)

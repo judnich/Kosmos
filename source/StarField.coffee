@@ -119,6 +119,13 @@ class root.StarField
 
 
 	_renderBlock: (camera, seed, starCount, i, j, k) ->
+		# return without rendering if invisible
+		box = new Box()
+		box.min = vec3.fromValues(i*@blockScale, j*@blockScale, k*@blockScale)
+		box.max = vec3.fromValues((i+1)*@blockScale, (j+1)*@blockScale, (k+1)*@blockScale)
+		if not camera.isVisibleBox(box) then return
+
+		# basic setup
 		if starCount <= 0 then return
 		starCount = Math.floor(starCount)
 		seed = Math.floor(Math.abs(seed))
