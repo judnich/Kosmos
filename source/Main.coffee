@@ -13,19 +13,18 @@ mouseClick = (event) ->
 	x -= root.canvas.offsetLeft
 	y -= root.canvas.offsetTop
 
-
 root.kosmosMain = ->
 	console.log("Initializing Kosmos Engine")
-	if not enableRetina
-		console.log("Note: Device pixel scaling (retina) is disabled.")
 
+	# setup events
 	root.canvas = document.getElementById("kosmosCanvas")
 	canvas.addEventListener("mousedown", mouseClick, false);
 
+	# set up canvas
 	kosmosResize()
-
 	root.gl = WebGLUtils.setupWebGL(canvas)
 
+	# set up game
 	camera = new Camera(canvas.width / canvas.height)
 	#starField = new StarField(125, 250, 0.5, 0.005, 1.5)
 	starField = new StarField(200, 300, 0.5, 0.005, 1.5)
@@ -39,6 +38,7 @@ root.kosmosMain = ->
 	tick()
 
 root.kosmosResize = ->
+	if not enableRetina then console.log("Note: Device pixel scaling (retina) is disabled.")
 	devicePixelRatio = if enableRetina then window.devicePixelRatio || 1 else 1
 	canvas.width  = canvas.clientWidth * devicePixelRatio
 	canvas.height = canvas.clientHeight * devicePixelRatio
@@ -46,10 +46,14 @@ root.kosmosResize = ->
 				"with device pixel ratio #{devicePixelRatio}")
 
 
+_speed = 0.0
 gspeed = 0.0
 tspeed = 0.0
 
+root.kosmosGetSpeed = -> _speed
+
 root.kosmosSetSpeed = (speed) ->
+	_speed = speed
 	gspeed = Math.pow(10.0, Math.abs(speed)) * 0.001
 	if speed < 0 then gspeed = -Math.abs(gspeed)
 	if speed == 0 then gspeed = 0
