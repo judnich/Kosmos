@@ -12,8 +12,7 @@ mouseClick = (event) ->
 	[x, y] = [event.x, event.y]
 	x -= root.canvas.offsetLeft
 	y -= root.canvas.offsetTop
-	animating = not animating
-	if animating then tick()
+
 
 root.kosmosMain = ->
 	console.log("Initializing Kosmos Engine")
@@ -37,12 +36,26 @@ root.kosmosMain = ->
 	starField = new StarField(200, 300, 0.5, 0.005, 1.5)
 
 	camera.position = vec3.fromValues(0, 0, 0)
-	camera.target = vec3.fromValues(0, -0.5, -1)
+	camera.target = vec3.fromValues(0, 0, -1)
 	camera.near = 0.0001
 	camera.update()
 
-	animating = false
+	animating = true
 	tick()
+
+gspeed = 0.0
+tspeed = 0.0
+
+root.kosmosSetSpeed = (speed) ->
+	gspeed = Math.pow(10.0, Math.abs(speed)) * 0.001
+	if speed < 0 then gspeed = -Math.abs(gspeed)
+	if speed == 0 then gspeed = 0
+
+root.kosmosKill = ->
+	lastTime = null
+	animating = not animating
+	if animating then tick()
+
 
 lastTime = null
 
@@ -57,15 +70,17 @@ tick = ->
 		elapsed = 0.0
 	lastTime = timeNow
 
-	cameraAngle += (elapsed * 10.0);
-	rmat = mat4.create()
-	mat4.rotateY(rmat, rmat, xgl.degToRad(cameraAngle))
-	vec3.transformMat4(camera.position, vec3.fromValues(0, 0, 1.0), rmat)
-	camera.update()
-	
-	#camera.position[2] += 0.01 * elapsed
-	#camera.target[2] = camera.position[2] - 1
+	#cameraAngle += (elapsed * 10.0);
+	#rmat = mat4.create()
+	#mat4.rotateY(rmat, rmat, xgl.degToRad(cameraAngle))
+	#vec3.transformMat4(camera.position, vec3.fromValues(0, 0, 1.0), rmat)
 	#camera.update()
+	
+	tspeed = tspeed * 0.95 + 0.05 * gspeed
+
+	camera.position[2] -= tspeed * elapsed
+	camera.target[2] = camera.position[2] - 1
+	camera.update()
 
 	gl.viewport(0, 0, canvas.width, canvas.height);
 	gl.clearColor(0, 0, 0, 1)

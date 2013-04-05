@@ -11,6 +11,8 @@
 
 				// CoffeeScript code entry point
 				kosmosMain();
+				speedClick(1);
+				showIntro();
 			}
 
 			function hideIntro() {
@@ -21,6 +23,20 @@
 			function showIntro() {
 				var msg = document.getElementById("introMessage");
 				msg.style.display = "block";
+			}
+
+			function speedClick(speed) {
+				hideIntro();
+
+				document.getElementById("speed3").className = (speed == 3 ? "btn lit" : "btn");
+				document.getElementById("speed2").className = (speed == 2 ? "btn lit" : "btn");
+				document.getElementById("speed1").className = (speed == 1 ? "btn lit" : "btn");
+				document.getElementById("speed0").className = (speed == 0 ? "btn redlit" : "btn red");
+				document.getElementById("speed-1").className = (speed == -1 ? "btn lit" : "btn");
+				document.getElementById("speed-2").className = (speed == -2 ? "btn lit" : "btn");
+				document.getElementById("speed-3").className = (speed == -3 ? "btn lit" : "btn");
+
+				kosmosSetSpeed(speed);
 			}
 		</script>
 	</head>
@@ -33,13 +49,17 @@
 
 			</td></tr><tr valign="middle" height="100%"><td valign="middle" height="100%">
 
-			<div class="btn">Forward x100</div>
-			<div class="btn">Forward x10</div>
-			<div class="btn">Forward x1</div>
-			<div class="btn redlit">Stop</div>
-			<div class="btn">Reverse x1</div>
-			<div class="btn">Reverse x10</div>
-			<div class="btn">Reverse x100</div>
+			<div id="speed3" onClick="speedClick(3);" class="btn">Forward x100</div>
+			<div id="speed2" onClick="speedClick(2);" class="btn">Forward x10</div>
+			<div id="speed1" onClick="speedClick(1);" class="btn">Forward x1</div>
+			<div id="speed0" onClick="speedClick(0);" class="btn red">Stop</div>
+			<div id="speed-1" onClick="speedClick(-1);" class="btn">Reverse x1</div>
+			<div id="speed-2" onClick="speedClick(-2);" class="btn">Reverse x10</div>
+			<div id="speed-3" onClick="speedClick(-3);" class="btn">Reverse x100</div>
+
+			<div height="50px">&nbsp;</div>
+
+			<div onClick="kosmosKill();" class="btn">DEV:HALT</div>
 
 			</td></tr><tr><td height="30px">
 			
