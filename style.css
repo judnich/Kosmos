@@ -37,11 +37,12 @@ canvas {
 }
 
 .footer {
+	display: block;
 	color: #888;
-	font-size: 0.5em;
+	font-size: 0.7em;
 	width: 100%;
 	text-align: center;
-	margin: 1.5em;
+	margin-bottom: 1.5em;
 }
 
 .title {
@@ -57,7 +58,7 @@ canvas {
 
 .subtitle {
 	color: #86a;
-	font-size: 0.7em;
+	font-size: 0.75em;
 	display: block;
 	text-align: center;
 }
@@ -79,21 +80,21 @@ canvas {
 .lit {
 	border: 1px solid #fff;
 	color: #fff;
-	box-shadow: 0px 0px 10px #acf;
+	box-shadow: 0px 0px 7px #acf;
 	background-color: #338;
 }
 .redlit {
 	border: 1px solid #fff;
 	color: #fff;
-	box-shadow: 0px 0px 10px #acf;
+	box-shadow: 0px 0px 7px #acf;
 	background-color: #822;
 }
 .red { background-color: #611; }
 
 .message {
 	position: absolute;
-	left: 35%;
-	top: 25%;
+	left: 0px;
+	top: 0px;
 	display: block;
 	width: 340px;
 	height: 220px;

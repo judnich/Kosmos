@@ -22,12 +22,7 @@ root.kosmosMain = ->
 	root.canvas = document.getElementById("kosmosCanvas")
 	canvas.addEventListener("mousedown", mouseClick, false);
 
-	devicePixelRatio = if enableRetina then window.devicePixelRatio || 1 else 1
-	canvas.width  = canvas.clientWidth * devicePixelRatio
-	canvas.height = canvas.clientHeight * devicePixelRatio
-
-	console.log("Main framebuffer resolution #{canvas.width} x #{canvas.height}"
-				"with device pixel ratio #{devicePixelRatio}")
+	kosmosResize()
 
 	root.gl = WebGLUtils.setupWebGL(canvas)
 
@@ -42,6 +37,14 @@ root.kosmosMain = ->
 
 	animating = true
 	tick()
+
+root.kosmosResize = ->
+	devicePixelRatio = if enableRetina then window.devicePixelRatio || 1 else 1
+	canvas.width  = canvas.clientWidth * devicePixelRatio
+	canvas.height = canvas.clientHeight * devicePixelRatio
+	console.log("Main framebuffer resolution #{canvas.width} x #{canvas.height}"
+				"with device pixel ratio #{devicePixelRatio}")
+
 
 gspeed = 0.0
 tspeed = 0.0

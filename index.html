@@ -5,14 +5,23 @@
 
 		<script>
 			function jsMain() {
-				// correct canvas dimensions due to sidebar
-				document.getElementById("rightbar").style.width = 
-					(document.getElementById("kosmosCanvas").clientWidth - document.getElementById("sidebar").clientWidth) + "px";
+				function resizeCanvas() {
+					// correct canvas dimensions due to sidebar
+					document.getElementById("rightbar").style.width = 
+						(window.innerWidth - document.getElementById("sidebar").clientWidth) + "px";
+				}
+				resizeCanvas();
 
 				// CoffeeScript code entry point
 				kosmosMain();
-				speedClick(1);
+				speedClick(-1);
 				showIntro();
+
+				window.onresize = function() {
+					resizeCanvas();
+					kosmosResize();
+					updateIntro();
+				}
 			}
 
 			function hideIntro() {
@@ -20,9 +29,18 @@
 				msg.style.display = "none";
 				//msg.parentNode.removeChild(msg);
 			}
+			function updateIntro() {
+				var msg = document.getElementById("introMessage");
+				var sidebarWidth = document.getElementById("sidebar").clientWidth;
+				var x = sidebarWidth + (window.innerWidth-sidebarWidth)/2 - (msg.clientWidth+23)/2;
+				var y = window.innerHeight/2 - (msg.clientHeight+23)/2;
+				msg.style.left = x;
+				msg.style.top = y;
+			}
 			function showIntro() {
 				var msg = document.getElementById("introMessage");
 				msg.style.display = "block";
+				updateIntro();
 			}
 
 			function speedClick(speed) {
@@ -63,7 +81,7 @@
 
 			</td></tr><tr><td height="30px">
 			
-			<a href="http://judnich.github.com"><span class="footer">Copyright © 2013 John Judnich</span></a>
+			<a href="http://judnich.github.com" target="_blank"><span class="footer">Copyright © 2013<br/>John Judnich</span></a>
 
 			</td></tr></table>
 		</div>
@@ -76,7 +94,7 @@
 			<div class="title">Welcome to Kosmos</div>
 			<p><i>Kosmos allows you to explore a computer-generated 3D universe from your browser.</i></p>
 			<p>Click anywhere to navigate, adjusting speed using the buttons on the left.</p>
-			<div class="okButton" onClick="hideIntro();">Ok</div>
+			<div class="okButton" onClick="hideIntro(); speedClick(0); this.onclick=hideIntro;">Ok</div>
 		</div>
 
 		<script id="shader-fs" type="x-shader/x-fragment">
