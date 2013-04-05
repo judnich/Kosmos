@@ -4,6 +4,15 @@
 		<link href="style.css" rel="stylesheet" type="text/css"/>
 
 		<script>
+			function jsMain() {
+				// correct canvas dimensions due to sidebar
+				document.getElementById("rightbar").style.width = 
+					(document.getElementById("kosmosCanvas").clientWidth - document.getElementById("sidebar").clientWidth) + "px";
+
+				// CoffeeScript code entry point
+				kosmosMain();
+			}
+
 			function hideIntro() {
 				var msg = document.getElementById("introMessage");
 				msg.style.display = "none";
@@ -15,8 +24,8 @@
 			}
 		</script>
 	</head>
-	<body>
-		<div class="sidebar">
+	<body onload="jsMain();">
+		<div class="sidebar" id="sidebar">
 			<table border="0" cellpadding="0" cellspacing="0" height="100%" width="100%"><tr><td>
 
 			<span class="title" style="cursor: pointer;" onClick="showIntro();">Kosmos</span>
@@ -26,10 +35,10 @@
 
 			<div class="btn">Warp 5</div>
 			<div class="btn">Warp 4</div>
-			<div class="btn lit">Warp 3</div>
+			<div class="btn">Warp 3</div>
 			<div class="btn">Warp 2</div>
 			<div class="btn">Warp 1</div>
-			<div class="btn red">Stop</div>
+			<div class="btn redlit">Stop</div>
 
 			</td></tr><tr><td height="30px">
 			
@@ -38,14 +47,14 @@
 			</td></tr></table>
 		</div>
 
-		<div class="rightbar">
+		<div class="rightbar" id="rightbar">
 			<canvas id="kosmosCanvas" onClick="hideIntro();"/>
 		</div>
 
 		<div class="message" id="introMessage">
 			<div class="title">Welcome to Kosmos</div>
 			<p><i>Kosmos allows you to explore a computer-generated 3D universe from your browser.</i></p>
-			<p>Click anywhere to navigate, adjusting speed using buttons on the left.</p>
+			<p>Click anywhere to navigate, adjusting speed using the buttons on the left.</p>
 			<div class="okButton" onClick="hideIntro();">Ok</div>
 		</div>
 
@@ -147,5 +156,6 @@
 		<script type="text/javascript" src="compiled/Camera.js"></script>
 		<script type="text/javascript" src="compiled/StarField.js"></script>
 		<script type="text/javascript" src="compiled/Main.js"></script>
+
 	</body>
 </html>

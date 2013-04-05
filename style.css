@@ -24,7 +24,7 @@ canvas {
 
 .rightbar {
 	position: absolute;
-	width: 100% - 160px;
+	width: 100%;
 	height: 100%;
 	left: 160px;
 }

@@ -15,7 +15,7 @@ mouseClick = (event) ->
 	animating = not animating
 	if animating then tick()
 
-kosmosMain = ->
+root.kosmosMain = ->
 	console.log("Initializing Kosmos Engine")
 	if not enableRetina
 		console.log("Note: Device pixel scaling (retina) is disabled.")
@@ -24,14 +24,14 @@ kosmosMain = ->
 	canvas.addEventListener("mousedown", mouseClick, false);
 
 	devicePixelRatio = if enableRetina then window.devicePixelRatio || 1 else 1
-	canvas.width  = root.canvas.innerWidth * devicePixelRatio
-	canvas.height = root.canvas.innerHeight * devicePixelRatio
+	canvas.width  = canvas.clientWidth * devicePixelRatio
+	canvas.height = canvas.clientHeight * devicePixelRatio
 
 	console.log("Main framebuffer resolution #{canvas.width} x #{canvas.height}"
 				"with device pixel ratio #{devicePixelRatio}")
 
 	root.gl = WebGLUtils.setupWebGL(canvas)
-	
+
 	camera = new Camera(canvas.width / canvas.height)
 	#starField = new StarField(125, 250, 0.5, 0.005, 1.5)
 	starField = new StarField(200, 300, 0.5, 0.005, 1.5)
@@ -73,5 +73,3 @@ tick = ->
 
 	starField.render(camera)
 
-
-kosmosMain()
