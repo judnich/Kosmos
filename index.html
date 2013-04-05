@@ -1,24 +1,53 @@
 <html>
 	<head>
 		<title>Kosmos</title>
-		<style>
-			body {
-				padding: 0;
-				border: 0;
-				margin: 0;
+		<link href="style.css" rel="stylesheet" type="text/css"/>
+
+		<script>
+			function hideIntro() {
+				var msg = document.getElementById("introMessage");
+				msg.style.display = "none";
+				//msg.parentNode.removeChild(msg);
 			}
-			canvas {
-				float: left;
-				width: 100%;
-				height: 100%;
-				padding: 0;
-				border: 0;
-				margin: 0;
+			function showIntro() {
+				var msg = document.getElementById("introMessage");
+				msg.style.display = "block";
 			}
-		</style>
+		</script>
 	</head>
 	<body>
-		<canvas id="kosmosCanvas"/>
+		<div class="sidebar">
+			<table border="0" cellpadding="0" cellspacing="0" height="100%" width="100%"><tr><td>
+
+			<span class="title" style="cursor: pointer;" onClick="showIntro();">Kosmos</span>
+			<span class="subtitle">Virtual 3D Universe</span>
+
+			</td></tr><tr valign="middle" height="100%"><td valign="middle" height="100%">
+
+			<div class="btn">Warp 5</div>
+			<div class="btn">Warp 4</div>
+			<div class="btn lit">Warp 3</div>
+			<div class="btn">Warp 2</div>
+			<div class="btn">Warp 1</div>
+			<div class="btn red">Stop</div>
+
+			</td></tr><tr><td height="30px">
+			
+			<a href="http://judnich.github.com"><span class="footer">Copyright © 2013 John Judnich</span></a>
+
+			</td></tr></table>
+		</div>
+
+		<div class="rightbar">
+			<canvas id="kosmosCanvas" onClick="hideIntro();"/>
+		</div>
+
+		<div class="message" id="introMessage">
+			<div class="title">Welcome to Kosmos</div>
+			<p><i>Kosmos allows you to explore a computer-generated 3D universe from your browser.</i></p>
+			<p>Click anywhere to navigate, adjusting speed using buttons on the left.</p>
+			<div class="okButton" onClick="hideIntro();">Ok</div>
+		</div>
 
 		<script id="shader-fs" type="x-shader/x-fragment">
 		    precision mediump float;
