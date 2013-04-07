@@ -4,6 +4,10 @@
 		<link href="style.css" rel="stylesheet" type="text/css"/>
 
 		<script>
+			_speed = 0.0;
+			_reverseMode = false;
+			_sliderMouseDown = false;
+
 			function jsMain() {
 				function resizeCanvas() {
 					// correct canvas dimensions due to sidebar
@@ -12,9 +16,36 @@
 				}
 				resizeCanvas();
 
+				// set up slider events
+				var slider = document.getElementById("slider");
+
+				function sliderEvent(x, y) {
+					_speed = 1.0 - (y / (slider.clientHeight+3));
+					if (_speed > 1) _speed = 1;
+					updateSpeed();
+				}
+
+				slider.addEventListener("mousedown", function(event) {
+					_sliderMouseDown = true;
+					sliderEvent(event.offsetX, event.offsetY);
+				}, false);
+				slider.addEventListener("mouseup", function(event) {
+					_sliderMouseDown = false;
+				}, false);
+				slider.addEventListener("mousemove", function(event) {
+					if (_sliderMouseDown) {
+						sliderEvent(event.offsetX, event.offsetY);
+					}
+				}, false);
+				document.addEventListener("mouseup", function(event) {
+					_sliderMouseDown = false;
+				}, false);
+
+
 				// CoffeeScript code entry point
 				kosmosMain();
-				speedClick(-1);
+
+				updateSpeed();
 				showIntro();
 
 				window.onresize = function() {
@@ -24,14 +55,18 @@
 				}
 
 				document.onkeydown = function(event) {
+					hideIntro();
 					if (event.keyCode == 189 || event.keyCode == 83 || event.keyCode == 40) {
-						kosmosSetSpeed(kosmosGetSpeed()-1);
+						_speed -= 0.025;
 					}
 					if (event.keyCode == 187 || event.keyCode == 87 || event.keyCode == 38) {
-						kosmosSetSpeed(kosmosGetSpeed()+1);
+						_speed += 0.025;
 					}
-					showSpeed(kosmosGetSpeed());
-					console.log(event.keyCode);
+
+					if (event.keyCode == 27) { // escape
+						killSimulation();
+					}
+					updateSpeed();
 				}
 			}
 
@@ -56,20 +91,45 @@
 				updateIntro();
 			}
 
-			function showSpeed(speed) {
-				document.getElementById("speed3").className = (speed == 3 ? "btn lit" : "btn");
-				document.getElementById("speed2").className = (speed == 2 ? "btn lit" : "btn");
-				document.getElementById("speed1").className = (speed == 1 ? "btn lit" : "btn");
-				document.getElementById("speed0").className = (speed == 0 ? "btn redlit" : "btn red");
-				document.getElementById("speed-1").className = (speed == -1 ? "btn lit" : "btn");
-				document.getElementById("speed-2").className = (speed == -2 ? "btn lit" : "btn");
-				document.getElementById("speed-3").className = (speed == -3 ? "btn lit" : "btn");
+			function updateSpeed() {
+				hideIntro();
+
+				// the first few percent of the speed bar is 0, to give a reasonable click region for it
+				var speedBarZeroArea = 0.07;
+				var slider = document.getElementById("slider");
+				if (_speed < speedBarZeroArea) {
+					_speed = speedBarZeroArea;
+					slider.className = "slider sliderDisabled";
+				} else {
+					slider.className = "slider";
+				}
+
+				var cSpeed = _speed;
+				if (cSpeed > 1) cSpeed = 1; else if (cSpeed < 0) cSpeed = 0;
+				var sliderBar = document.getElementById("sliderBar");
+				sliderBar.style.height = ((1.0 - cSpeed) * 100.0) + "%";
+
+				var speed = (_speed - speedBarZeroArea);
+
+				var espeed = Math.pow(3.0, Math.abs(speed) * 20.0 - 10.0);
+				if (_reverseMode) espeed *= -1;
+
+				kosmosSetSpeed(espeed);
 			}
 
-			function speedClick(speed) {
-				hideIntro();
-				showSpeed(speed);
-				kosmosSetSpeed(speed);
+			function updateButtons() {
+				document.getElementById("reverse").className = (_reverseMode ? "btn lit" : "btn");
+				//document.getElementById("stop").className = (_stoppedMode ? "btn redlit" : "btn red");
+			}
+
+			function toggleReverse() {
+				_reverseMode = !_reverseMode;
+				updateButtons();
+				updateSpeed();
+			}
+
+			function killSimulation() {
+				kosmosKill();
 			}
 		</script>
 	</head>
@@ -82,17 +142,9 @@
 
 			</td></tr><tr valign="middle" height="100%"><td valign="middle" height="100%">
 
-			<div id="speed3" onClick="speedClick(3);" class="btn">Forward x100</div>
-			<div id="speed2" onClick="speedClick(2);" class="btn">Forward x10</div>
-			<div id="speed1" onClick="speedClick(1);" class="btn">Forward x1</div>
-			<div id="speed0" onClick="speedClick(0);" class="btn red">Stop</div>
-			<div id="speed-1" onClick="speedClick(-1);" class="btn">Reverse x1</div>
-			<div id="speed-2" onClick="speedClick(-2);" class="btn">Reverse x10</div>
-			<div id="speed-3" onClick="speedClick(-3);" class="btn">Reverse x100</div>
-
-			<div height="50px">&nbsp;</div>
-
-			<div onClick="kosmosKill();" class="btn">DEV:HALT</div>
+			<center>Speed</center>
+			<div id="slider" class="slider"><div id="sliderBar" class="sliderBar"></div></div>
+			<div id="reverse" onClick="toggleReverse();" class="btn">Reverse</div>
 
 			</td></tr><tr><td height="30px">
 			
@@ -108,8 +160,8 @@
 		<div class="message" id="introMessage">
 			<div class="title">Welcome to Kosmos</div>
 			<p><i>Kosmos allows you to explore a computer-generated 3D universe from your browser.</i></p>
-			<p>Click anywhere to navigate, adjusting speed using the buttons on the left.</p>
-			<div class="okButton" onClick="hideIntro(); speedClick(0); this.onclick=hideIntro;">Ok</div>
+			<p>Click anywhere to navigate, and adjust speed with the big slider bar on the left.</p>
+			<div class="okButton" onClick="hideIntro();">Ok</div>
 		</div>
 
 		<script id="shader-fs" type="x-shader/x-fragment">
@@ -203,6 +255,7 @@
 		</script>
 
 		<script type="text/javascript" src="external/gl-matrix-min.js"></script>
+		<!--<script type="text/javascript" src="external/gl-matrix.js"></script>-->
 		<script type="text/javascript" src="external/webgl-utils.js"></script>
 		<script type="text/javascript" src="compiled/xgl.js"></script>
 		<script type="text/javascript" src="compiled/RandomStream.js"></script>

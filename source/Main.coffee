@@ -27,11 +27,13 @@ root.kosmosMain = ->
 	# set up game
 	camera = new Camera(canvas.width / canvas.height)
 	#starField = new StarField(125, 250, 0.5, 0.005, 1.5)
-	starField = new StarField(200, 300, 0.5, 0.005, 1.5)
+	#starField = new StarField(200, 300, 0.5, 0.005, 1.5)
+	starField = new StarField(200, 300, 1000.0, 10.0, 3000.0)
 
 	camera.position = vec3.fromValues(0, 0, 0)
 	camera.target = vec3.fromValues(0, 0, -1)
-	camera.near = 0.0001
+	camera.near = 0.001
+	camera.far = 4000.0
 	camera.update()
 
 	animating = true
@@ -46,17 +48,11 @@ root.kosmosResize = ->
 				"with device pixel ratio #{devicePixelRatio}")
 
 
-_speed = 0.0
 gspeed = 0.0
 tspeed = 0.0
 
-root.kosmosGetSpeed = -> _speed
-
 root.kosmosSetSpeed = (speed) ->
-	_speed = speed
-	gspeed = Math.pow(10.0, Math.abs(speed)) * 0.001
-	if speed < 0 then gspeed = -Math.abs(gspeed)
-	if speed == 0 then gspeed = 0
+	gspeed = speed
 
 root.kosmosKill = ->
 	lastTime = null
@@ -65,6 +61,8 @@ root.kosmosKill = ->
 
 
 lastTime = null
+ttt = 0.0
+smoothElapsed = 0.0
 
 tick = ->
 	if animating then window.requestAnimFrame(tick) # schedule next frame to run
@@ -77,6 +75,8 @@ tick = ->
 		elapsed = 0.0
 	lastTime = timeNow
 
+	smoothElapsed = elapsed * 0.1 + smoothElapsed * 0.9
+
 	#cameraAngle += (elapsed * 10.0);
 	#rmat = mat4.create()
 	#mat4.rotateY(rmat, rmat, xgl.degToRad(cameraAngle))
@@ -85,9 +85,17 @@ tick = ->
 	
 	tspeed = tspeed * 0.95 + 0.05 * gspeed
 
-	camera.position[2] -= tspeed * elapsed
-	camera.target[2] = camera.position[2] - 1
+	camera.position[2] -= tspeed * smoothElapsed#elapsed
+	camera.target[0] = camera.position[0]
+	camera.target[1] = camera.position[1]
+	camera.target[2] = camera.position[2] - 10000.0
 	camera.update()
+
+	###ttt += elapsed
+	if ttt >= 1.0
+		ttt = 0
+		console.log(camera.position)
+		console.log(camera.viewMat)###
 
 	gl.viewport(0, 0, canvas.width, canvas.height);
 	gl.clearColor(0, 0, 0, 1)

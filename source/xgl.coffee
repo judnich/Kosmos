@@ -69,4 +69,3 @@ xgl.getProgramUniforms = (programObject, uniformNameList) ->
 		else uniforms[uniform] = ptr
 	return uniforms
 
-

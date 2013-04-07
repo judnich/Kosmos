@@ -50,7 +50,12 @@ class root.Camera
 
 		p.normalizePlane() for p in @frustum
 
-	isVisibleVertices: (verts) ->
+	# this method is deprecated because while its efficient-ish, it doesnt work with large coordinate values
+	# also, its confusing to manage the "frustum planes". its so much simpler to just translate points to screen-space
+	# then deal with them that way. that has the added benefit of being totally consistent with how the GPU
+	# will render the points anyway, and just seems more elegant for that reason
+	###
+	isVisibleVertices_old: (verts) ->
 		# test all vertices against the 6 frustum planes 
 		for plane in [@frustum.near, @frustum.far, @frustum.left, @frustum.right, @frustum.bottom, @frustum.top]
 			# check if all points are behind this plane
@@ -69,7 +74,41 @@ class root.Camera
 		# span diagonally near corners of the frustum, but this shouldn't happen for large
 		# regions of renderables, and false positives are acceptable anyway (unlike false negative).
 		return true
+	###
 
+	isVisibleVertices: (verts) ->
+		# transform the vertices from world space into screen space
+		tverts = []
+		i = 0
+
+		for v in verts
+			tv = vec4.fromValues(v[0], v[1], v[2], 1.0)
+			vec4.transformMat4(tv, tv, @viewMat)
+			vec4.transformMat4(tv, tv, @projMat)
+			tv[0] /= tv[3]
+			tv[1] /= tv[3]
+			tv[2] /= tv[3]
+			tverts[i] = tv
+			i++
+
+		# test all vertices against the 6 frustum planes
+		for i in [0..2]
+			behindPlane = true
+			for point in tverts
+				if point[i] >= -1.0
+					behindPlane = false
+					break
+			if behindPlane then return false
+
+		for i in [0..2]
+			behindPlane = true
+			for point in tverts
+				if point[i] <= 1.0
+					behindPlane = false
+					break
+			if behindPlane then return false
+
+		return true
 
 	isVisibleBox: (box, translate = null) ->
 		verts = box.getCorners()

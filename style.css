@@ -7,6 +7,13 @@ body {
 	background-color: #000;
 	font-family: "sans-serif", "Century Gothic";
 	cursor: default;
+
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
 a {
@@ -65,31 +72,49 @@ canvas {
 
 .btn {
 	display: block;
-	width: 110px;
-	height: 20px;
-	margin: 18px;
-	padding: 5px;
 	border: 1px solid #aaa;
 	border-radius: 5px;
-	color: #ccc;
-	background-color: #235;
+	color: #aaa;
 	text-align: center;
 	text-decoration: none;
 	cursor: pointer;
+
+	margin: 18px;
+	padding: 5px 0px 5px 0px;
+
+	width: 110px;
+	width: 50%;
+	height: 20px;
+	margin: 5px 25% 5px 25%;
+
+	background-color: #123;
+	background: -webkit-linear-gradient(#124, #123);
+	background: -moz-linear-gradient(#124, #123);
+
 }
 .lit {
 	border: 1px solid #fff;
 	color: #fff;
 	box-shadow: 0px 0px 7px #acf;
 	background-color: #338;
+
+	background: -webkit-linear-gradient(#439, #337);
+	background: -moz-linear-gradient(#439, #337);
+}
+.red {
+	background-color: #611;
+	background: -webkit-linear-gradient(#712, #611);
+	background: -moz-linear-gradient(#712, #611);
 }
 .redlit {
 	border: 1px solid #fff;
 	color: #fff;
 	box-shadow: 0px 0px 7px #acf;
 	background-color: #822;
+
+	background: -webkit-linear-gradient(#922, #721);
+	background: -moz-linear-gradient(#922, #721);
 }
-.red { background-color: #611; }
 
 .message {
 	position: absolute;
@@ -101,13 +126,14 @@ canvas {
 	margin: 18px;
 	padding: 5px;
 	border: 1px solid #aaa;
-	border-radius: 5px;
+	border-radius: 15px;
 	color: #ccc;
-	background-color: #215;
 	text-align: center;
 	text-decoration: none;
 	cursor: default;
 	padding: 1em 2em 1em 2em;
+
+	background-color: #215;
 }
 
 .okButton {
@@ -124,5 +150,48 @@ canvas {
 	text-align: center;
 	text-decoration: none;
 	cursor: pointer;
+}
+
+.slider {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+
+	display: block;
+	border: 1px solid #aaa;
+	border-radius: 5px;
+	color: #ccc;
+	text-align: center;
+	text-decoration: none;
+	cursor: default;
+	padding: 0;
+
+	width: 50%;
+	height: 70%;
+	margin: 10px 25% 10px 25%;
+
+	background-color: #15e;
+	background: -webkit-linear-gradient(#e2f, #58e, #35a, #138);
+	background: -moz-linear-gradient(#e2f, #58e, #35a, #138);
+}
+
+.sliderDisabled {
+	background-color: #333;
+	background: -webkit-linear-gradient(#333, #333);
+	background: -moz-linear-gradient(#313, #333);
+}
+
+.sliderBar {
+	display: block;
+	width: 100%;
+	height: 20%;
+	margin: 0;
+	padding: 0;
+	border-radius: 4px;
+
+	background-color: #111;
 }
 
