@@ -53,8 +53,8 @@ mouseUp = (event) ->
 mouseMove = (event) ->
 	[x, y] = [event.x, event.y]
 	rightPanel = document.getElementById("rightbar")
-	x = (x - rightPanel.offsetLeft) / canvas.clientWidth
-	y = (y - rightPanel.offsetTop) / canvas.clientHeight
+	x = (x - rightPanel.offsetLeft - 1) / canvas.clientWidth
+	y = (y - rightPanel.offsetTop - 1) / canvas.clientHeight
 
 	mouseX = (x - 0.5) * 2
 	mouseY = (y - 0.5) * 2
@@ -125,8 +125,8 @@ updateTickElapsed = ->
 updateMouse = ->
 	if not mouseIsDown then return
 
-	pitch = mouseY * 50
-	yaw = mouseX * 65
+	pitch = mouseY * 40
+	yaw = mouseX * 52
 
 	qPitch = quat.create()
 	quat.setAxisAngle(qPitch, vec3.fromValues(-1, 0, 0), xgl.degToRad(pitch))
