@@ -8,7 +8,7 @@ class root.StarField
 		@blockMinStars = blockMinStars
 		@blockMaxStars = blockMaxStars
 		@blockScale = blockScale
-		@viewRange = viewRange #@blockScale * 1.5
+		@viewRange = viewRange
 		@starSize = starSize
 
 		@randomStream = new RandomStream(universeSeed)
@@ -69,7 +69,7 @@ class root.StarField
 		console.log("All stars generated.")
 
 
-	render: (camera) ->
+	render: (camera, gridOffset) ->
 		@_startRender()
 
 		[ci, cj, ck] = [Math.floor(camera.position[0]/@blockScale),
@@ -83,7 +83,7 @@ class root.StarField
 					bpos = vec3.fromValues((i+0.5)*@blockScale, (j+0.5)*@blockScale, (k+0.5)*@blockScale)
 					minDist = vec3.distance(camera.position, bpos) - @blockScale*0.8660254 #sqrt(3)/2
 					if minDist <= @viewRange
-						seed = (i*7) + (j*65537) + (k*257)
+						seed = ((i + gridOffset[0])*7) + ((j + gridOffset[1])*65537) + ((k + gridOffset[2])*257)
 						rstr = new root.RandomStream(seed)
 						@_renderBlock(camera, seed, rstr.range(@blockMinStars, @blockMaxStars), i,j,k)
 

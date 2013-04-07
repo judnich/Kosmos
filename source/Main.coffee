@@ -64,6 +64,8 @@ lastTime = null
 ttt = 0.0
 smoothElapsed = 0.0
 
+gridOffset = [0, 0, 0]
+
 tick = ->
 	if animating then window.requestAnimFrame(tick) # schedule next frame to run
 
@@ -86,20 +88,24 @@ tick = ->
 	tspeed = tspeed * 0.95 + 0.05 * gspeed
 
 	camera.position[2] -= tspeed * smoothElapsed#elapsed
+
 	camera.target[0] = camera.position[0]
 	camera.target[1] = camera.position[1]
-	camera.target[2] = camera.position[2] - 10000.0
+	camera.target[2] = camera.position[2] - 1.0
 	camera.update()
-
-	###ttt += elapsed
-	if ttt >= 1.0
-		ttt = 0
-		console.log(camera.position)
-		console.log(camera.viewMat)###
 
 	gl.viewport(0, 0, canvas.width, canvas.height);
 	gl.clearColor(0, 0, 0, 1)
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-	starField.render(camera)
+	starField.render(camera, gridOffset)
+
+	for i in [0..2]
+		if camera.position[i] > starField.blockScale + 10
+			camera.position[i] = -starField.blockScale
+			gridOffset[i] += 2
+		if camera.position[i] < -starField.blockScale - 10
+			camera.position[i] = starField.blockScale
+			gridOffset[i] -= 2
+
 
