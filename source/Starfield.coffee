@@ -3,7 +3,7 @@ root = exports ? this
 universeSeed = 31415
 starBufferSize = 10000
 
-class root.StarField
+class root.Starfield
 	constructor: (blockMinStars, blockMaxStars, blockScale, starSize, viewRange) ->
 		@blockMinStars = blockMinStars
 		@blockMaxStars = blockMaxStars
@@ -16,7 +16,7 @@ class root.StarField
 		console.log("Generating stars...")
 
 		# load star shader
-		@shader = xgl.loadProgram("starfield-vs", "starfield-fs")
+		@shader = xgl.loadProgram("starfield")
 		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "starSizeAndViewRange"])
 		@shader.attribs = xgl.getProgramAttribs(@shader, ["aPos", "aUV"])
 

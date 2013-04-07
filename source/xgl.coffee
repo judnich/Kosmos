@@ -1,29 +1,28 @@
 root = exports ? this
+
 root.xgl = {}
+xgl.programs = {}
 
 xgl.degToRad = (angle) -> Math.PI * angle / 180.0
 xgl.radToDeg = (angle) -> 180.0 * angle / Math.PI
 
 xgl.error = (msg) ->
 	console.log(msg)
-	alert(msg)
+	#alert(msg)
 
-# given a <script> id, returns a compiled shader object
-xgl.loadShader = (scriptId) ->
-	shaderScript = document.getElementById(scriptId);
-	if not shaderScript then return null
+# use this to add program sources to a main dictionary
+xgl.addProgram = (name, vSrc, fSrc) ->
+	shaderSrc = { "vertex" : vSrc, "fragment" : fSrc }
+	xgl.programs[name] = shaderSrc
 
-	str = ""
-	k = shaderScript.firstChild
-	while k
-		if k.nodeType == 3 then str += k.textContent
-		k = k.nextSibling
+# given a shader source and type, returns a compiled shader object
+xgl.loadShader = (source, isVertex) ->
+	if isVertex
+		shader = gl.createShader(gl.VERTEX_SHADER)
+	else
+		shader = gl.createShader(gl.FRAGMENT_SHADER)
 
-	if shaderScript.type == "x-shader/x-fragment" then shader = gl.createShader(gl.FRAGMENT_SHADER)
-	else if shaderScript.type == "x-shader/x-vertex" then shader = gl.createShader(gl.VERTEX_SHADER)
-	else return null
-
-	gl.shaderSource(shader, str)
+	gl.shaderSource(shader, source)
 	gl.compileShader(shader)
 
 	if not gl.getShaderParameter(shader, gl.COMPILE_STATUS)
@@ -32,7 +31,7 @@ xgl.loadShader = (scriptId) ->
 
 	return shader;
 
-# given vertex and fragment shader objects, returns a linked program object
+# given vertex and fragment shader objects, returns a linked program object or null if failed
 xgl.createProgram = (vertexShader, fragmentShader) ->
 	shaderProgram = gl.createProgram()
 	gl.attachShader(shaderProgram, vertexShader)
@@ -40,16 +39,28 @@ xgl.createProgram = (vertexShader, fragmentShader) ->
 	gl.linkProgram(shaderProgram)
 
 	if not gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)
-		xgl.error("Error linking shaders \"#{vertexScriptId}\" and \"#{fragmentScriptId}\"")
 		return null
 
 	return shaderProgram
 
 # given <script> ids for vertex and fragment shader source, returns a linked program object
-xgl.loadProgram = (vertexScriptId, fragmentScriptId, attribList, uniformList) ->
-	vertexShader = xgl.loadShader(vertexScriptId)
-	fragmentShader = xgl.loadShader(fragmentScriptId)
-	return xgl.createProgram(vertexShader, fragmentShader, attribList, uniformList)
+xgl.loadProgram = (programName) ->
+	shaderSrc = xgl.programs[programName]
+
+	vertexShader = xgl.loadShader(shaderSrc.vertex, true)
+	if vertexShader == null
+		xgl.error("Error finding vertex shader for \"#{programName}\"")
+		return null
+
+	fragmentShader = xgl.loadShader(shaderSrc.fragment, false)
+	if fragmentShader == null
+		xgl.error("Error finding fragment shader for \"#{programName}\"")
+		return null
+
+	prog = xgl.createProgram(vertexShader, fragmentShader)
+	if prog == null then xgl.error("Error linking program \"#{programName}\"")
+
+	return prog
 
 # given a program object and list of attribute names, returns a mapping from attribute names to their index
 xgl.getProgramAttribs = (programObject, attribNameList) ->

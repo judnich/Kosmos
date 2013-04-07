@@ -4,7 +4,7 @@ root = exports ? this
 
 enableRetina = true
 camera = null
-starField = null
+starfield = null
 
 animating = true
 cameraAngle = 0.0
@@ -27,9 +27,7 @@ root.kosmosMain = ->
 
 	# set up game
 	camera = new Camera(canvas.width / canvas.height)
-	#starField = new StarField(125, 250, 0.5, 0.005, 1.5)
-	#starField = new StarField(200, 300, 0.5, 0.005, 1.5)
-	starField = new StarField(200, 300, 1000.0, 10.0, 3000.0)
+	starfield = new Starfield(200, 300, 1000.0, 10.0, 3000.0)
 
 	camera.position = vec3.fromValues(0, 0, 0)
 	camera.target = vec3.fromValues(0, 0, -1)
@@ -99,24 +97,25 @@ tick = ->
 	gl.clearColor(0, 0, 0, 1)
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-	starField.render(camera, gridOffset)
+	starfield.render(camera, gridOffset)
 
+	blockScale = starfield.blockScale
 	for i in [0..2]
 		# wrap around coordinate system within one star block,
 		# while integer block coordinate to maintain continuous world
-		if camera.position[i] > starField.blockScale + 10
-			camera.position[i] -= starField.blockScale*2
+		if camera.position[i] > blockScale + 10
+			camera.position[i] -= blockScale*2
 			gridOffset[i] += 2
-		if camera.position[i] < -starField.blockScale - 10
-			camera.position[i] += starField.blockScale*2
+		if camera.position[i] < -blockScale - 10
+			camera.position[i] += blockScale*2
 			gridOffset[i] -= 2
 
 		# in case the user is traveling more than one block per frame
-		if camera.position[i] > starField.blockScale + 10
-			camera.position[i] = -starField.blockScale
+		if camera.position[i] > blockScale + 10
+			camera.position[i] = -blockScale
 			gridOffset[i] += 2
-		if camera.position[i] < -starField.blockScale - 10
-			camera.position[i] = starField.blockScale
+		if camera.position[i] < -blockScale - 10
+			camera.position[i] = blockScale
 			gridOffset[i] -= 2
 
 
