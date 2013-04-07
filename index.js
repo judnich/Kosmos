@@ -20,6 +20,17 @@ function jsMain() {
 		updateSpeed();
 	}
 
+	window.onmousewheel = function(event) {
+		d = event.wheelDelta
+		_speed -= d / 4000.0	
+		if (_speed > 1) _speed = 1;
+		updateSpeed();
+		event.preventDefault();
+		return false;
+	}
+
+	document.body.style.overflow = 'hidden';
+
 	slider.addEventListener("mousedown", function(event) {
 		_sliderMouseDown = true;
 		sliderEvent(event.offsetX, event.offsetY);
