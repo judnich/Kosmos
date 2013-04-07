@@ -14,7 +14,7 @@ Kosmos originally was meant as a large-scale universe visualization on fairly hi
 
 So rather than remake an existing product, I decided to re-target Kosmos to a different audience with a slightly different set of goals. In particular, Kosmos should run smoothly on an average modern laptop. Moreover, this latest rewrite of Kosmos runs *in any modern web-browser*, thanks to WebGL. 
 
-Unfortunately, this means the entire project had to be rewritten from scratch using JavaScript/CoffeeScript and WebGL (where an entire 3D engine must be built from the ground up, whereas in C++ I was using the open source OGRE engine to accelerate productivity).
+Unfortunately, this means the entire project had to be rewritten from scratch using JavaScript/CoffeeScript and WebGL (where an entire 3D engine must be built from the ground up, whereas in C++ I was using the open source OGRE engine to accelerate productivity). This rewrite is currently in progress, and should be done within a few weeks.
 
 ### Old Teaser Screenshot
 
