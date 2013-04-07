@@ -78,11 +78,12 @@ root.kosmosMain = ->
 	if not root.gl then return
 
 	# set up game
-	camera = new Camera(canvas.width / canvas.height)
 	#starfield = new Starfield(200, 300, 1000.0, 10.0, 3000.0)
 	starfield = new Starfield(200, 300, 1000.0, 5.0, 3000.0)
 
 	# set up camera
+	camera = new Camera()
+	camera.aspect = canvas.width / canvas.height
 	camera.position = vec3.fromValues(0, 0, 0)
 	camera.target = vec3.fromValues(0, 0, -1)
 	camera.near = 0.001
@@ -100,6 +101,10 @@ root.kosmosResize = ->
 	canvas.height = canvas.clientHeight * devicePixelRatio
 	console.log("Main framebuffer resolution #{canvas.width} x #{canvas.height}"
 				"with device pixel ratio #{devicePixelRatio}")
+
+	if camera
+		camera.aspect = canvas.width / canvas.height
+		resumeAnimating()
 
 root.kosmosSetSpeed = (speed) ->
 	desiredSpeed = speed

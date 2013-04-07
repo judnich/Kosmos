@@ -22,6 +22,7 @@ function jsMain() {
 		document.getElementById("rightbar").style.width = 
 			(window.innerWidth - document.getElementById("sidebar").clientWidth) + "px";
 	}
+
 	resizeCanvas();
 
 	// set up slider events
@@ -72,6 +73,7 @@ function jsMain() {
 
 	window.onresize = function() {
 		resizeCanvas();
+		updateMessagePositions();
 		kosmosResize();
 	}
 
@@ -117,10 +119,13 @@ function updateMessagePositions() {
 	for (var i = 0; i < messages.length; ++i) {
 		var msg = messages[i];
 
+		var oldDisp = msg.style.display;
 		msg.style.display = "block";
+
 		var x = sidebarWidth + (window.innerWidth-sidebarWidth)/2 - (msg.clientWidth+23)/2;
 		var y = window.innerHeight/2 - (msg.clientHeight+23)/2;
-		msg.style.display = "none";
+		
+		msg.style.display = oldDisp;
 
 		msg.style.left = x;
 		msg.style.top = y;

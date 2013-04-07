@@ -1,7 +1,7 @@
 root = exports ? this
 
 class root.Camera
-	aspect: 1.0
+	aspect: 1.6
 	near: 0.1
 	far: 1000.0
 	fov: xgl.degToRad(90)
@@ -14,8 +14,7 @@ class root.Camera
 	viewMat: mat4.create()
 	viewprojMat: mat4.create()
 
-	constructor: (aspectRatio) ->
-		@aspect = aspectRatio
+	constructor: () ->
 		@update()
 
 	setRotation: (quat) ->
