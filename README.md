@@ -1,10 +1,8 @@
-## Kosmos
-
-A fully explorable virtual 3D universe.
-
-### Coming Soon
+### Kosmos (Coming Soon)
 
 Kosmos allows you to explore a computer-generated 3D universe from your browser.
+
+NOTE: This project is currently under development. Periodic snapshots are made viewable here: http://judnich.github.io/KosmosAlpha/
 
 ### About
 
