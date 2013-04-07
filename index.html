@@ -62,6 +62,7 @@
 					if (event.keyCode == 187 || event.keyCode == 87 || event.keyCode == 38) {
 						_speed += 0.025;
 					}
+					if (_speed > 1.5) _speed = 1.5;
 
 					if (event.keyCode == 27) { // escape
 						killSimulation();
