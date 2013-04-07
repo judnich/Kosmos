@@ -102,6 +102,16 @@ tick = ->
 	starField.render(camera, gridOffset)
 
 	for i in [0..2]
+		# wrap around coordinate system within one star block,
+		# while integer block coordinate to maintain continuous world
+		if camera.position[i] > starField.blockScale + 10
+			camera.position[i] -= starField.blockScale*2
+			gridOffset[i] += 2
+		if camera.position[i] < -starField.blockScale - 10
+			camera.position[i] += starField.blockScale*2
+			gridOffset[i] -= 2
+
+		# in case the user is traveling more than one block per frame
 		if camera.position[i] > starField.blockScale + 10
 			camera.position[i] = -starField.blockScale
 			gridOffset[i] += 2
