@@ -151,7 +151,7 @@ render = ->
 	blur = Math.abs(smoothSpeed) / 15000.0
 	blur -= 0.001
 	if blur < 0 then blur = 0
-	#if blur > 1.0 then blur = 0.5
+	if blur > 1.5 then blur = 1.5
 
 	starfield.render(camera, gridOffset, blur)
 
