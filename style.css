@@ -136,7 +136,7 @@ canvas {
 	background-color: #317;
 	text-shadow: 0px 0px 3px #222;
 
-	display: hidden;
+	display: none;
 }
 
 .okButton {
