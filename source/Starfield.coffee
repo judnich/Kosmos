@@ -83,7 +83,8 @@ class root.Starfield
 					bpos = vec3.fromValues((i+0.5)*@blockScale, (j+0.5)*@blockScale, (k+0.5)*@blockScale)
 					minDist = vec3.distance(camera.position, bpos) - @blockScale*0.8660254 #sqrt(3)/2
 					if minDist <= @viewRange
-						seed = ((i + gridOffset[0])*7) + ((j + gridOffset[1])*65537) + ((k + gridOffset[2])*257)
+						#seed = ((i + gridOffset[0])*3559) + ((j + gridOffset[1])*65537) + ((k + gridOffset[2])+257)
+						seed = randomFromSeed(randomFromSeed(randomFromSeed(i + gridOffset[0]) + (j + gridOffset[1])) + (k + gridOffset[2]))
 						rstr = new root.RandomStream(seed)
 						@_renderBlock(camera, seed, rstr.range(@blockMinStars, @blockMaxStars), i,j,k)
 

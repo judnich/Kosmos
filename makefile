@@ -11,3 +11,7 @@ dist:	all
 	cp compiled/*.js dist/compiled/
 	cp external/*.js dist/external/
 	cp LICENSE dist/
+
+clean:
+	rm -r compiled
+	rm -r dist

@@ -50,7 +50,7 @@ void main(void) {
 
 	// fade out distant stars
 	float dist = length(pos.xyz);
-	float alpha = clamp((1.0 - (dist / starSizeAndViewRange.y)) * 4.0, 0.0, 1.0);
+	float alpha = clamp((1.0 - (dist / starSizeAndViewRange.y)) * 3.0, 0.0, 1.0);
 
     // the UV coordinates are used to render the actual star radial gradient,
     // and alpha is used to modulate intensity of distant stars as they fade out
@@ -59,13 +59,17 @@ void main(void) {
     // compute star color parameter
     // this is just an arbitrary hand-tweaked interpolation between blue/white/red
     // favoring mostly blue and white with some red
-    vColor = vec3(1.0 - aPos.w, aPos.w*2.0*(1.0-aPos.w), 2.0 * aPos.w) * 0.5 + 0.5;
+    vColor = vec3(1.0 - aPos.w, aPos.w*2.0*(1.0-aPos.w), 4.0 * aPos.w) * 0.5 + 0.5;
 
 	// output position, or degenerate triangle if star is beyond view range
-	if (alpha > 0.0)
+	if (alpha > 0.0) {
     	gl_Position = projMat * pos;
-    else
+    	// fix subpixel flickering by adding slight screenspace size
+    	gl_Position.xy += (aUV - 0.5) * max(0.0, gl_Position.z) / 300.0;
+    }
+    else {
     	gl_Position = vec4(0, 0, 0, 0);
+    }
 }
 """
 

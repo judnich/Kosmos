@@ -16,6 +16,7 @@ mouseClick = (event) ->
 
 root.kosmosMain = ->
 	console.log("Initializing Kosmos Engine")
+	@test = 1
 
 	# setup events
 	root.canvas = document.getElementById("kosmosCanvas")
@@ -27,7 +28,8 @@ root.kosmosMain = ->
 
 	# set up game
 	camera = new Camera(canvas.width / canvas.height)
-	starfield = new Starfield(200, 300, 1000.0, 10.0, 3000.0)
+	#starfield = new Starfield(200, 300, 1000.0, 10.0, 3000.0)
+	starfield = new Starfield(200, 300, 1000.0, 5.0, 3000.0)
 
 	camera.position = vec3.fromValues(0, 0, 0)
 	camera.target = vec3.fromValues(0, 0, -1)
@@ -87,7 +89,6 @@ tick = ->
 	tspeed = tspeed * 0.95 + 0.05 * gspeed
 
 	camera.position[2] -= tspeed * smoothElapsed#elapsed
-
 	camera.target[0] = camera.position[0]
 	camera.target[1] = camera.position[1]
 	camera.target[2] = camera.position[2] - 1.0
