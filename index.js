@@ -76,6 +76,11 @@ function jsMain() {
 		if (event.keyCode == 27) { // escape
 			killSimulation();
 		}
+		if (event.keyCode == 32) { // space
+			_reverseMode = !_reverseMode;
+			updateButtons();
+		}
+
 		updateSpeed();
 	}
 }

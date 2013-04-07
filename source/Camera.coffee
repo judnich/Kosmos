@@ -18,6 +18,17 @@ class root.Camera
 		@aspect = aspectRatio
 		@update()
 
+	setRotation: (quat) ->
+		# this allows you to alternately set camera rotation with a quaternion rather
+		# than with the traditional target/lookat and up vectors.
+
+		lookVec = vec3.fromValues(0, 0, -1)
+		vec3.transformQuat(lookVec, lookVec, quat)
+		vec3.add(@target, @position, lookVec)
+
+		@up = vec3.fromValues(0, 1, 0)
+		vec3.transformQuat(@up, @up, quat)
+
 	update: ->
 		# update view/proj matrices
 		mat4.perspective(@projMat, @fov, @aspect, @near, @far)

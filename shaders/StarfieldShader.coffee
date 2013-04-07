@@ -59,7 +59,11 @@ void main(void) {
     // compute star color parameter
     // this is just an arbitrary hand-tweaked interpolation between blue/white/red
     // favoring mostly blue and white with some red
-    vColor = vec3(1.0 - aPos.w, aPos.w*2.0*(1.0-aPos.w), 4.0 * aPos.w) * 0.5 + 0.5;
+    vColor = vec3(
+    	1.0 - aPos.w,
+    	aPos.w*2.0*(1.0-aPos.w),
+    	4.0 * aPos.w
+    ) * 0.5 + 0.5;
 
 	// output position, or degenerate triangle if star is beyond view range
 	if (alpha > 0.0) {
