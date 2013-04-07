@@ -17,7 +17,7 @@ class root.Starfield
 
 		# load star shader
 		@shader = xgl.loadProgram("starfield")
-		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "starSizeAndViewRange"])
+		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "starSizeAndViewRangeAndBlur"])
 		@shader.attribs = xgl.getProgramAttribs(@shader, ["aPos", "aUV"])
 
 		# generate star positions
@@ -31,7 +31,7 @@ class root.Starfield
 		j = 0
 		for i in [0 .. starBufferSize-1]
 			[x, y, z, w] = @starPositions[i]
-			for uv in [[0,0], [0,1], [1,0], [1,1]]
+			for uv in [[0,0], [1,0], [1,1], [0,1]]
 				buff[j] = x
 				buff[j+1] = y
 				buff[j+2] = z
@@ -50,12 +50,21 @@ class root.Starfield
 		buff = new Uint16Array(starBufferSize * 6)
 		for i in [0 .. starBufferSize-1]
 			[j, k] = [i * 6, i * 4]
-			buff[j] = k+0
-			buff[j+1] = k+1
-			buff[j+2] = k+2
-			buff[j+3] = k+1
-			buff[j+4] = k+3
-			buff[j+5] = k+2
+
+			# each sprite is randomly rotated for the specific reason of randomizing the effect of the
+			# motion blur effect in the vertex shader, because it works in a "hacky" way - it displaces some
+			# of the star's vertices to create a streaked look. it's not actually "real" motion blue. however
+			# the disadvantage is that based on orientation this streaked look may cause the quad to go flat 
+			# against the camera's perspective, creating obvious aliasing look. this randomizes that effect
+			# so overall it looks fine.
+			rot = @randomStream.intRange(0, 3)
+
+			buff[j] = k + ((0+rot)%4)
+			buff[j+1] = k + ((1+rot)%4)
+			buff[j+2] = k + ((2+rot)%4)
+			buff[j+3] = k + ((0+rot)%4)
+			buff[j+4] = k + ((2+rot)%4)
+			buff[j+5] = k + ((3+rot)%4)
 
 		@iBuff = gl.createBuffer()
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, @iBuff)
@@ -69,8 +78,9 @@ class root.Starfield
 		console.log("All stars generated.")
 
 
-	render: (camera, gridOffset) ->
+	render: (camera, gridOffset, blur) ->
 		@_startRender()
+		@blur = blur
 
 		[ci, cj, ck] = [Math.floor(camera.position[0]/@blockScale),
 						Math.floor(camera.position[1]/@blockScale),
@@ -152,7 +162,7 @@ class root.Starfield
 		# set shader uniforms
 		gl.uniformMatrix4fv(@shader.uniforms.projMat, false, camera.projMat)
 		gl.uniformMatrix4fv(@shader.uniforms.modelViewMat, false, modelViewMat)
-		gl.uniform2f(@shader.uniforms.starSizeAndViewRange, @starSize, @viewRange)
+		gl.uniform3f(@shader.uniforms.starSizeAndViewRangeAndBlur, @starSize, @viewRange, @blur)
 
 		# issue draw operation
 		gl.drawElements(gl.TRIANGLES, starCount*6, gl.UNSIGNED_SHORT, 2*6*offset)

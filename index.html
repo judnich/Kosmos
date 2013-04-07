@@ -1,4 +1,7 @@
-<html>
+<!DOCTYPE HTML5>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<html encoding="utf-8">
 	<head>
 		<title>Kosmos</title>
 		<link href="style.css" rel="stylesheet" type="text/css"/>
@@ -21,13 +24,13 @@
 
 			</td></tr><tr><td height="30px">
 			
-			<a href="http://judnich.github.com" target="_blank"><span class="footer">Copyright © 2013<br/>John Judnich</span></a>
+			<a href="http://judnich.github.com" target="_blank"><span class="footer">Copyright &copy; 2013<br/>John Judnich</span></a>
 
 			</td></tr></table>
 		</div>
 
 		<div class="rightbar" id="rightbar">
-			<canvas id="kosmosCanvas" onClick="hideIntro();"/>
+			<canvas id="kosmosCanvas" onClick="hideIntro();"></canvas>
 		</div>
 
 		<div class="message" id="introMessage">
@@ -35,6 +38,20 @@
 			<p><i>Kosmos allows you to explore a computer-generated 3D universe from your browser.</i></p>
 			<p>Click anywhere to navigate, and adjust speed with the big slider bar on the left.</p>
 			<div class="okButton" onClick="hideIntro();">Ok</div>
+		</div>
+
+		<div class="message" id="browserErrorMessage">
+			<div class="title">Pre-Alpha Error</div>
+			<p>Unfortunately, Kosmos is really early in development and has only been tested on <b>Google Chrome</b>.
+			Although e.g. Firefox has all the necessary features, miscellaneous API differences still need to be resolved.</p>
+			<div class="okButton" onClick="window.location.href='http://google.com/chrome';">Get Chrome</div>
+		</div>
+
+		<div class="message" id="glErrorMessage">
+			<div class="title">Outdated Browser</div>
+			<p>Unfortunately, your web browser does not seem to support 3D graphics (no "WebGL").</p><p>
+			Please upgrade to a modern browser to use Kosmos. We recommend <b>Google Chrome</b>.</p>
+			<div class="okButton" onClick="window.location.href='http://google.com/chrome';">Get Chrome</div>
 		</div>
 
 		<script type="text/javascript" src="external/gl-matrix-min.js"></script>

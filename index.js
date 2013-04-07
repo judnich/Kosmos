@@ -7,6 +7,16 @@ _reverseMode = false;
 _sliderMouseDown = false;
 
 function jsMain() {
+	updateMessagePositions();
+
+	var is_chrome = !(window.chrome === undefined);
+	//var is_safari = navigator.userAgent.toLowerCase().indexOf('safari/') > -1;
+
+	if (!is_chrome) {
+		document.getElementById("browserErrorMessage").style.display = "block";
+		return;
+	}
+
 	function resizeCanvas() {
 		// correct canvas dimensions due to sidebar
 		document.getElementById("rightbar").style.width = 
@@ -21,6 +31,8 @@ function jsMain() {
 		_speed = 1.0 - (y / (slider.clientHeight+3));
 		if (_speed > 1) _speed = 1;
 		updateSpeed();
+
+		console.log(x + ", " + y);
 	}
 
 	window.onmousewheel = function(event) {
@@ -38,14 +50,17 @@ function jsMain() {
 		_sliderMouseDown = true;
 		sliderEvent(event.offsetX, event.offsetY);
 	}, false);
+
 	slider.addEventListener("mouseup", function(event) {
 		_sliderMouseDown = false;
 	}, false);
+
 	slider.addEventListener("mousemove", function(event) {
 		if (_sliderMouseDown) {
 			sliderEvent(event.offsetX, event.offsetY);
 		}
 	}, false);
+
 	document.addEventListener("mouseup", function(event) {
 		_sliderMouseDown = false;
 	}, false);
@@ -60,7 +75,6 @@ function jsMain() {
 	window.onresize = function() {
 		resizeCanvas();
 		kosmosResize();
-		updateIntro();
 	}
 
 	document.onkeydown = function(event) {
@@ -91,19 +105,26 @@ function hideIntro() {
 	//msg.parentNode.removeChild(msg);
 }
 
-function updateIntro() {
-	var msg = document.getElementById("introMessage");
+function updateMessagePositions() {
 	var sidebarWidth = document.getElementById("sidebar").clientWidth;
-	var x = sidebarWidth + (window.innerWidth-sidebarWidth)/2 - (msg.clientWidth+23)/2;
-	var y = window.innerHeight/2 - (msg.clientHeight+23)/2;
-	msg.style.left = x;
-	msg.style.top = y;
+
+	var messages = document.getElementsByClassName("message");
+	for (var i = 0; i < messages.length; ++i) {
+		var msg = messages[i];
+
+		msg.style.display = "block";
+		var x = sidebarWidth + (window.innerWidth-sidebarWidth)/2 - (msg.clientWidth+23)/2;
+		var y = window.innerHeight/2 - (msg.clientHeight+23)/2;
+		msg.style.display = "none";
+
+		msg.style.left = x;
+		msg.style.top = y;
+	}
 }
 
 function showIntro() {
 	var msg = document.getElementById("introMessage");
 	msg.style.display = "block";
-	updateIntro();
 }
 
 function updateSpeed() {

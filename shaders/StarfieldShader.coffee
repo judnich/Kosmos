@@ -28,7 +28,7 @@ attribute vec2 aUV;
 
 uniform mat4 projMat;
 uniform mat4 modelViewMat;
-uniform vec2 starSizeAndViewRange;
+uniform vec3 starSizeAndViewRangeAndBlur;
 //uniform mat4 modelMat;
 //uniform mat4 viewMat;
 
@@ -37,7 +37,7 @@ varying vec3 vColor;
 
 void main(void) {
 	// determine star size
-	float starSize = starSizeAndViewRange.x;
+	float starSize = starSizeAndViewRangeAndBlur.x;
 	//starSize = starSize * (cos(aPos.w*1000.0) * 0.5 + 1.0); // modulate size by simple PRNG
 
 	// compute vertex position so quad is always camera-facing
@@ -50,7 +50,7 @@ void main(void) {
 
 	// fade out distant stars
 	float dist = length(pos.xyz);
-	float alpha = clamp((1.0 - (dist / starSizeAndViewRange.y)) * 3.0, 0.0, 1.0);
+	float alpha = clamp((1.0 - (dist / starSizeAndViewRangeAndBlur.y)) * 3.0, 0.0, 1.0);
 
     // the UV coordinates are used to render the actual star radial gradient,
     // and alpha is used to modulate intensity of distant stars as they fade out
@@ -68,8 +68,13 @@ void main(void) {
 	// output position, or degenerate triangle if star is beyond view range
 	if (alpha > 0.0) {
     	gl_Position = projMat * pos;
+
     	// fix subpixel flickering by adding slight screenspace size
     	gl_Position.xy += (aUV - 0.5) * max(0.0, gl_Position.z) / 300.0;
+
+    	// motion blur
+    	float blur = (1.0 - aUV.x) * (1.0 - aUV.y) * starSizeAndViewRangeAndBlur.z;
+		gl_Position.w *= 1.0 + blur;
     }
     else {
     	gl_Position = vec4(0, 0, 0, 0);

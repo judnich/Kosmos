@@ -54,7 +54,10 @@ root.kosmosMain = ->
 
 	# set up canvas
 	kosmosResize()
-	root.gl = WebGLUtils.setupWebGL(canvas)
+	root.gl = WebGLUtils.setupWebGL(canvas, undefined, () ->
+			document.getElementById("glErrorMessage").style.display = "block"
+		)
+	if not root.gl then return
 
 	# set up game
 	camera = new Camera(canvas.width / canvas.height)
@@ -145,7 +148,12 @@ render = ->
 	gl.clearColor(0, 0, 0, 1)
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-	starfield.render(camera, gridOffset)
+	blur = Math.abs(smoothSpeed) / 15000.0
+	blur -= 0.001
+	if blur < 0 then blur = 0
+	#if blur > 1.0 then blur = 0.5
+
+	starfield.render(camera, gridOffset, blur)
 
 	updateCoordinateSystem()
 

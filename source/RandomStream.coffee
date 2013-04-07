@@ -19,6 +19,10 @@ class root.RandomStream
 	range: (min, max) ->
 		return (max - min) * @unit() + min
 
+	intRange: (min, max) ->
+		@rand = ((@rand+offset) * multiplier) % modulus
+		return @rand % (max+1-min) + min
+
 
 root.randomFromSeed = (number) ->
 	number = ((number+offset) * multiplier) % modulus
