@@ -7,13 +7,17 @@ enableRetina = true
 camera = null
 starfield = null
 
-animating = true
+animating = false
 cameraAngle = 0.0
 
 gridOffset = [0, 0, 0]
 
+timeNow = null
 lastTime = null
 deltaTime = 0.0
+
+lastFrameTime = 0.0
+fps = 0
 
 desiredSpeed = 0.0
 smoothSpeed = 0.0
@@ -26,6 +30,18 @@ mouseIsDown = false
 mouseX = 0
 mouseY = 0
 
+
+resumeAnimating = ->
+	if not animating
+		animating = true
+		tick()
+		console.log("Resumed animation")
+
+pauseAnimating = ->
+	if animating
+		lastTime = null
+		animating = false
+		console.log("Paused animation")
 
 mouseDown = (event) ->
 	mouseIsDown = true
@@ -42,6 +58,8 @@ mouseMove = (event) ->
 
 	mouseX = (x - 0.5) * 2
 	mouseY = (y - 0.5) * 2
+
+	if mouseIsDown then resumeAnimating()
 
 root.kosmosMain = ->
 	console.log("Initializing Kosmos Engine")
@@ -70,13 +88,10 @@ root.kosmosMain = ->
 	camera.near = 0.001
 	camera.far = 4000.0
 
-	animating = true
-	tick()
+	resumeAnimating()
 
 root.kosmosKill = ->
-	lastTime = null
-	animating = not animating
-	if animating then tick()
+	pauseAnimating()
 
 root.kosmosResize = ->
 	if not enableRetina then console.log("Note: Device pixel scaling (retina) is disabled.")
@@ -88,6 +103,7 @@ root.kosmosResize = ->
 
 root.kosmosSetSpeed = (speed) ->
 	desiredSpeed = speed
+	resumeAnimating()
 
 
 updateTickElapsed = ->
@@ -117,7 +133,7 @@ updateMouse = ->
 	quat.multiply(desiredRotation, smoothRotation, qYaw)
 
 	quat.normalize(desiredRotation, desiredRotation)
-	#rotationAccel = 0
+
 
 tick = ->
 	# schedule next frame to run
@@ -140,8 +156,35 @@ tick = ->
 	quat.slerp(smoothRotation, smoothRotation, desiredRotation, 0.05)
 	camera.setRotation(smoothRotation)
 
+	# render
 	camera.update()
 	render()
+
+	# log frames per second
+	fps++
+	if (timeNow - lastFrameTime) >= 1000.0
+		console.log("FPS: " + fps)
+		lastFrameTime = timeNow
+		fps = 0
+
+	sleepIfIdle()
+
+sleepIfIdle = ->
+	idle = true
+	epsilon = 0.0000000001
+
+	potentialSpeed = Math.max(Math.abs(desiredSpeed), Math.abs(smoothSpeed))
+	if potentialSpeed > epsilon then idle = false
+
+	quatDist = 0
+	for i in [0..3]
+		d = desiredRotation[i] - smoothRotation[i]
+		quatDist += d*d
+
+	if quatDist > epsilon then idle = false
+
+	if idle
+		pauseAnimating()
 
 render = ->
 	gl.viewport(0, 0, canvas.width, canvas.height);

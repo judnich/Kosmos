@@ -164,12 +164,16 @@ return {
  * Provides requestAnimationFrame in a cross browser way.
  */
 window.requestAnimFrame = (function() {
-  return window.requestAnimationFrame ||
+  var raf = window.requestAnimationFrame ||
          window.webkitRequestAnimationFrame ||
          window.mozRequestAnimationFrame ||
          window.oRequestAnimationFrame ||
-         window.msRequestAnimationFrame ||
-         function(/* function FrameRequestCallback */ callback, /* DOMElement Element */ element) {
+         window.msRequestAnimationFrame;
+
+  if (raf) return raf;
+
+  console.log("Warning: Falling back to timer based animation");
+  return function(/* function FrameRequestCallback */ callback, /* DOMElement Element */ element) {
            window.setTimeout(callback, 1000/60);
          };
 })();

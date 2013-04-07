@@ -31,8 +31,6 @@ function jsMain() {
 		_speed = 1.0 - (y / (slider.clientHeight+3));
 		if (_speed > 1) _speed = 1;
 		updateSpeed();
-
-		console.log(x + ", " + y);
 	}
 
 	window.onmousewheel = function(event) {
@@ -79,22 +77,29 @@ function jsMain() {
 
 	document.onkeydown = function(event) {
 		hideIntro();
+
+		// down arrow / S / -
 		if (event.keyCode == 189 || event.keyCode == 83 || event.keyCode == 40) {
 			_speed -= 0.025;
 		}
+
+		// up arrow / W / +
 		if (event.keyCode == 187 || event.keyCode == 87 || event.keyCode == 38) {
 			_speed += 0.025;
 		}
-		if (_speed > 1.5) _speed = 1.5;
 
-		if (event.keyCode == 27) { // escape
-			killSimulation();
+		// escape
+		if (event.keyCode == 27) {
+			_speed = 0;
 		}
-		if (event.keyCode == 32) { // space
+
+		// space
+		if (event.keyCode == 32) {
 			_reverseMode = !_reverseMode;
 			updateButtons();
 		}
 
+		if (_speed > 1.5) _speed = 1.5;
 		updateSpeed();
 	}
 }
@@ -148,6 +153,8 @@ function updateSpeed() {
 	var speed = (_speed - speedBarZeroArea);
 
 	var espeed = Math.pow(3.0, Math.abs(speed) * 20.0 - 10.0);
+
+	if (speed <= 0) espeed = 0;
 	if (_reverseMode) espeed *= -1;
 
 	kosmosSetSpeed(espeed);

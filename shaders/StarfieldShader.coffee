@@ -14,6 +14,9 @@ void main(void) {
 	//float c = 1.0 / (d*10.0);
 	//c = clamp(0.5 - d, 0.0, 1.0) * c;
 
+	d = clamp(d * 4.0, 0.0, 1.0);
+	lum *= 1.0 - d*d;
+
 	vec4 pColor = vec4(clamp(lum*vColor.x, 0.0, 1.0), clamp(lum*vColor.y, 0.0, 1.0), clamp(lum*vColor.z, 0.0, 1.0), 1.0);
     gl_FragColor = pColor * vUVA.z;
 }
