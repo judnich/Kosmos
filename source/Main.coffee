@@ -120,7 +120,7 @@ updateTickElapsed = ->
 		elapsed = 0.0
 	lastTime = timeNow
 
-	deltaTime = elapsed * 0.5 + deltaTime * 0.5
+	deltaTime = elapsed * 0.1 + deltaTime * 0.9
 
 updateMouse = ->
 	if not mouseIsDown then return
