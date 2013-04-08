@@ -4,7 +4,7 @@ frag = """
 precision mediump float;
 
 varying vec3 vUVA;
-varying vec3 vColor;
+varying vec4 vColor;
 
 void main(void) {
 	// compute star color based on intensity = 1/dist^2 from center of sprite
@@ -16,7 +16,7 @@ void main(void) {
 	d = clamp(d * 4.0, 0.0, 1.0);
 	lum *= 1.0 - d*d;
 
-    gl_FragColor.xyz = clamp(vColor*lum, 0.0, 1.0) * vUVA.z;
+    gl_FragColor.xyz = clamp(vColor.xyz*lum, 0.0, 1.0) * vUVA.z * vColor.a;
 }
 
 """
@@ -34,7 +34,7 @@ uniform vec3 starSizeAndViewRangeAndBlur;
 //uniform mat4 viewMat;
 
 varying vec3 vUVA;
-varying vec3 vColor;
+varying vec4 vColor;
 
 void main(void) {
 	// determine star size
@@ -50,8 +50,7 @@ void main(void) {
 	pos.xy += offset;
 
    	// motion blur
-   	float blur = aUV.z * starSizeAndViewRangeAndBlur.z;
-	pos.z *= 1.0 + blur;
+	pos.z *= 1.0 + aUV.z * starSizeAndViewRangeAndBlur.z;
 
 	// fade out distant stars
 	float dist = length(pos.xyz);
@@ -64,11 +63,14 @@ void main(void) {
     // compute star color parameter
     // this is just an arbitrary hand-tweaked interpolation between blue/white/red
     // favoring mostly blue and white with some red
-    vColor = vec3(
+    vColor.xyz = vec3(
     	1.0 - aPos.w,
     	aPos.w*2.0*(1.0-aPos.w),
     	4.0 * aPos.w
     ) * 0.5 + 0.5;
+
+	// dim stars to account for extra motion blur lit pixels
+	vColor.w = max(0.33, 1.0 - sqrt(starSizeAndViewRangeAndBlur.z)*1.5);
 
 	// output position, or degenerate triangle if star is beyond view range
 	if (alpha > 0.0) {
@@ -76,6 +78,9 @@ void main(void) {
 
     	// fix subpixel flickering by adding slight screenspace size
     	gl_Position.xy += aUV.xy * max(0.0, gl_Position.z) / 300.0;
+
+    	// distant stars more colorful
+    	vColor = clamp(vColor, 0.0, 1.0 + gl_Position.z * 0.001);
     }
     else {
     	gl_Position = vec4(0, 0, 0, 0);

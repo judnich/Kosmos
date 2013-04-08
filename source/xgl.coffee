@@ -49,12 +49,12 @@ xgl.loadProgram = (programName) ->
 
 	vertexShader = xgl.loadShader(shaderSrc.vertex, true)
 	if vertexShader == null
-		xgl.error("Error finding vertex shader for \"#{programName}\"")
+		xgl.error("Error loading vertex shader for \"#{programName}\"")
 		return null
 
 	fragmentShader = xgl.loadShader(shaderSrc.fragment, false)
 	if fragmentShader == null
-		xgl.error("Error finding fragment shader for \"#{programName}\"")
+		xgl.error("Error loading fragment shader for \"#{programName}\"")
 		return null
 
 	prog = xgl.createProgram(vertexShader, fragmentShader)
