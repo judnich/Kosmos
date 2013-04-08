@@ -101,7 +101,6 @@ function jsMain() {
 			updateButtons();
 		}
 
-		if (_speed > 1.5) _speed = 1.5;
 		updateSpeed();
 	}
 }
@@ -140,6 +139,8 @@ function showIntro() {
 function updateSpeed() {
 	hideIntro();
 
+	if (_speed > 1.0) _speed = 1.0;
+
 	// the first few percent of the speed bar is 0, to give a reasonable click region for it
 	var speedBarZeroArea = 0.07;
 	var slider = document.getElementById("slider");
@@ -157,7 +158,7 @@ function updateSpeed() {
 
 	var speed = (_speed - speedBarZeroArea);
 
-	var espeed = Math.pow(3.0, Math.abs(speed) * 20.0 - 10.0);
+	var espeed = Math.pow(3.0, Math.abs(speed) * 21.0 - 10.0);
 
 	if (speed <= 0) espeed = 0;
 	if (_reverseMode) espeed *= -1;
