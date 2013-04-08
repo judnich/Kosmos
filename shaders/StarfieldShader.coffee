@@ -11,14 +11,12 @@ void main(void) {
 	vec2 dv = vUVA.xy - vec2(0.5, 0.5);
 	float d = dot(dv, dv);
 	float lum = 1.0 / (d*100.0);
-	//float c = 1.0 / (d*10.0);
-	//c = clamp(0.5 - d, 0.0, 1.0) * c;
 
+	// fall off at a max radius, since 1/dist^2 goes on infinitely
 	d = clamp(d * 4.0, 0.0, 1.0);
 	lum *= 1.0 - d*d;
 
-	vec4 pColor = vec4(clamp(lum*vColor.x, 0.0, 1.0), clamp(lum*vColor.y, 0.0, 1.0), clamp(lum*vColor.z, 0.0, 1.0), 1.0);
-    gl_FragColor = pColor * vUVA.z;
+    gl_FragColor.xyz = clamp(vColor*lum, 0.0, 1.0) * vUVA.z;
 }
 
 """

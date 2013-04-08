@@ -120,7 +120,7 @@ updateTickElapsed = ->
 		elapsed = 0.0
 	lastTime = timeNow
 
-	deltaTime = elapsed * 0.1 + deltaTime * 0.9
+	deltaTime = elapsed * 0.5 + deltaTime * 0.5
 
 updateMouse = ->
 	if not mouseIsDown then return
@@ -141,8 +141,7 @@ updateMouse = ->
 
 
 tick = ->
-	# schedule next frame to run
-	if animating then window.requestAnimFrame(tick)
+	# keep track of time
 	updateTickElapsed()
 
 	# process inputs
@@ -157,7 +156,6 @@ tick = ->
 	vec3.add(camera.position, camera.position, moveVec)
 
 	# rotate camera
-	rotationAccel = rotationAccel * 0.95 + 0.05
 	quat.slerp(smoothRotation, smoothRotation, desiredRotation, 0.05)
 	camera.setRotation(smoothRotation)
 
@@ -173,6 +171,10 @@ tick = ->
 		fps = 0
 
 	sleepIfIdle()
+
+	# schedule next frame to run
+	if animating then window.requestAnimFrame(tick)
+
 
 sleepIfIdle = ->
 	idle = true

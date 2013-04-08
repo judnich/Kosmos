@@ -174,7 +174,7 @@ window.requestAnimFrame = (function() {
 
   console.log("Warning: Falling back to timer based animation");
   return function(/* function FrameRequestCallback */ callback, /* DOMElement Element */ element) {
-           window.setTimeout(callback, 1000/60);
+           window.setTimeout(callback, 1000.0/30.0);
          };
 })();
 
