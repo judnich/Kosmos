@@ -29,7 +29,7 @@ function jsMain() {
 	var slider = document.getElementById("slider");
 
 	function sliderEvent(x, y) {
-		_speed = 1.0 - (y / (slider.clientHeight+3));
+		_speed = 1.0 - ((y-3) / (slider.clientHeight+3));
 		if (_speed > 1) _speed = 1;
 		updateSpeed();
 	}
@@ -124,7 +124,7 @@ function updateMessagePositions() {
 
 		var x = sidebarWidth + (window.innerWidth-sidebarWidth)/2 - (msg.clientWidth+23)/2;
 		var y = window.innerHeight/2 - (msg.clientHeight+23)/2;
-		
+
 		msg.style.display = oldDisp;
 
 		msg.style.left = x;

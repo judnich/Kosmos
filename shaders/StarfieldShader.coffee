@@ -70,7 +70,10 @@ void main(void) {
     ) * 0.5 + 0.5;
 
 	// dim stars to account for extra motion blur lit pixels
-	vColor.w = max(0.33, 1.0 - sqrt(starSizeAndViewRangeAndBlur.z)*1.5);
+	vColor.w = max(0.33, 1.0 - sqrt(abs(starSizeAndViewRangeAndBlur.z))*1.5);
+
+	// red/blue shift
+	vColor.xyz += vec3(-starSizeAndViewRangeAndBlur.z, -abs(starSizeAndViewRangeAndBlur.z), starSizeAndViewRangeAndBlur.z);
 
 	// output position, or degenerate triangle if star is beyond view range
 	if (alpha > 0.0) {

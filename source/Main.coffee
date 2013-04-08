@@ -203,6 +203,8 @@ render = ->
 	if blur < 0 then blur = 0
 	if blur > 2.0 then blur = 2.0
 
+	if smoothSpeed < 0 then blur = -blur
+
 	starfield.render(camera, gridOffset, blur)
 
 	updateCoordinateSystem()
