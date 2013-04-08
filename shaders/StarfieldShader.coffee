@@ -8,7 +8,7 @@ varying vec3 vColor;
 
 void main(void) {
 	// compute star color based on intensity = 1/dist^2 from center of sprite
-	vec2 dv = vUVA.xy - vec2(0.5, 0.5);
+	vec2 dv = vUVA.xy;
 	float d = dot(dv, dv);
 	float lum = 1.0 / (d*100.0);
 
@@ -25,7 +25,7 @@ void main(void) {
 vert = """
 
 attribute vec4 aPos;
-attribute vec2 aUV;
+attribute vec3 aUV; // third component marks one vertex for blur extrusion
 
 uniform mat4 projMat;
 uniform mat4 modelViewMat;
@@ -43,11 +43,15 @@ void main(void) {
 
 	// compute vertex position so quad is always camera-facing
 	vec4 pos = vec4(aPos.xyz, 1.0);
-	vec2 offset = (aUV - 0.5) * starSize;
+	vec2 offset = aUV.xy * starSize;
 
 	//pos = viewMat * modelMat * pos;
 	pos = modelViewMat * pos;
 	pos.xy += offset;
+
+   	// motion blur
+   	float blur = aUV.z * starSizeAndViewRangeAndBlur.z;
+	pos.z *= 1.0 + blur;
 
 	// fade out distant stars
 	float dist = length(pos.xyz);
@@ -55,7 +59,7 @@ void main(void) {
 
     // the UV coordinates are used to render the actual star radial gradient,
     // and alpha is used to modulate intensity of distant stars as they fade out
-    vUVA = vec3(aUV, alpha);
+    vUVA = vec3(aUV.xy, alpha);
 
     // compute star color parameter
     // this is just an arbitrary hand-tweaked interpolation between blue/white/red
@@ -71,11 +75,7 @@ void main(void) {
     	gl_Position = projMat * pos;
 
     	// fix subpixel flickering by adding slight screenspace size
-    	gl_Position.xy += (aUV - 0.5) * max(0.0, gl_Position.z) / 300.0;
-
-    	// motion blur
-    	float blur = (1.0 - aUV.x) * (1.0 - aUV.y) * starSizeAndViewRangeAndBlur.z;
-		gl_Position.w *= 1.0 + blur;
+    	gl_Position.xy += aUV.xy * max(0.0, gl_Position.z) / 300.0;
     }
     else {
     	gl_Position = vec4(0, 0, 0, 0);

@@ -27,23 +27,38 @@ class root.Starfield
 			@starPositions[i] = pos
 
 		# generate vertex buffer
-		buff = new Float32Array(starBufferSize * 4 * 6)
+		buff = new Float32Array(starBufferSize * 4 * 7)
 		j = 0
 		for i in [0 .. starBufferSize-1]
 			[x, y, z, w] = @starPositions[i]
-			for uv in [[0,0], [1,0], [1,1], [0,1]]
+
+			# each quad's vertices are randomly rotated for the specific reason of randomizing the effect of the
+			# motion blur effect in the vertex shader, because it works in a "hacky" way - it displaces some
+			# of the star's vertices to create a streaked look. it's not actually "real" motion blue. however
+			# the disadvantage is that based on orientation this streaked look may cause the quad to go flat 
+			# against the camera's perspective, creating obvious aliasing look. this randomizes that effect
+			# so overall it looks fine.
+			randAngle = @randomStream.range(0, Math.PI*2)
+
+			for vi in [0..3]
+				angle = ((vi - 0.5) / 2.0) * Math.PI + randAngle
+				u = Math.sin(angle) * Math.sqrt(2) * 0.5
+				v = Math.cos(angle) * Math.sqrt(2) * 0.5
+				marker = if vi <= 1 then 1 else -1
+
 				buff[j] = x
 				buff[j+1] = y
 				buff[j+2] = z
 				buff[j+3] = w
-				buff[j+4] = uv[0]
-				buff[j+5] = uv[1]
-				j += 6
+				buff[j+4] = u
+				buff[j+5] = v
+				buff[j+6] = marker
+				j += 7
 
 		@vBuff = gl.createBuffer()
 		gl.bindBuffer(gl.ARRAY_BUFFER, @vBuff);
 		gl.bufferData(gl.ARRAY_BUFFER, buff, gl.STATIC_DRAW)
-		@vBuff.itemSize = 6
+		@vBuff.itemSize = 7
 		@vBuff.numItems = starBufferSize * 4
 
 		# generate index buffer
@@ -51,20 +66,12 @@ class root.Starfield
 		for i in [0 .. starBufferSize-1]
 			[j, k] = [i * 6, i * 4]
 
-			# each sprite is randomly rotated for the specific reason of randomizing the effect of the
-			# motion blur effect in the vertex shader, because it works in a "hacky" way - it displaces some
-			# of the star's vertices to create a streaked look. it's not actually "real" motion blue. however
-			# the disadvantage is that based on orientation this streaked look may cause the quad to go flat 
-			# against the camera's perspective, creating obvious aliasing look. this randomizes that effect
-			# so overall it looks fine.
-			rot = @randomStream.intRange(0, 3)
-
-			buff[j] = k + ((0+rot)%4)
-			buff[j+1] = k + ((1+rot)%4)
-			buff[j+2] = k + ((2+rot)%4)
-			buff[j+3] = k + ((0+rot)%4)
-			buff[j+4] = k + ((2+rot)%4)
-			buff[j+5] = k + ((3+rot)%4)
+			buff[j] = k + 0
+			buff[j+1] = k + 1
+			buff[j+2] = k + 2
+			buff[j+3] = k + 0
+			buff[j+4] = k + 2
+			buff[j+5] = k + 3
 
 		@iBuff = gl.createBuffer()
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, @iBuff)
@@ -103,6 +110,7 @@ class root.Starfield
 
 	_startRender: ->
 		gl.disable(gl.DEPTH_TEST)
+		gl.disable(gl.CULL_FACE)
 		gl.depthMask(false)
 		gl.enable(gl.BLEND)
 		gl.blendFunc(gl.ONE, gl.ONE)
@@ -113,7 +121,7 @@ class root.Starfield
 		gl.enableVertexAttribArray(@shader.attribs.aPos)
 		gl.vertexAttribPointer(@shader.attribs.aPos, 4, gl.FLOAT, false, @vBuff.itemSize*4, 0)
 		gl.enableVertexAttribArray(@shader.attribs.aUV)
-		gl.vertexAttribPointer(@shader.attribs.aUV, 2, gl.FLOAT, false, @vBuff.itemSize*4, 4 *4)
+		gl.vertexAttribPointer(@shader.attribs.aUV, 3, gl.FLOAT, false, @vBuff.itemSize*4, 4 *4)
 
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, @iBuff)
 
@@ -124,6 +132,7 @@ class root.Starfield
 		gl.bindBuffer(gl.ARRAY_BUFFER, null)
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null)
 		gl.useProgram(null)
+		gl.enable(gl.CULL_FACE)
 		gl.enable(gl.DEPTH_TEST)
 		gl.depthMask(true)
 		gl.disable(gl.BLEND)
