@@ -99,6 +99,12 @@ root.kosmosMain = ->
 	camera.aspect = canvas.width / canvas.height
 	camera.position = vec3.fromValues(0, 0, 0)
 
+	# restore last location
+	if not window.location.hash
+		loadLocation()
+	else
+		clearLocation()
+
 	resumeAnimating()
 
 root.kosmosKill = ->
@@ -150,6 +156,30 @@ updateMouse = ->
 	quat.normalize(desiredRotation, desiredRotation)
 
 
+saveLocation = ->
+	if typeof(Storage) != undefined
+		localStorage["kosmosOffset" + i] = camera.position[i] for i in [0..2]
+		localStorage["kosmosOrigin" + i] = originOffset[i] for i in [0..2]
+		localStorage["kosmosRotation" + i] = desiredRotation[i] for i in [0..3]
+
+
+loadLocation = ->
+	if typeof(Storage) != undefined
+		camera.position[i] = parseFloat(localStorage["kosmosOffset" + i]) || 0.0 for i in [0..2]
+		originOffset[i] = parseFloat(localStorage["kosmosOrigin" + i]) || 0.0 for i in [0..2]
+
+		for i in [0..3]
+			x = localStorage["kosmosRotation" + i]
+			if x == undefined || x == NaN || not x then break
+			desiredRotation[i] = parseFloat(x)
+
+		quat.copy(smoothRotation, desiredRotation)
+
+clearLocation = ->
+	if typeof(Storage) != undefined
+		localStorage.clear();
+
+
 tick = ->
 	# keep track of time
 	updateTickElapsed()
@@ -178,6 +208,7 @@ tick = ->
 		#console.log("FPS: " + fps)
 		lastFrameTime = timeNow
 		fps = 0
+		saveLocation()
 
 	sleepIfIdle()
 
@@ -232,7 +263,7 @@ render = ->
 updateCoordinateSystem = ->
 	# wrap around coordinate system within one star block,
 	# with originOffset coordinate to maintain continuous world
-	localMax = 128 #starfield.blockScale
+	localMax = 128
 	for i in [0..2]
 		if camera.position[i] > localMax + 10
 			n = Math.floor(camera.position[i] / localMax)
