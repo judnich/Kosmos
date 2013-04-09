@@ -4,7 +4,7 @@ root.universeSeed = 31415
 root.starBufferSize = 10000
 
 class root.Starfield
-	constructor: (blockMinStars, blockMaxStars, blockScale, starSize, viewRange) ->
+	constructor: ({blockMinStars, blockMaxStars, blockScale, starSize, viewRange}) ->
 		@blockMinStars = blockMinStars
 		@blockMaxStars = blockMaxStars
 		@blockScale = blockScale

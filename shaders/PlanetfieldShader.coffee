@@ -25,12 +25,11 @@ void main(void) {
 vert = """
 
 attribute vec3 aPos;
-attribute vec3 aColor;
 attribute vec3 aUV; // third component marks one vertex for blur extrusion
 
 uniform mat4 projMat;
 uniform mat4 modelViewMat;
-uniform vec3 spriteSizeAndViewRanges;
+uniform vec4 spriteSizeAndViewRangeAndBlur;
 //uniform mat4 modelMat;
 //uniform mat4 viewMat;
 
@@ -39,7 +38,7 @@ varying vec4 vColor;
 
 void main(void) {
 	// determine sprite size
-	float spriteSize = spriteSizeAndViewRanges.x;
+	float spriteSize = spriteSizeAndViewRangeAndBlur.x;
 	//spriteSize = spriteSize * (cos(aPos.w*1000.0) * 0.5 + 1.0); // modulate size by simple PRNG
 
 	// compute vertex position so quad is always camera-facing
@@ -50,17 +49,26 @@ void main(void) {
 	pos = modelViewMat * pos;
 	pos.xy += offset;
 
+   	// motion blur
+	pos.z *= 1.0 + aUV.z * spriteSizeAndViewRangeAndBlur.w;
+
 	// fade out distant sprites
 	float dist = length(pos.xyz);
-	float alpha = clamp( (1.0 - (dist / spriteSizeAndViewRanges.z)) * 1.5, 0.0, 1.0 );
-	alpha *= clamp( ((dist / spriteSizeAndViewRanges.y) - 1.0) * 1.0, 0.0, 1.0) ;
+	float alpha = clamp( (1.0 - (dist / spriteSizeAndViewRangeAndBlur.z)) * 1.5, 0.0, 1.0 );
+	alpha *= clamp( ((dist / spriteSizeAndViewRangeAndBlur.y) - 1.0) * 0.5, 0.0, 1.0);
 
     // the UV coordinates are used to render the actual sprite radial gradient,
     // and alpha is used to modulate intensity of distant sprites as they fade out
     vUVA = vec3(aUV.xy, alpha);
 
     // pass color to frag shader
-    vColor.xyz = aColor;
+    vColor.xyz = vec3(1.0, 1.0, 1.0);
+
+	// dim sprites to account for extra motion blur lit pixels
+	vColor.w = max(0.33, 1.0 - sqrt(abs(spriteSizeAndViewRangeAndBlur.w))*1.5);
+
+	// red/blue shift
+	vColor.xyz += vec3(-spriteSizeAndViewRangeAndBlur.w, -abs(spriteSizeAndViewRangeAndBlur.w), spriteSizeAndViewRangeAndBlur.w);
 
 	// output position, or degenerate triangle if sprite is beyond view range
 	if (alpha > 0.0) {

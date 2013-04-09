@@ -80,17 +80,25 @@ root.kosmosMain = ->
 	if not root.gl then return
 
 	# set up game
-	#starfield = new Starfield(200, 300, 1000.0, 10.0, 3000.0)
-	starfield = new Starfield(200, 300, 100000.0, 500.0, 300000.0)
-	planetfield = new Planetfield(starfield, 5.0, 100.0, 30000.0)
+	starfield = new Starfield { 
+		blockMinStars: 200, 
+		blockMaxStars: 300, 
+		blockScale: 100000.0, 
+		starSize: 500.0, 
+		viewRange: 300000.0
+	}
+	planetfield = new Planetfield {
+		starfield: starfield,
+		planetSize: 5.0,
+		nearRange: 50.0, 
+		farRange: 30000.0
+	}
 
 	# set up camera
 	camera = new Camera()
 	camera.aspect = canvas.width / canvas.height
 	camera.position = vec3.fromValues(0, 0, 0)
 	camera.target = vec3.fromValues(0, 0, -1)
-	camera.near = 10.0
-	camera.far = 400000.0
 
 	resumeAnimating()
 
@@ -217,9 +225,6 @@ render = ->
 	camera.far = planetfield.farRange * 1.1
 	camera.near = planetfield.nearRange * 0.9
 	camera.update()
-	#camera.near = 0.01
-	#camera.far = 40000.0
-	#camera.update()
 
 	planetfield.render(camera, gridOffset, blur)
 

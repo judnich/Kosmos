@@ -21,11 +21,11 @@ class root.Camera
 		# this allows you to alternately set camera rotation with a quaternion rather
 		# than with the traditional target/lookat and up vectors.
 
-		lookVec = vec3.fromValues(0, 0, -100)
+		lookVec = vec3.fromValues(0, 0, -1000)
 		vec3.transformQuat(lookVec, lookVec, quat)
 		vec3.add(@target, @position, lookVec)
 
-		@up = vec3.fromValues(0, 100, 0)
+		@up = vec3.fromValues(0, 1000, 0)
 		vec3.transformQuat(@up, @up, quat)
 
 	update: ->
