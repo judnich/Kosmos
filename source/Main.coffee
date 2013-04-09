@@ -141,8 +141,8 @@ updateTickElapsed = ->
 updateMouse = ->
 	if not mouseIsDown then return
 
-	pitch = mouseY * 40
-	yaw = mouseX * 52
+	pitch = mouseY * 45
+	yaw = mouseX * 58
 
 	qPitch = quat.create()
 	quat.setAxisAngle(qPitch, vec3.fromValues(-1, 0, 0), xgl.degToRad(pitch))
