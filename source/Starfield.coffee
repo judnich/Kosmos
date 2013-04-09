@@ -1,7 +1,7 @@
 root = exports ? this
 
-universeSeed = 31415
-starBufferSize = 10000
+root.universeSeed = 31415
+root.starBufferSize = 10000
 
 class root.Starfield
 	constructor: (blockMinStars, blockMaxStars, blockScale, starSize, viewRange) ->
@@ -10,26 +10,27 @@ class root.Starfield
 		@blockScale = blockScale
 		@viewRange = viewRange
 		@starSize = starSize
+		@_starBufferSize = root.starBufferSize
 
-		@randomStream = new RandomStream(universeSeed)
+		randomStream = new RandomStream(universeSeed)
 
-		console.log("Generating stars...")
+		console.log("Generating star data...")
 
 		# load star shader
 		@shader = xgl.loadProgram("starfield")
 		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "starSizeAndViewRangeAndBlur"])
 		@shader.attribs = xgl.getProgramAttribs(@shader, ["aPos", "aUV"])
 
-		# generate star positions
+		# generate random positions
 		@starPositions = []
-		for i in [0 .. starBufferSize-1]
-			pos = [@randomStream.unit(), @randomStream.unit(), @randomStream.unit(), @randomStream.unit()]
+		for i in [0 .. @_starBufferSize-1]
+			pos = [randomStream.unit(), randomStream.unit(), randomStream.unit(), randomStream.unit()]
 			@starPositions[i] = pos
 
 		# generate vertex buffer
-		buff = new Float32Array(starBufferSize * 4 * 7)
+		buff = new Float32Array(@_starBufferSize * 4 * 7)
 		j = 0
-		for i in [0 .. starBufferSize-1]
+		for i in [0 .. @_starBufferSize-1]
 			[x, y, z, w] = @starPositions[i]
 
 			# each quad's vertices are randomly rotated for the specific reason of randomizing the effect of the
@@ -38,7 +39,7 @@ class root.Starfield
 			# the disadvantage is that based on orientation this streaked look may cause the quad to go flat 
 			# against the camera's perspective, creating obvious aliasing look. this randomizes that effect
 			# so overall it looks fine.
-			randAngle = @randomStream.range(0, Math.PI*2)
+			randAngle = randomStream.range(0, Math.PI*2)
 
 			for vi in [0..3]
 				angle = ((vi - 0.5) / 2.0) * Math.PI + randAngle
@@ -58,12 +59,13 @@ class root.Starfield
 		@vBuff = gl.createBuffer()
 		gl.bindBuffer(gl.ARRAY_BUFFER, @vBuff);
 		gl.bufferData(gl.ARRAY_BUFFER, buff, gl.STATIC_DRAW)
+		gl.bindBuffer(gl.ARRAY_BUFFER, null)
 		@vBuff.itemSize = 7
-		@vBuff.numItems = starBufferSize * 4
+		@vBuff.numItems = @_starBufferSize * 4
 
 		# generate index buffer
-		buff = new Uint16Array(starBufferSize * 6)
-		for i in [0 .. starBufferSize-1]
+		buff = new Uint16Array(@_starBufferSize * 6)
+		for i in [0 .. @_starBufferSize-1]
 			[j, k] = [i * 6, i * 4]
 
 			buff[j] = k + 0
@@ -76,13 +78,14 @@ class root.Starfield
 		@iBuff = gl.createBuffer()
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, @iBuff)
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, buff, gl.STATIC_DRAW)
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null)
 		@iBuff.itemSize = 1
-		@iBuff.numItems = starBufferSize * 6
+		@iBuff.numItems = @_starBufferSize * 6
 
 		if @iBuff.numItems >= 0xFFFF
 			xgl.error("Index buffer too large for StarField")
 
-		console.log("All stars generated.")
+		console.log("Generated.")
 
 
 	render: (camera, gridOffset, blur) ->
@@ -146,8 +149,8 @@ class root.Starfield
 		if not camera.isVisibleBox(box) then return
 
 		# basic setup
-		if starCount <= 0 then return
 		starCount = Math.floor(starCount)
+		if starCount <= 0 then return
 		seed = Math.floor(Math.abs(seed))
 
 		# ensure we're not drawing too many stars
@@ -156,14 +159,13 @@ class root.Starfield
 			console.log("Warning: Too many stars requested of starfield block render operation")
 
 		# choose a slice of the vertex buffer randomly based on the seed value
-		if starBufferSize > starCount
-			offset = ((seed + 127) * 65537) % (1 + starBufferSize - starCount)
+		if @_starBufferSize > starCount
+			offset = ((seed + 127) * 65537) % (1 + @_starBufferSize - starCount)
 		else
 			offset = 0
 
 		# calculate model*view matrix based on block i,j,k position and block scale
 		modelViewMat = mat4.create()
-		#mat4.translate(modelViewMat, modelViewMat, vec3.fromValues(i*@blockScale, j*@blockScale, k*@blockScale))
 		mat4.scale(modelViewMat, modelViewMat, vec3.fromValues(@blockScale, @blockScale, @blockScale))
 		mat4.translate(modelViewMat, modelViewMat, vec3.fromValues(i, j, k))
 		mat4.mul(modelViewMat, camera.viewMat, modelViewMat)

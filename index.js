@@ -2,7 +2,7 @@
 // This file is meant to cover all UI stuff and abstract that away from the main 
 // simulation/game code found in Main.coffee
 
-_speed = 0.65;
+_speed = 0;//0.65;
 _reverseMode = false;
 _sliderMouseDown = false;
 
@@ -82,12 +82,12 @@ function jsMain() {
 
 		// down arrow / S / -
 		if (event.keyCode == 189 || event.keyCode == 83 || event.keyCode == 40) {
-			_speed -= 0.025;
+			_speed -= 0.005;
 		}
 
 		// up arrow / W / +
 		if (event.keyCode == 187 || event.keyCode == 87 || event.keyCode == 38) {
-			_speed += 0.025;
+			_speed += 0.005;
 		}
 
 		// escape
@@ -144,21 +144,23 @@ function updateSpeed() {
 	// the first few percent of the speed bar is 0, to give a reasonable click region for it
 	var speedBarZeroArea = 0.07;
 	var slider = document.getElementById("slider");
-	if (_speed < speedBarZeroArea) {
-		_speed = speedBarZeroArea;
+
+	var cSpeed = _speed;
+	if (cSpeed > 1) {
+		cSpeed = 1;
+	} else if (cSpeed <= speedBarZeroArea) {
+		cSpeed = speedBarZeroArea;
+		_speed = speedBarZeroArea - 0.0001;
 		slider.className = "slider sliderDisabled";
 	} else {
 		slider.className = "slider";
 	}
 
-	var cSpeed = _speed;
-	if (cSpeed > 1) cSpeed = 1; else if (cSpeed < 0) cSpeed = 0;
 	var sliderBar = document.getElementById("sliderBar");
 	sliderBar.style.height = ((1.0 - cSpeed) * 100.0) + "%";
 
 	var speed = (_speed - speedBarZeroArea);
-
-	var espeed = Math.pow(3.0, Math.abs(speed) * 21.0 - 10.0);
+	var espeed = Math.pow(3.0, Math.abs(speed) * 21.0 - 6.0);
 
 	if (speed <= 0) espeed = 0;
 	if (_reverseMode) espeed *= -1;

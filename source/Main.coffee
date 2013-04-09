@@ -5,7 +5,9 @@ root = exports ? this
 
 enableRetina = true
 camera = null
+
 starfield = null
+planetfield = null
 
 animating = false
 cameraAngle = 0.0
@@ -79,15 +81,16 @@ root.kosmosMain = ->
 
 	# set up game
 	#starfield = new Starfield(200, 300, 1000.0, 10.0, 3000.0)
-	starfield = new Starfield(200, 300, 1000.0, 5.0, 3000.0)
+	starfield = new Starfield(200, 300, 100000.0, 500.0, 300000.0)
+	planetfield = new Planetfield(starfield, 5.0, 100.0, 30000.0)
 
 	# set up camera
 	camera = new Camera()
 	camera.aspect = canvas.width / canvas.height
 	camera.position = vec3.fromValues(0, 0, 0)
 	camera.target = vec3.fromValues(0, 0, -1)
-	camera.near = 0.001
-	camera.far = 4000.0
+	camera.near = 10.0
+	camera.far = 400000.0
 
 	resumeAnimating()
 
@@ -160,7 +163,6 @@ tick = ->
 	camera.setRotation(smoothRotation)
 
 	# render
-	camera.update()
 	render()
 
 	# log frames per second
@@ -198,14 +200,28 @@ render = ->
 	gl.clearColor(0, 0, 0, 1)
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-	blur = Math.abs(smoothSpeed) / 20000.0
+	blur = Math.abs(smoothSpeed) / 2000000.0
 	blur -= 0.001
 	if blur < 0 then blur = 0
-	if blur > 2.0 then blur = 2.0
+	if blur > 1.0 then blur = 1.0
 
 	if smoothSpeed < 0 then blur = -blur
 
+	camera.far = starfield.viewRange * 1.1
+	camera.near = starfield.viewRange / 50000.0
+	camera.update()
+
 	starfield.render(camera, gridOffset, blur)
+
+	#gl.clear(gl.DEPTH_BUFFER_BIT);
+	camera.far = planetfield.farRange * 1.1
+	camera.near = planetfield.nearRange * 0.9
+	camera.update()
+	#camera.near = 0.01
+	#camera.far = 40000.0
+	#camera.update()
+
+	planetfield.render(camera, gridOffset, blur)
 
 	updateCoordinateSystem()
 
