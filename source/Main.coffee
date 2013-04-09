@@ -35,9 +35,9 @@ mouseY = 0
 
 resumeAnimating = ->
 	if not animating
+		console.log("Resumed animation")
 		animating = true
 		tick()
-		console.log("Resumed animation")
 
 pauseAnimating = ->
 	if animating
