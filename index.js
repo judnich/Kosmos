@@ -2,7 +2,7 @@
 // This file is meant to cover all UI stuff and abstract that away from the main 
 // simulation/game code found in Main.coffee
 
-_speed = 0;//0.65;
+_speed = 0.65;
 _reverseMode = false;
 _sliderMouseDown = false;
 

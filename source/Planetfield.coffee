@@ -31,7 +31,7 @@ class root.Planetfield
 			randAngle = randomStream.range(0, Math.PI*2)
 
 			for vi in [0..3]
-				angle = ((vi - 0.5) / 2.0) * Math.PI #+ randAngle
+				angle = ((vi - 0.5) / 2.0) * Math.PI + randAngle
 				u = Math.sin(angle) * Math.sqrt(2) * 0.5
 				v = Math.cos(angle) * Math.sqrt(2) * 0.5
 				marker = if vi <= 1 then 1 else -1
@@ -59,14 +59,14 @@ class root.Planetfield
 			j += 6
 
 
-	render: (camera, gridOffset, blur) ->
+	render: (camera, originOffset, blur) ->
 		# calculate near planet positions
 		numPlanets = 10
 		randomStream = new RandomStream(0)
 		for i in [0..numPlanets-1]
-			@setPlanetSprite(i, [randomStream.range(-1000, 1000), 
-								randomStream.range(-1000, 1000), 
-								randomStream.range(-1000, 1000)])
+			@setPlanetSprite(i, [randomStream.range(-1000, 1000) - originOffset[0], 
+								randomStream.range(-1000, 1000) - originOffset[1], 
+								randomStream.range(-1000, 1000) - originOffset[2]])
 
 		# return if nothing to render
 		if numPlanets <= 0 then return

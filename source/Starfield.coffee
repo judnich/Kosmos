@@ -88,25 +88,36 @@ class root.Starfield
 		console.log("Generated.")
 
 
-	render: (camera, gridOffset, blur) ->
+	# this function returns a list of stars within the given radius from 
+	# position+originOffset but only up to maxStars of them at most.
+	queryStars: (position, originOffset, radius, maxStars) ->
+		# todo
+
+
+	render: (camera, originOffset, blur) ->
 		@_startRender()
 		@blur = blur
 
-		[ci, cj, ck] = [Math.floor(camera.position[0]/@blockScale),
-						Math.floor(camera.position[1]/@blockScale),
-						Math.floor(camera.position[2]/@blockScale)]
+		[ci, cj, ck] = [Math.floor(camera.position[0]/@blockScale + originOffset[0]/@blockScale),
+						Math.floor(camera.position[1]/@blockScale + originOffset[1]/@blockScale),
+						Math.floor(camera.position[2]/@blockScale + originOffset[2]/@blockScale)]
 		r = Math.ceil(@viewRange / @blockScale)
 
-		for i in [ci-r .. ci+r]
-			for j in [cj-r .. cj+r]
-				for k in [ck-r .. ck+r]
-					bpos = vec3.fromValues((i+0.5)*@blockScale, (j+0.5)*@blockScale, (k+0.5)*@blockScale)
+		[oi, oj, ok] = [ci - originOffset[0]/@blockScale,
+						cj - originOffset[1]/@blockScale,
+						ck - originOffset[2]/@blockScale]
+
+		randStream = new root.RandomStream()
+		for i in [-r .. +r]
+			for j in [-r .. +r]
+				for k in [-r .. +r]
+					[x, y, z] = [i+oi, j+oj, k+ok]
+					bpos = vec3.fromValues((x+0.5)*@blockScale, (y+0.5)*@blockScale, (z+0.5)*@blockScale)
 					minDist = vec3.distance(camera.position, bpos) - @blockScale*0.8660254 #sqrt(3)/2
 					if minDist <= @viewRange
-						#seed = ((i + gridOffset[0])*3559) + ((j + gridOffset[1])*65537) + ((k + gridOffset[2])+257)
-						seed = randomFromSeed(randomFromSeed(randomFromSeed(i + gridOffset[0]) + (j + gridOffset[1])) + (k + gridOffset[2]))
-						rstr = new root.RandomStream(seed)
-						@_renderBlock(camera, seed, rstr.range(@blockMinStars, @blockMaxStars), i,j,k)
+						seed = randomIntFromSeed(randomIntFromSeed(randomIntFromSeed(i + ci) + (j + cj)) + (k + ck))
+						randStream.seed = seed
+						@_renderBlock(camera, seed, randStream.range(@blockMinStars, @blockMaxStars), x, y, z)
 
 		@_finishRender()
 

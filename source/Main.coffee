@@ -12,7 +12,7 @@ planetfield = null
 animating = false
 cameraAngle = 0.0
 
-gridOffset = [0, 0, 0]
+originOffset = [0, 0, 0]
 
 timeNow = null
 lastTime = null
@@ -98,7 +98,6 @@ root.kosmosMain = ->
 	camera = new Camera()
 	camera.aspect = canvas.width / canvas.height
 	camera.position = vec3.fromValues(0, 0, 0)
-	camera.target = vec3.fromValues(0, 0, -1)
 
 	resumeAnimating()
 
@@ -176,7 +175,7 @@ tick = ->
 	# log frames per second
 	fps++
 	if (timeNow - lastFrameTime) >= 1000.0
-		console.log("FPS: " + fps)
+		#console.log("FPS: " + fps)
 		lastFrameTime = timeNow
 		fps = 0
 
@@ -219,35 +218,30 @@ render = ->
 	camera.near = starfield.viewRange / 50000.0
 	camera.update()
 
-	starfield.render(camera, gridOffset, blur)
+	starfield.render(camera, originOffset, blur)
 
 	#gl.clear(gl.DEPTH_BUFFER_BIT);
 	camera.far = planetfield.farRange * 1.1
 	camera.near = planetfield.nearRange * 0.9
 	camera.update()
 
-	planetfield.render(camera, gridOffset, blur)
+	planetfield.render(camera, originOffset, blur)
 
 	updateCoordinateSystem()
 
 updateCoordinateSystem = ->
 	# wrap around coordinate system within one star block,
-	# while integer block coordinate to maintain continuous world
-	blockScale = starfield.blockScale
+	# with originOffset coordinate to maintain continuous world
+	localMax = 128 #starfield.blockScale
 	for i in [0..2]
-		if camera.position[i] > blockScale + 10
-			camera.position[i] -= blockScale*2
-			gridOffset[i] += 2
-		if camera.position[i] < -blockScale - 10
-			camera.position[i] += blockScale*2
-			gridOffset[i] -= 2
+		if camera.position[i] > localMax + 10
+			n = Math.floor(camera.position[i] / localMax)
+			camera.position[i] -= n * localMax
+			originOffset[i] += n * localMax
 
-		# in case the user is traveling more than one block per frame
-		if camera.position[i] > blockScale + 10
-			camera.position[i] = -blockScale
-			gridOffset[i] += 2
-		if camera.position[i] < -blockScale - 10
-			camera.position[i] = blockScale
-			gridOffset[i] -= 2
+		if camera.position[i] < -localMax - 10
+			n = Math.ceil(camera.position[i] / localMax)
+			camera.position[i] -= n * localMax
+			originOffset[i] += n * localMax
 
 

@@ -6,12 +6,12 @@ offset = 65537
 
 
 class root.RandomStream
-	constructor: (seed) ->
-		@rand = seed % modulus
+	constructor: (seed = 0) ->
+		@seed = seed % modulus
 
 	unit: ->
-		@rand = ((@rand+offset) * multiplier) % modulus
-		return @rand / modulus
+		@seed = ((@seed+offset) * multiplier) % modulus
+		return @seed / modulus
 
 	symmetric: ->
 		return @unit() * 2.0 - 1.0
@@ -20,10 +20,10 @@ class root.RandomStream
 		return (max - min) * @unit() + min
 
 	intRange: (min, max) ->
-		@rand = ((@rand+offset) * multiplier) % modulus
-		return @rand % (max+1-min) + min
+		@seed = ((@seed+offset) * multiplier) % modulus
+		return @seed % (max+1-min) + min
 
 
-root.randomFromSeed = (number) ->
+root.randomIntFromSeed = (number) ->
 	number = ((number+offset) * multiplier) % modulus
 	return number
