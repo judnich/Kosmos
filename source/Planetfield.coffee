@@ -50,7 +50,7 @@ class root.Planetfield
 		@vBuff.numItems = @_planetBufferSize * 4
 
 		# prepare to render higher resolution planets as well
-		@lowresGeom = new PlanetLowresGeometry()
+		#@lowresGeom = new PlanetLowresGeometry(32)
 
 
 	setPlanetSprite: (index, position) ->
@@ -83,16 +83,7 @@ class root.Planetfield
 				angle = randomStream.radianAngle()
 				[orbitX, orbitY, orbitZ] = [radius * Math.sin(angle), radius * Math.cos(angle), w * Math.sin(angle)]
 
-				# note: since dx,dy,dz are relative star positions, we must add back the camera position because
-				# when rendered, the view matrix will subtract the camera position again. this is a bit hacky feeling
-				# but removing the translation from the view matrix would probably be more hassle/hacky anyway, and
-				# this is fine because planet sprite positions are computed per frame anyway.
-				@setPlanetSprite(@numPlanets, [
-					dx+orbitX + position[0],
-					dy+orbitY + position[1],
-					dz+orbitZ + position[2]
-				])
-
+				@setPlanetSprite(@numPlanets, [dx+orbitX, dy+orbitY, dz+orbitZ])
 				@numPlanets++
 
 
@@ -114,15 +105,17 @@ class root.Planetfield
 		if @vBuff.usedItems <= 0 then return
 		seed = Math.floor(Math.abs(seed))
 
-		# calculate model*view matrix based on block i,j,k position and block scale
-		#modelViewMat = mat4.create()
-		#mat4.scale(modelViewMat, modelViewMat, vec3.fromValues(@blockScale, @blockScale, @blockScale))
-		#mat4.translate(modelViewMat, modelViewMat, vec3.fromValues(i, j, k))
-		#mat4.mul(modelViewMat, camera.viewMat, modelViewMat)
+		# planet sprite positions in the vertex buffer are relative to camera position, so the model matrix adds back
+		# the camera position. the view matrix will then be composed which then reverses this, producing the expected resulting
+		# view-space positions in the vertex shader. this may seem a little roundabout but the alternate would be to implement 
+		# a "camera.viewMatrixButRotationOnlyBecauseIWantToDoViewTranslationInMyDynamicVertexBufferInstead".
+		modelViewMat = mat4.create()
+		mat4.translate(modelViewMat, modelViewMat, camera.position)
+		mat4.mul(modelViewMat, camera.viewMat, modelViewMat)
 
 		# set shader uniforms
 		gl.uniformMatrix4fv(@shader.uniforms.projMat, false, camera.projMat)
-		gl.uniformMatrix4fv(@shader.uniforms.modelViewMat, false, camera.viewMat)
+		gl.uniformMatrix4fv(@shader.uniforms.modelViewMat, false, modelViewMat)
 		gl.uniform4f(@shader.uniforms.spriteSizeAndViewRangeAndBlur, @planetSize, @nearRange, @farRange, blur)
 
 		# issue draw operation
