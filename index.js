@@ -136,6 +136,22 @@ function showIntro() {
 	msg.style.display = "block";
 }
 
+function showShare() {
+	hideIntro();
+	var msg = document.getElementById("shareMessage");
+	msg.style.display = "block";
+	btn = document.getElementById("shareBtn");
+	btn.className = "btn lit";
+	saveLocation(); // this updates the share link as well
+}
+
+function hideShare() {
+	var msg = document.getElementById("shareMessage");
+	msg.style.display = "none";
+	btn = document.getElementById("shareBtn");
+	btn.className = "btn";
+}
+
 function updateSpeed() {
 	hideIntro();
 

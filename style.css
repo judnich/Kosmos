@@ -139,6 +139,10 @@ canvas {
 	display: none;
 }
 
+.tall {
+	height: 250px;
+}
+
 .okButton {
 	display: block;
 	width: 100px;
@@ -176,7 +180,7 @@ canvas {
 	padding: 0;
 
 	width: 50%;
-	height: 70%;
+	height: 50%;
 	margin: 10px 25% 10px 25%;
 
 	background-color: #15e;
@@ -200,5 +204,16 @@ canvas {
 	border-top-right-radius: 4px;
 
 	background-color: #111;
+}
+
+.linkBox {
+	width: 100%;
+	font-family: "sans-serif", "Century Gothic";
+	font-size: 0.7em;
+	background-color: #000;
+	padding: 5px;
+	border: 1px solid white;
+	border-radius: 5px;
+	color: #afa;
 }
 

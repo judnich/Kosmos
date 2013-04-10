@@ -22,6 +22,10 @@
 			<div id="slider" class="slider"><div id="sliderBar" class="sliderBar"></div></div>
 			<div id="reverse" onClick="toggleReverse();" class="btn">Reverse</div>
 
+			<div id="autopilot" class="btn">Autopilot</div>
+			<div height="10px">&nbsp;</div>
+			<div id="shareBtn" onClick="showShare();" class="btn">Share</div>
+
 			</td></tr><tr><td height="30px">
 			
 			<a href="http://judnich.github.io/" target="_blank"><span class="footer">Copyright &copy; 2013<br/>John Judnich</span></a>
@@ -52,6 +56,17 @@
 			<p>Unfortunately, your web browser does not seem to support 3D graphics (no "WebGL").</p><p>
 			Please upgrade to a modern browser to use Kosmos. We recommend <b>Google Chrome</b>.</p>
 			<div class="okButton" onClick="window.location.href='http://google.com/chrome';">Get Chrome</div>
+		</div>
+
+		<div class="message tall" id="shareMessage">
+			<div class="title">Share this View</div>
+			<p>The URL below to links directly to what you're seeing now. Simply copy and paste into your preferred networking/messaging app.</p>
+
+			<textarea readonly rows="3" id="shareLink" onClick="this.focus(); this.select()" class="linkBox"></textarea>
+
+			<!--<div class="okButton" onClick="hideShare();">Share on Facebook</div>
+			<div class="okButton" onClick="hideShare();">Share on Twitter</div>-->
+			<div class="okButton" onClick="hideShare();">Close</div>
 		</div>
 
 		<script type="text/javascript" src="external/gl-matrix-min.js"></script>

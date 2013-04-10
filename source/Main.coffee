@@ -100,10 +100,7 @@ root.kosmosMain = ->
 	camera.position = vec3.fromValues(0, 0, 0)
 
 	# restore last location
-	if not window.location.hash
-		loadLocation()
-	else
-		clearLocation()
+	loadLocation()
 
 	resumeAnimating()
 
@@ -156,24 +153,48 @@ updateMouse = ->
 	quat.normalize(desiredRotation, desiredRotation)
 
 
-saveLocation = ->
+root.saveLocation = ->
+	# save to localstorage
 	if typeof(Storage) != undefined
 		localStorage["kosmosOffset" + i] = camera.position[i] for i in [0..2]
 		localStorage["kosmosOrigin" + i] = originOffset[i] for i in [0..2]
 		localStorage["kosmosRotation" + i] = desiredRotation[i] for i in [0..3]
 
+	# update "share" URL
+	if document.getElementById("shareMessage").style.display == "block"
+		url = "http://judnich.github.io/KosmosAlpha/index.html#go"
+		url += ":" + camera.position[i] for i in [0..2]
+		url += ":" + originOffset[i] for i in [0..2]
+		url += ":" + Math.round(desiredRotation[i] * 1000) / 1000 for i in [0..3]
 
-loadLocation = ->
-	if typeof(Storage) != undefined
-		camera.position[i] = parseFloat(localStorage["kosmosOffset" + i]) || 0.0 for i in [0..2]
-		originOffset[i] = parseFloat(localStorage["kosmosOrigin" + i]) || 0.0 for i in [0..2]
+		document.getElementById("shareLink").value = url
 
-		for i in [0..3]
-			x = localStorage["kosmosRotation" + i]
-			if x == undefined || x == NaN || not x then break
-			desiredRotation[i] = parseFloat(x)
+root.loadLocation = ->
+	if not window.location.hash
+		# load previously saved location from localStorage
+		if typeof(Storage) != undefined
+			camera.position[i] = parseFloat(localStorage["kosmosOffset" + i]) || 0.0 for i in [0..2]
+			originOffset[i] = parseFloat(localStorage["kosmosOrigin" + i]) || 0.0 for i in [0..2]
 
-		quat.copy(smoothRotation, desiredRotation)
+			for i in [0..3]
+				x = localStorage["kosmosRotation" + i]
+				if x == undefined || x == NaN || not x then break
+				desiredRotation[i] = parseFloat(x)
+
+			quat.copy(smoothRotation, desiredRotation)
+	else
+		# set location from url hash
+		words = window.location.hash.split(":")
+		if words[0] == "#go"
+			camera.position[i] = parseFloat(words[i+1]) for i in [0..2]
+			originOffset[i] = parseFloat(words[i+4]) for i in [0..2]
+			desiredRotation[i] = parseFloat(words[i+7]) for i in [0..3]
+			quat.copy(smoothRotation, desiredRotation)
+		else
+			clearLocation()
+
+		# remove hash from URL
+		history.pushState("", document.title, window.location.pathname + window.location.search)
 
 clearLocation = ->
 	if typeof(Storage) != undefined
