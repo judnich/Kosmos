@@ -63,10 +63,6 @@ class root.Planetfield
 
 
 	render: (camera, originOffset, blur) ->
-		camera.far = @farRange * 1.1
-		camera.near = @nearRange * 0.9
-		camera.update()
-
 		# get list of nearby stars, sorted from nearest to farthest
 		@starList = @_starfield.queryStars(camera.position, originOffset, @farRange)
 		@starList.sort( ([ax,ay,az,aw], [cx,cy,cz,cw]) -> (ax*ax + ay*ay + az*az) - (cx*cx + cy*cy + cz*cz) )
@@ -74,7 +70,14 @@ class root.Planetfield
 		# populate vertex buffer with planet positions, and track positions of mesh-range planets
 		@generatePlanetPositions()
 
+		camera.far = @farRange * 1.1
+		camera.near = @nearRange * 0.9
+		camera.update()
 		@renderSprites(camera, originOffset, blur)
+
+		camera.far = @nearRange * 5.0
+		camera.near = @nearRange * 0.001
+		camera.update()
 		@renderFarMeshes(camera, originOffset)
 
 
@@ -98,7 +101,7 @@ class root.Planetfield
 
 				# store in @meshPlanets if this is close enough that it will be rendered as a mesh
 				dist = Math.sqrt(x*x + y*y + z*z)
-				alpha = 1 - (dist / (@nearRange*2))
+				alpha = 2.0 - (dist / @nearRange) * 0.5
 				if alpha > 0.001
 					@meshPlanets[numMeshPlanets] = [x, y, z, alpha]
 					numMeshPlanets++
@@ -149,7 +152,8 @@ class root.Planetfield
 		# set shader uniforms
 		gl.uniformMatrix4fv(@shader.uniforms.projMat, false, camera.projMat)
 		gl.uniformMatrix4fv(@shader.uniforms.modelViewMat, false, modelViewMat)
-		gl.uniform4f(@shader.uniforms.spriteSizeAndViewRangeAndBlur, @planetSize, @nearRange, @farRange, blur)
+		gl.uniform4f(@shader.uniforms.spriteSizeAndViewRangeAndBlur, @planetSize * 10.0, @nearRange, @farRange, blur)
+		# NOTE: Size is multiplied by 10 because the whole sprite needs to be bigger because only the center area appears filled
 
 		# issue draw operation
 		gl.drawElements(gl.TRIANGLES, @numPlanets*6, gl.UNSIGNED_SHORT, 0)

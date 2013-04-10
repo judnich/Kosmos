@@ -7,7 +7,7 @@ varying vec3 vNormal;
 uniform float alpha;
 
 void main(void) {
-    gl_FragColor.xyz = vec3(1, 0, 0);
+    gl_FragColor.xyz = vec3(0.5, 0.5, 0.5) * dot(vNormal, vec3(1, 0, 0)) + vec3(0.1, 0.2, 0.1);
     gl_FragColor.w = alpha;
 }
 
@@ -25,7 +25,7 @@ uniform mat4 modelViewMat;
 varying vec3 vNormal;
 
 void main(void) {
-	vNormal = aPos;
+	vNormal = aPos + aUV.x * 0.0;
 
 	vec4 pos = vec4(aPos, 1.0);
 	pos = modelViewMat * pos;

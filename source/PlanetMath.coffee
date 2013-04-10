@@ -14,14 +14,14 @@ root.mapPlaneToCube = (u, v, faceIndex) ->
 
 
 initialize = ->
-	root.cubeFaceQuaternion[i] = quat.create() for i in [0..5]
+	cubeFaceQuaternion[i] = quat.create() for i in [0..5]
 	unitX = vec3.fromValues(1, 0, 0)
 	unitY = vec3.fromValues(0, 1, 0)
-	quat.setAxisAngle(root.cubeFaceQuaternion[1], vec3.fromValues(unitY), xgl.degToRad(180))
-	quat.setAxisAngle(root.cubeFaceQuaternion[2], vec3.fromValues(unitY), xgl.degToRad(-90))
-	quat.setAxisAngle(root.cubeFaceQuaternion[3], vec3.fromValues(unitY), xgl.degToRad(90))
-	quat.setAxisAngle(root.cubeFaceQuaternion[4], vec3.fromValues(unitX), xgl.degToRad(90))
-	quat.setAxisAngle(root.cubeFaceQuaternion[5], vec3.fromValues(unitX), xgl.degToRad(-90))
+	quat.setAxisAngle(cubeFaceQuaternion[1], unitY, xgl.degToRad(180))
+	quat.setAxisAngle(cubeFaceQuaternion[2], unitY, xgl.degToRad(-90))
+	quat.setAxisAngle(cubeFaceQuaternion[3], unitY, xgl.degToRad(90))
+	quat.setAxisAngle(cubeFaceQuaternion[4], unitX, xgl.degToRad(90))
+	quat.setAxisAngle(cubeFaceQuaternion[5], unitX, xgl.degToRad(-90))
 
 
 initialize()

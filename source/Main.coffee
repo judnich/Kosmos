@@ -84,15 +84,15 @@ root.kosmosMain = ->
 		blockMinStars: 200, 
 		blockMaxStars: 300, 
 		blockScale: 100000.0, 
-		starSize: 500.0, 
+		starSize: 50.0, 
 		viewRange: 300000.0
 	}
 	planetfield = new Planetfield {
 		starfield: starfield,
 		maxPlanetsPerSystem: 3,
-		minOrbitScale: 1.5,
-		maxOrbitScale: 3.0,
-		planetSize: 5.0,
+		minOrbitScale: 15,
+		maxOrbitScale: 30,
+		planetSize: 1.0,
 		nearRange: 50.0, 
 		farRange: 30000.0
 	}

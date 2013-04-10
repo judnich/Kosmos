@@ -10,7 +10,7 @@ void main(void) {
 	// compute planet color based on intensity = 1/dist^2 from center of sprite
 	vec2 dv = vUVA.xy;
 	float d = dot(dv, dv);
-	float lum = clamp(1.0 / (d*100.0), 0.0, 1.0);
+	float lum = clamp(1.0 / (d*100.0), 0.0, 1.0) * clamp(d*d*5000.0, vColor.a*vColor.a, 1.0);
 
 	// fall off at a max radius, since 1/dist^2 goes on infinitely
 	d = clamp(d * 4.0, 0.0, 1.0);

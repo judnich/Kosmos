@@ -293,7 +293,8 @@ class root.Starfield
 		# set shader uniforms
 		gl.uniformMatrix4fv(@shader.uniforms.projMat, false, camera.projMat)
 		gl.uniformMatrix4fv(@shader.uniforms.modelViewMat, false, modelViewMat)
-		gl.uniform3f(@shader.uniforms.starSizeAndViewRangeAndBlur, @starSize, @viewRange, @blur)
+		gl.uniform3f(@shader.uniforms.starSizeAndViewRangeAndBlur, @starSize * 10.0, @viewRange, @blur)
+		# NOTE: Size is multiplied by 10 because the whole sprite needs to be bigger because only the center area appears filled
 
 		# issue draw operation
 		gl.drawElements(gl.TRIANGLES, starCount*6, gl.UNSIGNED_SHORT, 2*6*offset)

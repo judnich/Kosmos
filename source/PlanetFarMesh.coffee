@@ -10,11 +10,11 @@ class root.PlanetFarMesh
 		@shader.attribs = xgl.getProgramAttribs(@shader, ["aPos", "aUV"])
 
 		# build vertex buffer (subdivided cube, normalized to be spherical)
-		buff = new Float32Array(6*@geomRes*@geomRes * 5)
+		buff = new Float32Array(6*(@geomRes+1)*(@geomRes+1) * 5)
 		n = 0
 		for face in [0..5]
-			for j in [0..@geomRes-1]
-				for i in [0..@geomRes-1]
+			for j in [0..@geomRes]
+				for i in [0..@geomRes]
 					[u, v] = [i / @geomRes, j / @geomRes]
 					pos = mapPlaneToCube(u, v, face)
 					vec3.normalize(pos, pos)
@@ -33,13 +33,13 @@ class root.PlanetFarMesh
 		@vBuff.numItems = buff.length / @vBuff.itemSize
 
 		# build index buffer
-		buff = new Uint16Array(6*(@geomRes-1)*(@geomRes-1) * 6)
+		buff = new Uint16Array(6*(@geomRes)*(@geomRes) * 6)
 		n = 0
 		for face in [0..5]
-			faceOffset = @geomRes*@geomRes * face
-			for j in [0..@geomRes-2]
-				for i in [0..@geomRes-2]
-					[v00, v01] = [i + j*@geomRes + faceOffset, i + (j+1)*geomRes + faceOffset]
+			faceOffset = (@geomRes+1)*(@geomRes+1) * face
+			for j in [0..@geomRes-1]
+				for i in [0..@geomRes-1]
+					[v00, v01] = [i + j*(@geomRes+1) + faceOffset, i + (j+1)*(@geomRes+1) + faceOffset]
 					[v10, v11] = [v00 + 1, v01 + 1]
 
 					buff[n] = v00
@@ -79,7 +79,7 @@ class root.PlanetFarMesh
 		gl.depthMask(false)
 
 		gl.enable(gl.BLEND)
-		gl.blendFunc(gl.ONE, gl.GL_ONE_MINUS_SRC_ALPHA)
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
 		gl.useProgram(@shader)
 
