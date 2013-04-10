@@ -22,16 +22,16 @@ class root.Starfield
 		@shader.attribs = xgl.getProgramAttribs(@shader, ["aPos", "aUV"])
 
 		# generate random positions
-		@starPositions = []
+		starPositions = []
 		for i in [0 .. @_starBufferSize-1]
 			pos = [randomStream.unit(), randomStream.unit(), randomStream.unit(), randomStream.unit()]
-			@starPositions[i] = pos
+			starPositions[i] = pos
 
 		# generate vertex buffer
 		buff = new Float32Array(@_starBufferSize * 4 * 7)
 		j = 0
 		for i in [0 .. @_starBufferSize-1]
-			[x, y, z, w] = @starPositions[i]
+			[x, y, z, w] = starPositions[i]
 
 			# each quad's vertices are randomly rotated for the specific reason of randomizing the effect of the
 			# motion blur effect in the vertex shader, because it works in a "hacky" way - it displaces some
@@ -85,39 +85,135 @@ class root.Starfield
 		if @iBuff.numItems >= 0xFFFF
 			xgl.error("Index buffer too large for StarField")
 
+		# catalog stars for fast realtime lookup
+		@_catalogStars(starPositions)
+
 		console.log("Generated.")
 
 
-	# this function returns a list of stars within the given radius from 
-	# position+originOffset but only up to maxStars of them at most.
-	queryStars: (position, originOffset, radius, maxStars) ->
-		# todo
+	_catalogStars: (starPositions) ->
+		# catalog star positions into a 3D array for fast lookup in realtime
+		# each block in the array stores a list of [index, x, y, z, w] where
+		# index is the index from the original vertex buffer
+		@starPosTableSize = 5 # 5x5x5 grid of blocks
+		@starPosTable = []
+		for i in [0..@starPosTableSize-1]
+			@starPosTable[i] = []
+			for j in [0..@starPosTableSize-1]
+				@starPosTable[i][j] = []
+				for k in [0..@starPosTableSize-1]
+					@starPosTable[i][j][k] = []
 
+		for index in [0 .. @_starBufferSize-1]
+			[x, y, z, w] = starPositions[index]
+			i = Math.floor(x * @starPosTableSize)
+			j = Math.floor(y * @starPosTableSize)
+			k = Math.floor(z * @starPosTableSize)
+			list = @starPosTable[i][j][k]
+			list[list.length] = [index, x, y, z, w]
+
+
+	# This function returns a list of stars within the given radius from 
+	# position+originOffset but only up to maxStars of them at most.
+	# Each star returned is of the form [dx, dy, dz, w], where [dx,dy,dz] is
+	# the star's absolute location relative to (minus) the camera's absolute location.
+	queryStars: (position, originOffset, radius) ->
+		queryResult = []
+
+		# convert position+originOffset in block space
+		[ti, tj, tk] = [originOffset[0]/@blockScale + position[0]/@blockScale,
+						originOffset[1]/@blockScale + position[1]/@blockScale,
+						originOffset[2]/@blockScale + position[2]/@blockScale]
+
+		# compute global index of star block the position is in
+		[ci, cj, ck] = [Math.floor(ti), Math.floor(tj), Math.floor(tk)]
+
+		# compute the local (block space) offset of the viewer within the center block
+		[li, lj, lk] = [ci-ti, cj-tj, ck-tk]
+
+		# try rendering all blocks within the view radius
+		randStream = new root.RandomStream()
+		r = Math.ceil(radius / @blockScale)
+		for i in [-r .. +r]
+			for j in [-r .. +r]
+				for k in [-r .. +r]
+					# position of lowest corner, relative to the camera
+					[x, y, z] = [i + li, j + lj, k + lk]
+
+					# check if block falls in view range
+					bpos = vec3.fromValues((x+0.5)*@blockScale, (y+0.5)*@blockScale, (z+0.5)*@blockScale)
+					minDist = vec3.distance(position, bpos) - @blockScale*0.8660254 #sqrt(3)/2
+					if minDist <= radius
+						# query block
+						seed = randomIntFromSeed(randomIntFromSeed(randomIntFromSeed(i + ci) + (j + cj)) + (k + ck))
+						randStream.seed = seed
+						partialQuery = @_queryBlock(seed, randStream.intRange(@blockMinStars, @blockMaxStars), [x, y, z], radius/@blockScale)
+						queryResult = queryResult.concat(partialQuery)
+
+		return queryResult
+
+
+	_queryBlock: (seed, starCount, blockOffset, blockRadius) ->
+		queryResult = []
+		blockSize = 1.0 / @starPosTableSize
+
+		# determine what region of the vertex buffer to render 
+		[offset, starCount] = @_getStarBufferOffsetAndCount(seed, starCount)
+		[beginI, endI] = [offset, offset + starCount - 1]
+
+		# scan star position table for nearby stars
+		radiusSq = blockRadius * blockRadius
+		for i in [0..@starPosTableSize-1]
+			for j in [0..@starPosTableSize-1]
+				for k in [0..@starPosTableSize-1]
+					bpos = [(i+0.5)*blockSize + blockOffset[0],
+							(j+0.5)*blockSize + blockOffset[1],
+							(k+0.5)*blockSize + blockOffset[2]]
+					minDist = vec3.length(bpos) - blockSize*0.8660254 #sqrt(3)/2
+					if minDist <= blockRadius
+						starList = @starPosTable[i][j][k]
+						for [index, x, y, z, w] in starList
+							if index >= beginI and index <= endI
+								dx = (x + blockOffset[0])
+								dy = (y + blockOffset[1])
+								dz = (z + blockOffset[2])
+								distSq = dx*dx + dy*dy + dz*dz
+								if distSq <= radiusSq
+									queryResult[queryResult.length] = [dx * @blockScale, dy * @blockScale, dz * @blockScale, w]
+
+		return queryResult
 
 	render: (camera, originOffset, blur) ->
 		@_startRender()
 		@blur = blur
 
+		# compute global index of star block the viewer is in
 		[ci, cj, ck] = [Math.floor(camera.position[0]/@blockScale + originOffset[0]/@blockScale),
 						Math.floor(camera.position[1]/@blockScale + originOffset[1]/@blockScale),
 						Math.floor(camera.position[2]/@blockScale + originOffset[2]/@blockScale)]
-		r = Math.ceil(@viewRange / @blockScale)
 
-		[oi, oj, ok] = [ci - originOffset[0]/@blockScale,
+		# compute the local (block space) offset of the viewer within the center block
+		[li, lj, lk] = [ci - originOffset[0]/@blockScale,
 						cj - originOffset[1]/@blockScale,
 						ck - originOffset[2]/@blockScale]
 
+		# try rendering all blocks within the view radius
 		randStream = new root.RandomStream()
+		r = Math.ceil(@viewRange / @blockScale)
 		for i in [-r .. +r]
 			for j in [-r .. +r]
 				for k in [-r .. +r]
-					[x, y, z] = [i+oi, j+oj, k+ok]
+					# position of lowest corner relative to camera
+					[x, y, z] = [i+li, j+lj, k+lk]
+
+					# check if block falls in view range
 					bpos = vec3.fromValues((x+0.5)*@blockScale, (y+0.5)*@blockScale, (z+0.5)*@blockScale)
 					minDist = vec3.distance(camera.position, bpos) - @blockScale*0.8660254 #sqrt(3)/2
 					if minDist <= @viewRange
+						# render block
 						seed = randomIntFromSeed(randomIntFromSeed(randomIntFromSeed(i + ci) + (j + cj)) + (k + ck))
 						randStream.seed = seed
-						@_renderBlock(camera, seed, randStream.range(@blockMinStars, @blockMaxStars), x, y, z)
+						@_renderBlock(camera, seed, randStream.intRange(@blockMinStars, @blockMaxStars), x, y, z)
 
 		@_finishRender()
 
@@ -152,14 +248,9 @@ class root.Starfield
 		gl.disable(gl.BLEND)
 
 
-	_renderBlock: (camera, seed, starCount, i, j, k) ->
-		# return without rendering if invisible
-		box = new Box()
-		box.min = vec3.fromValues(i*@blockScale, j*@blockScale, k*@blockScale)
-		box.max = vec3.fromValues((i+1)*@blockScale, (j+1)*@blockScale, (k+1)*@blockScale)
-		if not camera.isVisibleBox(box) then return
-
-		# basic setup
+	# This returns [offset, count] corresponding to the vertex buffer range to render for the desired
+	# number of stars (if possible) and random seed value. The returned [offset, count] will be ints in range.
+	_getStarBufferOffsetAndCount: (seed, starCount) ->
 		starCount = Math.floor(starCount)
 		if starCount <= 0 then return
 		seed = Math.floor(Math.abs(seed))
@@ -174,6 +265,19 @@ class root.Starfield
 			offset = ((seed + 127) * 65537) % (1 + @_starBufferSize - starCount)
 		else
 			offset = 0
+
+		return [offset, starCount]
+
+
+	_renderBlock: (camera, seed, starCount, i, j, k) ->
+		# return without rendering if invisible
+		box = new Box()
+		box.min = vec3.fromValues(i*@blockScale, j*@blockScale, k*@blockScale)
+		box.max = vec3.fromValues((i+1)*@blockScale, (j+1)*@blockScale, (k+1)*@blockScale)
+		if not camera.isVisibleBox(box) then return
+
+		# determine what region of the vertex buffer to render 
+		[offset, starCount] = @_getStarBufferOffsetAndCount(seed, starCount)
 
 		# calculate model*view matrix based on block i,j,k position and block scale
 		modelViewMat = mat4.create()

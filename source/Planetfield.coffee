@@ -1,6 +1,6 @@
 root = exports ? this
 
-root.planetBufferSize = 10
+root.planetBufferSize = 100
 
 class root.Planetfield
 	constructor: ({starfield, planetSize, nearRange, farRange}) ->
@@ -10,6 +10,7 @@ class root.Planetfield
 		@planetSize = planetSize
 		@starfield = starfield
 		@_planetBufferSize = planetBufferSize
+		@maxPlanetsPerSystem = 3
 
 		randomStream = new RandomStream(universeSeed)
 
@@ -47,10 +48,6 @@ class root.Planetfield
 
 
 	setPlanetSprite: (index, position) ->
-		if index >= @_planetBufferSize
-			console.log("Internal error: Planet index exceeds planet buffer size")
-			return
-
 		j = index * 6*4
 		for vi in [0..3]
 			@buff[j] = position[0]
@@ -59,17 +56,46 @@ class root.Planetfield
 			j += 6
 
 
+	updatePlanetSprites: (position, originOffset) ->
+		starList = @starfield.queryStars(position, originOffset, @farRange)
+
+		#if starList.length * @maxPlanetsPerSystem > @_planetBufferSize
+		# sort star list from nearest to farthest
+		starList.sort( ([ax,ay,az,aw], [cx,cy,cz,cw]) -> (ax*ax + ay*ay + az*az) - (cx*cx + cy*cy + cz*cz) )
+
+		randomStream = new RandomStream()
+		@numPlanets = 0
+
+		for [dx, dy, dz, w] in starList
+			randomStream.seed = w * 1000000
+
+			systemPlanets = randomStream.intRange(0, @maxPlanetsPerSystem)
+			if @numPlanets + systemPlanets > @_planetBufferSize then break
+
+			for i in [1 .. systemPlanets]
+				radius = @starfield.starSize * randomStream.range(1.5, 3.0)
+				angle = randomStream.radianAngle()
+				[orbitX, orbitY, orbitZ] = [radius * Math.sin(angle), radius * Math.cos(angle), w * Math.sin(angle)]
+
+				# note: since dx,dy,dz are relative star positions, we must add back the camera position because
+				# when rendered, the view matrix will subtract the camera position again. this is a bit hacky feeling
+				# but removing the translation from the view matrix would probably be more hassle/hacky anyway, and
+				# this is fine because planet sprite positions are computed per frame anyway.
+				@setPlanetSprite(@numPlanets, [
+					dx+orbitX + position[0],
+					dy+orbitY + position[1],
+					dz+orbitZ + position[2]
+				])
+
+				@numPlanets++
+
+
 	render: (camera, originOffset, blur) ->
-		# calculate near planet positions
-		numPlanets = 10
-		randomStream = new RandomStream(0)
-		for i in [0..numPlanets-1]
-			@setPlanetSprite(i, [randomStream.range(-1000, 1000) - originOffset[0], 
-								randomStream.range(-1000, 1000) - originOffset[1], 
-								randomStream.range(-1000, 1000) - originOffset[2]])
+		# populate vertex buffer with planet positions
+		@updatePlanetSprites(camera.position, originOffset)
 
 		# return if nothing to render
-		if numPlanets <= 0 then return
+		if @numPlanets <= 0 then return
 
 		# push render state
 		@_startRender()
@@ -94,7 +120,7 @@ class root.Planetfield
 		gl.uniform4f(@shader.uniforms.spriteSizeAndViewRangeAndBlur, @planetSize, @nearRange, @farRange, blur)
 
 		# issue draw operation
-		gl.drawElements(gl.TRIANGLES, numPlanets*6, gl.UNSIGNED_SHORT, 0)
+		gl.drawElements(gl.TRIANGLES, @numPlanets*6, gl.UNSIGNED_SHORT, 0)
 
 		# pop render state
 		@_finishRender()

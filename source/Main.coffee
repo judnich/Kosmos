@@ -251,10 +251,14 @@ render = ->
 
 	starfield.render(camera, originOffset, blur)
 
-	#gl.clear(gl.DEPTH_BUFFER_BIT);
+	gl.clear(gl.DEPTH_BUFFER_BIT);
 	camera.far = planetfield.farRange * 1.1
 	camera.near = planetfield.nearRange * 0.9
 	camera.update()
+
+	#starList = starfield.queryStars(camera.position, originOffset, 100.0)
+	#if starList.length > 0
+	#	console.log(starList)
 
 	planetfield.render(camera, originOffset, blur)
 

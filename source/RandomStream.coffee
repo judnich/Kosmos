@@ -13,15 +13,13 @@ class root.RandomStream
 		@seed = ((@seed+offset) * multiplier) % modulus
 		return @seed / modulus
 
-	symmetric: ->
-		return @unit() * 2.0 - 1.0
-
-	range: (min, max) ->
-		return (max - min) * @unit() + min
-
 	intRange: (min, max) ->
 		@seed = ((@seed+offset) * multiplier) % modulus
 		return @seed % (max+1-min) + min
+
+	symmetric: -> @unit() * 2.0 - 1.0
+	range: (min, max) -> (max - min) * @unit() + min
+	radianAngle: -> @range(0, 2.0 * Math.PI)
 
 
 root.randomIntFromSeed = (number) ->
