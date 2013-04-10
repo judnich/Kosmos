@@ -46,6 +46,9 @@ xgl.createProgram = (vertexShader, fragmentShader) ->
 # given <script> ids for vertex and fragment shader source, returns a linked program object
 xgl.loadProgram = (programName) ->
 	shaderSrc = xgl.programs[programName]
+	if not shaderSrc
+		xgl.error("Sources for program \"#{programName}\" not found in xgl.programs.")
+		return null
 
 	vertexShader = xgl.loadShader(shaderSrc.vertex, true)
 	if vertexShader == null

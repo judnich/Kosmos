@@ -269,21 +269,7 @@ render = ->
 
 	if smoothSpeed < 0 then blur = -blur
 
-	camera.far = starfield.viewRange * 1.1
-	camera.near = starfield.viewRange / 50000.0
-	camera.update()
-
 	starfield.render(camera, originOffset, blur)
-
-	gl.clear(gl.DEPTH_BUFFER_BIT);
-	camera.far = planetfield.farRange * 1.1
-	camera.near = planetfield.nearRange * 0.9
-	camera.update()
-
-	#starList = starfield.queryStars(camera.position, originOffset, 100.0)
-	#if starList.length > 0
-	#	console.log(starList)
-
 	planetfield.render(camera, originOffset, blur)
 
 	updateCoordinateSystem()

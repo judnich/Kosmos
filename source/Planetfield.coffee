@@ -49,8 +49,8 @@ class root.Planetfield
 		@vBuff.itemSize = 6
 		@vBuff.numItems = @_planetBufferSize * 4
 
-		# prepare to render higher resolution planets as well
-		#@lowresGeom = new PlanetLowresGeometry(32)
+		# prepare to render geometric planet representations as well
+		@farMesh = new PlanetFarMesh(32)
 
 
 	setPlanetSprite: (index, position) ->
@@ -62,17 +62,30 @@ class root.Planetfield
 			j += 6
 
 
-	updatePlanetSprites: (position, originOffset) ->
-		starList = @_starfield.queryStars(position, originOffset, @farRange)
+	render: (camera, originOffset, blur) ->
+		camera.far = @farRange * 1.1
+		camera.near = @nearRange * 0.9
+		camera.update()
 
-		#if starList.length * @maxPlanetsPerSystem > @_planetBufferSize
-		# sort star list from nearest to farthest
-		starList.sort( ([ax,ay,az,aw], [cx,cy,cz,cw]) -> (ax*ax + ay*ay + az*az) - (cx*cx + cy*cy + cz*cz) )
+		# get list of nearby stars, sorted from nearest to farthest
+		@starList = @_starfield.queryStars(camera.position, originOffset, @farRange)
+		@starList.sort( ([ax,ay,az,aw], [cx,cy,cz,cw]) -> (ax*ax + ay*ay + az*az) - (cx*cx + cy*cy + cz*cz) )
 
+		# populate vertex buffer with planet positions, and track positions of mesh-range planets
+		@generatePlanetPositions()
+
+		@renderSprites(camera, originOffset, blur)
+		@renderFarMeshes(camera, originOffset)
+
+
+	generatePlanetPositions: ->
 		randomStream = new RandomStream()
 		@numPlanets = 0
 
-		for [dx, dy, dz, w] in starList
+		@meshPlanets = []
+		numMeshPlanets = 0
+
+		for [dx, dy, dz, w] in @starList
 			randomStream.seed = w * 1000000
 
 			systemPlanets = randomStream.intRange(0, @maxPlanetsPerSystem)
@@ -81,21 +94,41 @@ class root.Planetfield
 			for i in [1 .. systemPlanets]
 				radius = @_starfield.starSize * randomStream.range(@minOrbitScale, @maxOrbitScale)
 				angle = randomStream.radianAngle()
-				[orbitX, orbitY, orbitZ] = [radius * Math.sin(angle), radius * Math.cos(angle), w * Math.sin(angle)]
+				[x, y, z] = [dx + radius * Math.sin(angle), dy + radius * Math.cos(angle), dz + w * Math.sin(angle)]
 
-				@setPlanetSprite(@numPlanets, [dx+orbitX, dy+orbitY, dz+orbitZ])
+				# store in @meshPlanets if this is close enough that it will be rendered as a mesh
+				dist = Math.sqrt(x*x + y*y + z*z)
+				alpha = 1 - (dist / (@nearRange*2))
+				if alpha > 0.001
+					@meshPlanets[numMeshPlanets] = [x, y, z, alpha]
+					numMeshPlanets++
+
+				# add this to the vertex buffer to render as a sprite
+				@setPlanetSprite(@numPlanets, [x, y, z])
 				@numPlanets++
 
 
-	render: (camera, originOffset, blur) ->
-		# populate vertex buffer with planet positions
-		@updatePlanetSprites(camera.position, originOffset)
+	renderFarMeshes: (camera, originOffset) ->
+		if not @meshPlanets or @meshPlanets.length == 0 then return
 
+		@farMesh.startRender()
+
+		# build a list of planets to render in reverse order, since we need to render farthest to nearest
+		# because the depth buffer is not enabled yet (we're still rendering on massive scales, potentially)
+		for i in [@meshPlanets.length-1 .. 0]
+			[x, y, z, alpha] = @meshPlanets[i]
+			pos = vec3.fromValues(x + camera.position[0], y + camera.position[1], z + camera.position[2])
+			@farMesh.renderInstance(camera, pos, alpha)
+
+		@farMesh.finishRender()
+
+
+	renderSprites: (camera, originOffset, blur) ->
 		# return if nothing to render
 		if @numPlanets <= 0 then return
 
 		# push render state
-		@_startRender()
+		@_startRenderSprites()
 
 		# upload planet sprite vertices
 		gl.bufferData(gl.ARRAY_BUFFER, @buff, gl.DYNAMIC_DRAW)
@@ -122,10 +155,10 @@ class root.Planetfield
 		gl.drawElements(gl.TRIANGLES, @numPlanets*6, gl.UNSIGNED_SHORT, 0)
 
 		# pop render state
-		@_finishRender()
+		@_finishRenderSprites()
 
 
-	_startRender: ->
+	_startRenderSprites: ->
 		gl.disable(gl.DEPTH_TEST)
 		gl.disable(gl.CULL_FACE)
 		gl.depthMask(false)
@@ -143,7 +176,7 @@ class root.Planetfield
 		gl.vertexAttribPointer(@shader.attribs.aUV, 3, gl.FLOAT, false, @vBuff.itemSize*4, 4 *3)
 
 
-	_finishRender: ->
+	_finishRenderSprites: ->
 		gl.disableVertexAttribArray(@shader.attribs.aPos)
 		gl.disableVertexAttribArray(@shader.attribs.aUV)
 

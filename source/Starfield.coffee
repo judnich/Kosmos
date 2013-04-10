@@ -185,6 +185,10 @@ class root.Starfield
 		return queryResult
 
 	render: (camera, originOffset, blur) ->
+		camera.far = @viewRange * 1.1
+		camera.near = @viewRange / 50000.0
+		camera.update()
+
 		@_startRender()
 		@blur = blur
 
