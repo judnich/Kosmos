@@ -3,14 +3,17 @@ root = exports ? this
 root.planetBufferSize = 100
 
 class root.Planetfield
-	constructor: ({starfield, planetSize, nearRange, farRange}) ->
-		@starfield = starfield
+	constructor: ({starfield, maxPlanetsPerSystem, minOrbitScale, maxOrbitScale, planetSize, nearRange, farRange}) ->
+		@_starfield = starfield
+		@_planetBufferSize = root.planetBufferSize
+
 		@nearRange = nearRange
 		@farRange = farRange
 		@planetSize = planetSize
-		@starfield = starfield
-		@_planetBufferSize = planetBufferSize
-		@maxPlanetsPerSystem = 3
+
+		@maxPlanetsPerSystem = maxPlanetsPerSystem
+		@minOrbitScale = minOrbitScale
+		@maxOrbitScale = maxOrbitScale
 
 		randomStream = new RandomStream(universeSeed)
 
@@ -20,7 +23,7 @@ class root.Planetfield
 		@shader.attribs = xgl.getProgramAttribs(@shader, ["aPos", "aUV"])
 
 		# we just re-use the index buffer from the starfield because the sprites are indexed the same
-		@iBuff = @starfield.iBuff
+		@iBuff = @_starfield.iBuff
 		if @_planetBufferSize*6 > @iBuff.numItems
 			console.log("Warning: planetBufferSize should not be larger than starBufferSize. Setting planetBufferSize = starBufferSize.")
 			@_planetBufferSize = @iBuff.numItems
@@ -46,6 +49,9 @@ class root.Planetfield
 		@vBuff.itemSize = 6
 		@vBuff.numItems = @_planetBufferSize * 4
 
+		# prepare to render higher resolution planets as well
+		@lowresGeom = new PlanetLowresGeometry()
+
 
 	setPlanetSprite: (index, position) ->
 		j = index * 6*4
@@ -57,7 +63,7 @@ class root.Planetfield
 
 
 	updatePlanetSprites: (position, originOffset) ->
-		starList = @starfield.queryStars(position, originOffset, @farRange)
+		starList = @_starfield.queryStars(position, originOffset, @farRange)
 
 		#if starList.length * @maxPlanetsPerSystem > @_planetBufferSize
 		# sort star list from nearest to farthest
@@ -73,7 +79,7 @@ class root.Planetfield
 			if @numPlanets + systemPlanets > @_planetBufferSize then break
 
 			for i in [1 .. systemPlanets]
-				radius = @starfield.starSize * randomStream.range(1.5, 3.0)
+				radius = @_starfield.starSize * randomStream.range(@minOrbitScale, @maxOrbitScale)
 				angle = randomStream.radianAngle()
 				[orbitX, orbitY, orbitZ] = [radius * Math.sin(angle), radius * Math.cos(angle), w * Math.sin(angle)]
 

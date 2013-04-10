@@ -5,12 +5,13 @@ root.starBufferSize = 10000
 
 class root.Starfield
 	constructor: ({blockMinStars, blockMaxStars, blockScale, starSize, viewRange}) ->
+		@_starBufferSize = root.starBufferSize
+
 		@blockMinStars = blockMinStars
 		@blockMaxStars = blockMaxStars
 		@blockScale = blockScale
 		@viewRange = viewRange
 		@starSize = starSize
-		@_starBufferSize = root.starBufferSize
 
 		randomStream = new RandomStream(universeSeed)
 
