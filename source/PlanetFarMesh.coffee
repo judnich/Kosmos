@@ -6,7 +6,7 @@ class root.PlanetFarMesh
 
 		# load planet shader
 		@shader = xgl.loadProgram("planetFarMesh")
-		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "alpha"])
+		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "alpha", "lightVec"])
 		@shader.attribs = xgl.getProgramAttribs(@shader, ["aPos", "aUV"])
 
 		# build vertex buffer (subdivided cube, normalized to be spherical)
@@ -62,13 +62,14 @@ class root.PlanetFarMesh
 
 
 	# WARNING: be sure to call startRender first and endRender after done calling this
-	renderInstance: (camera, posVec, alpha) ->
+	renderInstance: (camera, posVec, lightVec, alpha) ->
 		modelViewMat = mat4.create()
 		mat4.translate(modelViewMat, modelViewMat, posVec)
 		mat4.mul(modelViewMat, camera.viewMat, modelViewMat)
 
 		gl.uniformMatrix4fv(@shader.uniforms.projMat, false, camera.projMat)
 		gl.uniformMatrix4fv(@shader.uniforms.modelViewMat, false, modelViewMat)
+		gl.uniform3fv(@shader.uniforms.lightVec, lightVec)
 		gl.uniform1f(@shader.uniforms.alpha, alpha)
 
 		gl.drawElements(gl.TRIANGLES, @iBuff.numItems, gl.UNSIGNED_SHORT, 0)

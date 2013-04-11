@@ -5,9 +5,10 @@ precision mediump float;
 
 varying vec3 vNormal;
 uniform float alpha;
+uniform vec3 lightVec;
 
 void main(void) {
-    gl_FragColor.xyz = vec3(0.5, 0.5, 0.5) * dot(vNormal, vec3(1, 0, 0)) + vec3(0.1, 0.2, 0.1);
+    gl_FragColor.xyz = vec3(0.5, 0.5, 0.5) * dot(vNormal, lightVec) + vec3(0.1, 0.2, 0.1);
     gl_FragColor.w = alpha;
 }
 

@@ -93,7 +93,7 @@ root.kosmosMain = ->
 		minOrbitScale: 15,
 		maxOrbitScale: 30,
 		planetSize: 1.0,
-		nearRange: 50.0, 
+		nearRange: 100.0,
 		farRange: 30000.0
 	}
 

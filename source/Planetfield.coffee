@@ -50,7 +50,7 @@ class root.Planetfield
 		@vBuff.numItems = @_planetBufferSize * 4
 
 		# prepare to render geometric planet representations as well
-		@farMesh = new PlanetFarMesh(32)
+		@farMesh = new PlanetFarMesh(8)
 
 
 	setPlanetSprite: (index, position) ->
@@ -112,16 +112,23 @@ class root.Planetfield
 
 
 	renderFarMeshes: (camera, originOffset) ->
-		if not @meshPlanets or @meshPlanets.length == 0 then return
+		if not @meshPlanets or @meshPlanets.length == 0 or @starList.length == 0 then return
 
 		@farMesh.startRender()
+
+		# calculate light vector to nearest star
+		[lx, ly, lz, lw] = @starList[0]
 
 		# build a list of planets to render in reverse order, since we need to render farthest to nearest
 		# because the depth buffer is not enabled yet (we're still rendering on massive scales, potentially)
 		for i in [@meshPlanets.length-1 .. 0]
 			[x, y, z, alpha] = @meshPlanets[i]
 			pos = vec3.fromValues(x + camera.position[0], y + camera.position[1], z + camera.position[2])
-			@farMesh.renderInstance(camera, pos, alpha)
+
+			lightVec = vec3.fromValues(lx - x, ly - y, lz - z)
+			vec3.normalize(lightVec, lightVec)
+
+			@farMesh.renderInstance(camera, pos, lightVec, alpha)
 
 		@farMesh.finishRender()
 
