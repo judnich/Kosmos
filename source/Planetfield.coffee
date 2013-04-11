@@ -116,19 +116,29 @@ class root.Planetfield
 
 		@farMesh.startRender()
 
-		# calculate light vector to nearest star
-		[lx, ly, lz, lw] = @starList[0]
+		# calculate weighted sum of up to three near stars within +-50% distance
+		lightCenter = vec3.fromValues(@starList[0][0], @starList[0][1], @starList[0][2])
+		for i in [1 .. Math.min(2, @starList.length)]
+			star = @starList[i]
+			lightPos = vec3.fromValues(star[0], star[1], star[2])
+			if Math.abs(1.0 - (vec3.distance(lightPos, lightCenter) / vec3.length(lightCenter))) < 0.5
+				vec3.scale(lightCenter, lightCenter, 0.75)
+				vec3.scale(lightPos, lightPos, 0.25)
+				vec3.add(lightCenter, lightCenter, lightPos)
 
 		# build a list of planets to render in reverse order, since we need to render farthest to nearest
 		# because the depth buffer is not enabled yet (we're still rendering on massive scales, potentially)
+		[localPos, globalPos, lightVec] = [vec3.create(), vec3.create(), vec3.create()]
 		for i in [@meshPlanets.length-1 .. 0]
 			[x, y, z, alpha] = @meshPlanets[i]
-			pos = vec3.fromValues(x + camera.position[0], y + camera.position[1], z + camera.position[2])
+			localPos = vec3.fromValues(x, y, z)
+			vec3.add(globalPos, localPos, camera.position)
 
-			lightVec = vec3.fromValues(lx - x, ly - y, lz - z)
+			#lightVec = vec3.fromValues(lx - x, ly - y, lz - z)
+			vec3.subtract(lightVec, lightCenter, localPos)
 			vec3.normalize(lightVec, lightVec)
 
-			@farMesh.renderInstance(camera, pos, lightVec, alpha)
+			@farMesh.renderInstance(camera, globalPos, lightVec, alpha)
 
 		@farMesh.finishRender()
 
