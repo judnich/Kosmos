@@ -52,6 +52,12 @@ class root.Planetfield
 		# prepare to render geometric planet representations as well
 		@farMesh = new PlanetFarMesh(8)
 
+		@farMapGen = new FarMapGenerator(128) # low resolution maps for far planet meshes
+
+		@farMapGen.start()
+		@textureMap = @farMapGen.generate()
+		@farMapGen.finish()
+
 
 	setPlanetSprite: (index, position) ->
 		j = index * 6*4
@@ -138,7 +144,7 @@ class root.Planetfield
 			vec3.subtract(lightVec, lightCenter, localPos)
 			vec3.normalize(lightVec, lightVec)
 
-			@farMesh.renderInstance(camera, globalPos, lightVec, alpha)
+			@farMesh.renderInstance(camera, globalPos, lightVec, alpha, @textureMap)
 
 		@farMesh.finishRender()
 
