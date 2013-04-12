@@ -1,7 +1,4 @@
-
-xgl.commonNoiseShaderSource = """
-
-precision mediump float;
+xgl.commonNoiseShaderSource = """precision mediump float;
 
 //
 // Description : Array and textureless GLSL 2D/3D/4D simplex 
@@ -169,6 +166,5 @@ float snoise(vec2 v)
 
 
 
-  """
 
-
+"""

@@ -52,7 +52,8 @@ class root.Planetfield
 		# prepare to render geometric planet representations as well
 		@farMesh = new PlanetFarMesh(8)
 
-		@farMapGen = new FarMapGenerator(64) # low resolution maps for far planet meshes
+		#@farMapGen = new FarMapGenerator(64) # low resolution maps for far planet meshes
+		@farMapGen = new FarMapGenerator(512) # low resolution maps for far planet meshes
 
 		generateCallback = do (gen = @farMapGen) -> (seed) -> gen.generate(seed)
 		@farMapCache = new ContentCache(16, generateCallback) 
