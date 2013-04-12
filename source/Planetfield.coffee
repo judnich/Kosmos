@@ -52,11 +52,10 @@ class root.Planetfield
 		# prepare to render geometric planet representations as well
 		@farMesh = new PlanetFarMesh(8)
 
-		@farMapGen = new FarMapGenerator(128) # low resolution maps for far planet meshes
+		@farMapGen = new FarMapGenerator(64) # low resolution maps for far planet meshes
 
-		@farMapGen.start()
-		@textureMap = @farMapGen.generate()
-		@farMapGen.finish()
+		generateCallback = do (gen = @farMapGen) -> (seed) -> gen.generate(seed)
+		@farMapCache = new ContentCache(16, generateCallback) 
 
 
 	setPlanetSprite: (index, position) ->
@@ -86,6 +85,10 @@ class root.Planetfield
 		camera.update()
 		@renderFarMeshes(camera, originOffset)
 
+		@farMapGen.start()
+		@farMapCache.update(1)
+		@farMapGen.finish()
+
 
 	generatePlanetPositions: ->
 		randomStream = new RandomStream()
@@ -95,7 +98,7 @@ class root.Planetfield
 		numMeshPlanets = 0
 
 		for [dx, dy, dz, w] in @starList
-			randomStream.seed = w * 1000000
+			randomStream.seed = Math.floor(w * 1000000)
 
 			systemPlanets = randomStream.intRange(0, @maxPlanetsPerSystem)
 			if @numPlanets + systemPlanets > @_planetBufferSize then break
@@ -108,8 +111,9 @@ class root.Planetfield
 				# store in @meshPlanets if this is close enough that it will be rendered as a mesh
 				dist = Math.sqrt(x*x + y*y + z*z)
 				alpha = 2.0 - (dist / @nearRange) * 0.5
+				pw = randomStream.unit()
 				if alpha > 0.001
-					@meshPlanets[numMeshPlanets] = [x, y, z, alpha]
+					@meshPlanets[numMeshPlanets] = [x, y, z, pw, alpha]
 					numMeshPlanets++
 
 				# add this to the vertex buffer to render as a sprite
@@ -136,7 +140,7 @@ class root.Planetfield
 		# because the depth buffer is not enabled yet (we're still rendering on massive scales, potentially)
 		[localPos, globalPos, lightVec] = [vec3.create(), vec3.create(), vec3.create()]
 		for i in [@meshPlanets.length-1 .. 0]
-			[x, y, z, alpha] = @meshPlanets[i]
+			[x, y, z, w, alpha] = @meshPlanets[i]
 			localPos = vec3.fromValues(x, y, z)
 			vec3.add(globalPos, localPos, camera.position)
 
@@ -144,7 +148,9 @@ class root.Planetfield
 			vec3.subtract(lightVec, lightCenter, localPos)
 			vec3.normalize(lightVec, lightVec)
 
-			@farMesh.renderInstance(camera, globalPos, lightVec, alpha, @textureMap)
+			seed = Math.floor(w * 1000000)
+			textureMap = @farMapCache.getContent(seed)
+			@farMesh.renderInstance(camera, globalPos, lightVec, alpha, textureMap)
 
 		@farMesh.finishRender()
 

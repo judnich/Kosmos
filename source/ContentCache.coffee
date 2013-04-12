@@ -9,6 +9,7 @@ class root.ContentCache
 	# loaderCallback should accept a "contentId" value and return some content object as appropriate.
 	constructor: (maxItems, loaderCallback) ->
 		@loadedItems = {} # { contentId: [content, timestamp] }
+		@loadedCount = 0
 		@queuedItems = [] # list of contentIds pending load
 		@maxItems = maxItems # the maximum number of items to cache before deleting old items
 		@loaderCallback = loaderCallback
@@ -18,9 +19,9 @@ class root.ContentCache
 	# The object this returns should be identical in content to if you called loaderCallback(contentId),
 	# with the performance difference that this manages a cache of already loaded content.
 	getContent: (contentId) ->
-		if contentId in @loadedItems
+		if @loadedItems[contentId] != undefined
 			item = @loadedItems[contentId]
-			item[1] = Date.timeNow()
+			item[1] = (new Date()).getTime()
 			return item[0]
 		@queuedItems.push(contentId)
 		return null
@@ -30,31 +31,37 @@ class root.ContentCache
 	# you call update() all the pending loads and unloads are performed. The parameter allows you to adjust
 	# how many pending items at most may be loaded by this function call.
 	update: (maxItemsToLoad = 1) ->
-		_evictOldItems()
+		@_evictOldItems()
 
 		len = Math.min(@queuedItems.length, maxItemsToLoad)
+		if len <= 0 then return
+
 		for i in [0 .. len-1]
 			contentId = @queuedItems.pop()
-			content = @loaderCallback(contentId)
-			@loadedItems[contentId] = [content, Date.timeNow]
+			if contentId != undefined and @loadedItems[contentId] == undefined
+				console.log("Loading content: " + contentId)
+				content = @loaderCallback(contentId)
+				@loadedItems[contentId] = [content, (new Date()).getTime()]
+				@loadedCount++
 
 
 	_evictOldItems: ->
-		while @loadedItems.length > @maxItems
-			_evictItem()
+		if @loadedCount > @maxItems
+			keys = Object.keys(@loadedItems)
+			while @loadedCount > @maxItems
+				lastUsedSeed = null
+				lastUsed = null
 
+				# find loaded item with min time
+				for contentId in keys
+					thisLastUsed = @loadedItems[contentId][1]
+					if lastUsedSeed == null or thisLastUsed < lastUsed
+						lastUsed = thisLastUsed
+						lastUsedSeed = contentId
 
-	_evictItem: ->
-		lastUsedSeed = null
-		lastUsed = null
+				#delete it
+				console.log("Evicting content: " + lastUsedSeed)
+				delete @loadedItems[lastUsedSeed]
+				@loadedCount--
 
-		# find loaded item with min time
-		for contentId in @loadedItems
-			thisLastUsed = @loadedItems[contentId][1]
-			if lastUsedSeed == null or thisLastUsed < lastUsed
-				lastUsed = thisLastUsed
-				lastUsedSeed = contentId
-
-		#delete it
-		delete @loadedItems[lastUsedSeed]
 

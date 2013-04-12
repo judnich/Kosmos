@@ -3,13 +3,13 @@ frag = """
 
 precision mediump float;
 
-varying vec2 vUV;
+varying vec3 vUVW;
 
-float smooth(vec2 uv) {
+float smooth(vec3 uv) {
 	return snoise(uv) * 0.5 + 0.5;
 }
 
-float ridged(vec2 uv) {
+float ridged(vec3 uv) {
 	float f = abs(snoise(uv));
 	return f;
 }
@@ -17,10 +17,12 @@ float ridged(vec2 uv) {
 
 void main(void) {
 	float l;
-	l = ridged(vUV * 5.0) * 0.5;
-	l += smooth(vUV * 30.0) * 0.25;
-	l += smooth(vUV * 90.0) * 0.125;
-	l += smooth(vUV * 270.0) * 0.125;
+
+	vec3 uv = normalize(vUVW);
+	l = ridged(uv * 5.0) * 0.5;
+	l += smooth(uv * 30.0) * 0.25;
+	l += smooth(uv * 90.0) * 0.125;
+	l += smooth(uv * 270.0) * 0.125;
 
 	gl_FragColor = vec4(l,l,l,1.0);
 }
@@ -29,13 +31,13 @@ void main(void) {
 
 
 vert = """
-
-attribute vec2 aUV;
-varying vec2 vUV;
+attribute vec2 aXY;
+attribute vec3 aUVW;
+varying vec3 vUVW;
 
 void main(void) {
-	vUV = aUV;
-	gl_Position = vec4(vUV * 2.0 - 1.0, 1.0, 1.0);
+	vUVW = aUVW;
+	gl_Position = vec4(aXY * 2.0 - 1.0, 0.0, 1.0);
 }
 
 """

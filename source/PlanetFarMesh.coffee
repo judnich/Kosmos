@@ -21,7 +21,7 @@ class root.PlanetFarMesh
 					buff[n] = pos[0]
 					buff[n+1] = pos[1]
 					buff[n+2] = pos[2]
-					buff[n+3] = u
+					buff[n+3] = (u + face) / 6
 					buff[n+4] = v
 					n += 5
 
