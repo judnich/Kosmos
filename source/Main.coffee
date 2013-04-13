@@ -77,7 +77,9 @@ root.kosmosMain = ->
 	root.gl = WebGLUtils.setupWebGL(canvas, undefined, () ->
 			document.getElementById("glErrorMessage").style.display = "block"
 		)
-	if not root.gl then return
+	if not root.gl
+		document.getElementById("glErrorMessage").style.display = "block"
+		return
 
 	# set up game
 	starfield = new Starfield { 
