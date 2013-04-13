@@ -173,6 +173,7 @@ root.saveLocation = ->
 
 		document.getElementById("shareLink").value = url
 
+
 root.loadLocation = ->
 	if not window.location.hash
 		# load previously saved location from localStorage
@@ -184,21 +185,29 @@ root.loadLocation = ->
 				x = localStorage["kosmosRotation" + i]
 				if x == undefined || x == NaN || not x then break
 				desiredRotation[i] = parseFloat(x)
-
 			quat.copy(smoothRotation, desiredRotation)
+
 	else
 		# set location from url hash
-		words = window.location.hash.split(":")
-		if words[0] == "#go"
-			camera.position[i] = parseFloat(words[i+1]) for i in [0..2]
-			originOffset[i] = parseFloat(words[i+4]) for i in [0..2]
-			desiredRotation[i] = parseFloat(words[i+7]) for i in [0..3]
-			quat.copy(smoothRotation, desiredRotation)
-		else
-			clearLocation()
+		if not parseLocationString(window.location.hash)
+			# else, use a default location
+			parseLocationString("#go:-25.552404403686523:-30.029766082763672:-63.47420883178711:-15872:5888:11008:0.036:0.687:0.683:0.247")
 
 		# remove hash from URL
 		history.pushState("", document.title, window.location.pathname + window.location.search)
+
+
+root.parseLocationString = (hash) ->
+	words = hash.split(":")
+	if words[0] == "#go"
+		camera.position[i] = parseFloat(words[i+1]) for i in [0..2]
+		originOffset[i] = parseFloat(words[i+4]) for i in [0..2]
+		desiredRotation[i] = parseFloat(words[i+7]) for i in [0..3]
+		quat.copy(smoothRotation, desiredRotation)
+		return true
+	else
+		return false
+
 
 clearLocation = ->
 	if typeof(Storage) != undefined
