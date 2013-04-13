@@ -138,10 +138,11 @@ class root.Planetfield
 				vec3.scale(lightPos, lightPos, 0.25)
 				vec3.add(lightCenter, lightCenter, lightPos)
 
-		# build a list of planets to render in reverse order, since we need to render farthest to nearest
+		# sort the list of planets to render in reverse order, since we need to render farthest to nearest
 		# because the depth buffer is not enabled yet (we're still rendering on massive scales, potentially)
+		@meshPlanets.sort( ([ax,ay,az,aw,ak], [cx,cy,cz,cw,ck]) -> (cx*cx + cy*cy + cz*cz) - (ax*ax + ay*ay + az*az) )
 		[localPos, globalPos, lightVec] = [vec3.create(), vec3.create(), vec3.create()]
-		for i in [@meshPlanets.length-1 .. 0]
+		for i in [0 .. @meshPlanets.length-1]
 			[x, y, z, w, alpha] = @meshPlanets[i]
 			localPos = vec3.fromValues(x, y, z)
 			vec3.add(globalPos, localPos, camera.position)
