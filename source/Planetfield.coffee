@@ -50,9 +50,10 @@ class root.Planetfield
 		@vBuff.numItems = @_planetBufferSize * 4
 
 		# prepare to render geometric planet representations as well
-		@farMesh = new PlanetFarMesh(8)
+		#@farMesh = new PlanetFarMesh(8)
+		@farMesh = new PlanetFarMesh(16)
 
-		#@farMapGen = new FarMapGenerator(64) # low resolution maps for far planet meshes
+		#@farMapGen = new FarMapGenerator(128) # low resolution maps for far planet meshes
 		@farMapGen = new FarMapGenerator(512) # low resolution maps for far planet meshes
 
 		generateCallback = do (gen = @farMapGen) -> (seed) -> gen.generate(seed)

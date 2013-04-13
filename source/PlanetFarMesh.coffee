@@ -12,6 +12,7 @@ class root.PlanetFarMesh
 		# build vertex buffer (subdivided cube, normalized to be spherical)
 		buff = new Float32Array(6*(@geomRes+1)*(@geomRes+1) * 5)
 		n = 0
+		pixelSize = 1.0 / 512.0 # mitigate seams that appear as a result of linear blending within the texture atlas
 		for face in [0..5]
 			for j in [0..@geomRes]
 				for i in [0..@geomRes]
@@ -21,7 +22,7 @@ class root.PlanetFarMesh
 					buff[n] = pos[0]
 					buff[n+1] = pos[1]
 					buff[n+2] = pos[2]
-					buff[n+3] = (u + face) / 6
+					buff[n+3] = (u * (1 - 2 * pixelSize) + pixelSize + face) / 6
 					buff[n+4] = v
 					n += 5
 
