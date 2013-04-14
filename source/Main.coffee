@@ -177,19 +177,26 @@ root.saveLocation = ->
 
 
 root.loadLocation = ->
+	loadedLocation = false
+
 	if not window.location.hash
 		# load previously saved location from localStorage
 		if typeof(Storage) != undefined
-			camera.position[i] = parseFloat(localStorage["kosmosOffset" + i]) || 0.0 for i in [0..2]
-			originOffset[i] = parseFloat(localStorage["kosmosOrigin" + i]) || 0.0 for i in [0..2]
+			loadedLocation = true
 
 			for i in [0..3]
 				x = localStorage["kosmosRotation" + i]
-				if x == undefined || x == NaN || not x then break
+				if x == undefined || x == NaN || not x
+					loadedLocation = false
+					break
 				desiredRotation[i] = parseFloat(x)
+
 			quat.copy(smoothRotation, desiredRotation)
 
-	else
+			camera.position[i] = parseFloat(localStorage["kosmosOffset" + i]) || 0.0 for i in [0..2]
+			originOffset[i] = parseFloat(localStorage["kosmosOrigin" + i]) || 0.0 for i in [0..2]
+
+	if not loadedLocation
 		# set location from url hash
 		if not parseLocationString(window.location.hash)
 			# else, use a default location
