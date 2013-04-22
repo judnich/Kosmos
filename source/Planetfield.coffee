@@ -3,12 +3,14 @@ root = exports ? this
 root.planetBufferSize = 100
 
 class root.Planetfield
-	constructor: ({starfield, maxPlanetsPerSystem, minOrbitScale, maxOrbitScale, planetSize, nearRange, farRange}) ->
+	constructor: ({starfield, maxPlanetsPerSystem, minOrbitScale, maxOrbitScale, planetSize, nearMeshRange, farMeshRange, spriteRange}) ->
 		@_starfield = starfield
 		@_planetBufferSize = root.planetBufferSize
 
-		@nearRange = nearRange
-		@farRange = farRange
+		@nearMeshRange = nearMeshRange
+		@farMeshRange = farMeshRange
+		@spriteRange = spriteRange
+
 		@planetSize = planetSize
 
 		@maxPlanetsPerSystem = maxPlanetsPerSystem
@@ -50,11 +52,9 @@ class root.Planetfield
 		@vBuff.numItems = @_planetBufferSize * 4
 
 		# prepare to render geometric planet representations as well
-		#@farMesh = new PlanetFarMesh(8)
-		@farMesh = new PlanetFarMesh(16)
+		@farMesh = new PlanetFarMesh(8)
 
-		#@farMapGen = new FarMapGenerator(128) # low resolution maps for far planet meshes
-		@farMapGen = new FarMapGenerator(512) # low resolution maps for far planet meshes
+		@farMapGen = new FarMapGenerator(128) # low resolution maps for far planet meshes
 
 		generateCallback = do (gen = @farMapGen) -> (seed) -> gen.generate(seed)
 		@farMapCache = new ContentCache(16, generateCallback) 
@@ -71,22 +71,34 @@ class root.Planetfield
 
 	render: (camera, originOffset, blur) ->
 		# get list of nearby stars, sorted from nearest to farthest
-		@starList = @_starfield.queryStars(camera.position, originOffset, @farRange)
+		@starList = @_starfield.queryStars(camera.position, originOffset, @spriteRange)
 		@starList.sort( ([ax,ay,az,aw], [cx,cy,cz,cw]) -> (ax*ax + ay*ay + az*az) - (cx*cx + cy*cy + cz*cz) )
 
 		# populate vertex buffer with planet positions, and track positions of mesh-range planets
 		@generatePlanetPositions()
 
-		camera.far = @farRange * 1.1
-		camera.near = @nearRange * 0.9
+		# determine where the nearest light source is, for planet shader lighting calculations
+		@calculateLightSource()
+
+		# draw distant planets as sprite dots on the screen
+		camera.far = @spriteRange * 1.1
+		camera.near = @farMeshRange * 0.9
 		camera.update()
 		@renderSprites(camera, originOffset, blur)
 
-		camera.far = @nearRange * 5.0
-		camera.near = @nearRange * 0.001
+		# draw medium range planets as a low res sphere
+		camera.far = @farMeshRange * 5.0
+		camera.near = @farMeshRange * 0.001
 		camera.update()
 		@renderFarMeshes(camera, originOffset)
 
+		# draw the full resolution planets when really close
+		camera.far = @nearMeshRange * 1.1
+		camera.near = @nearMeshRange * 0.00001
+		camera.update()
+		@renderNearMeshes(camera, originOffset)
+
+		# load maps that were requested from the cache
 		@farMapGen.start()
 		@farMapCache.update(1)
 		@farMapGen.finish()
@@ -112,7 +124,7 @@ class root.Planetfield
 
 				# store in @meshPlanets if this is close enough that it will be rendered as a mesh
 				dist = Math.sqrt(x*x + y*y + z*z)
-				alpha = 2.0 - (dist / @nearRange) * 0.5
+				alpha = 2.0 - (dist / @farMeshRange) * 0.5
 				pw = randomStream.unit()
 				if alpha > 0.001
 					@meshPlanets[numMeshPlanets] = [x, y, z, pw, alpha]
@@ -122,40 +134,54 @@ class root.Planetfield
 				@setPlanetSprite(@numPlanets, [x, y, z])
 				@numPlanets++
 
+		# sort the list of planets to render in depth order, since later we need to render farthest to nearest
+		# because the depth buffer is not enabled yet (we're still rendering on massive scales, potentially)
+		if @meshPlanets and @meshPlanets.length > 0
+			@meshPlanets.sort( ([ax,ay,az,aw,ak], [cx,cy,cz,cw,ck]) -> (ax*ax + ay*ay + az*az) - (cx*cx + cy*cy + cz*cz) )
+
+
+	calculateLightSource: ->
+		# calculate weighted sum of up to three near stars within +-50% distance
+		# to generate a approximate light source position to use in lighting calculations
+		@lightCenter = vec3.fromValues(@starList[0][0], @starList[0][1], @starList[0][2])
+		for i in [1 .. Math.min(2, @starList.length)]
+			star = @starList[i]
+			lightPos = vec3.fromValues(star[0], star[1], star[2])
+			if Math.abs(1.0 - (vec3.distance(lightPos, @lightCenter) / vec3.length(@lightCenter))) < 0.5
+				vec3.scale(@lightCenter, @lightCenter, 0.75)
+				vec3.scale(lightPos, lightPos, 0.25)
+				vec3.add(@lightCenter, @lightCenter, lightPos)
+
 
 	renderFarMeshes: (camera, originOffset) ->
 		if not @meshPlanets or @meshPlanets.length == 0 or @starList.length == 0 then return
 
 		@farMesh.startRender()
 
-		# calculate weighted sum of up to three near stars within +-50% distance
-		lightCenter = vec3.fromValues(@starList[0][0], @starList[0][1], @starList[0][2])
-		for i in [1 .. Math.min(2, @starList.length)]
-			star = @starList[i]
-			lightPos = vec3.fromValues(star[0], star[1], star[2])
-			if Math.abs(1.0 - (vec3.distance(lightPos, lightCenter) / vec3.length(lightCenter))) < 0.5
-				vec3.scale(lightCenter, lightCenter, 0.75)
-				vec3.scale(lightPos, lightPos, 0.25)
-				vec3.add(lightCenter, lightCenter, lightPos)
-
-		# sort the list of planets to render in reverse order, since we need to render farthest to nearest
-		# because the depth buffer is not enabled yet (we're still rendering on massive scales, potentially)
-		@meshPlanets.sort( ([ax,ay,az,aw,ak], [cx,cy,cz,cw,ck]) -> (cx*cx + cy*cy + cz*cz) - (ax*ax + ay*ay + az*az) )
+		nearDistSq = @nearMeshRange*@nearMeshRange
 		[localPos, globalPos, lightVec] = [vec3.create(), vec3.create(), vec3.create()]
-		for i in [0 .. @meshPlanets.length-1]
+		for i in [@meshPlanets.length-1 .. 0]
 			[x, y, z, w, alpha] = @meshPlanets[i]
-			localPos = vec3.fromValues(x, y, z)
-			vec3.add(globalPos, localPos, camera.position)
 
-			#lightVec = vec3.fromValues(lx - x, ly - y, lz - z)
-			vec3.subtract(lightVec, lightCenter, localPos)
-			vec3.normalize(lightVec, lightVec)
+			distSq = x*x + y*y + z*z
+			if distSq >= nearDistSq
+				localPos = vec3.fromValues(x, y, z)
+				vec3.add(globalPos, localPos, camera.position)
 
-			seed = Math.floor(w * 1000000)
-			textureMap = @farMapCache.getContent(seed)
-			@farMesh.renderInstance(camera, globalPos, lightVec, alpha, textureMap)
+				#lightVec = vec3.fromValues(lx - x, ly - y, lz - z)
+				vec3.subtract(lightVec, @lightCenter, localPos)
+				vec3.normalize(lightVec, lightVec)
+
+				seed = Math.floor(w * 1000000)
+				textureMap = @farMapCache.getContent(seed)
+				@farMesh.renderInstance(camera, globalPos, lightVec, alpha, textureMap)
 
 		@farMesh.finishRender()
+
+
+	renderNearMeshes: (camera, originOffset) ->
+		if not @meshPlanets or @meshPlanets.length == 0 or @starList.length == 0 then return
+
 
 
 	renderSprites: (camera, originOffset, blur) ->
@@ -184,7 +210,7 @@ class root.Planetfield
 		# set shader uniforms
 		gl.uniformMatrix4fv(@shader.uniforms.projMat, false, camera.projMat)
 		gl.uniformMatrix4fv(@shader.uniforms.modelViewMat, false, modelViewMat)
-		gl.uniform4f(@shader.uniforms.spriteSizeAndViewRangeAndBlur, @planetSize * 10.0, @nearRange, @farRange, blur)
+		gl.uniform4f(@shader.uniforms.spriteSizeAndViewRangeAndBlur, @planetSize * 10.0, @farMeshRange, @spriteRange, blur)
 		# NOTE: Size is multiplied by 10 because the whole sprite needs to be bigger because only the center area appears filled
 
 		# issue draw operation

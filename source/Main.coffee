@@ -95,8 +95,11 @@ root.kosmosMain = ->
 		minOrbitScale: 15,
 		maxOrbitScale: 30,
 		planetSize: 1.0,
-		nearRange: 100.0,
-		farRange: 30000.0
+		nearMeshRange: 10.0,
+		farMeshRange: 100.0,
+		spriteRange: 30000.0
+		#nearRange: 100.0,
+		#farRange: 30000.0
 	}
 
 	# set up camera
