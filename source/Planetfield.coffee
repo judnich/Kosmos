@@ -58,6 +58,9 @@ class root.Planetfield
 		@farMapCache = new ContentCache(16, generateCallback) 
 
 		@nearMesh = new PlanetNearMesh(64)
+		@nearMapGen = new NearMapGenerator(1024)
+		generateCallback = do (gen = @nearMapGen) -> (seed) -> gen.generate(seed)
+		@nearMapCache = new ContentCache(3, generateCallback)
 
 
 	setPlanetSprite: (index, position) ->
@@ -102,6 +105,10 @@ class root.Planetfield
 		@farMapGen.start()
 		@farMapCache.update(1)
 		@farMapGen.finish()
+
+		@nearMapGen.start()
+		@nearMapCache.update(1)
+		@nearMapGen.finish()
 
 
 	generatePlanetPositions: ->
@@ -201,7 +208,7 @@ class root.Planetfield
 				vec3.normalize(lightVec, lightVec)
 
 				seed = Math.floor(w * 1000000)
-				textureMap = @farMapCache.getContent(seed)
+				textureMap = @nearMapCache.getContent(seed)
 				@nearMesh.renderInstance(camera, globalPos, lightVec, alpha, textureMap)
 			else
 				# since planets are sorted in distance order, there's no need to keep
