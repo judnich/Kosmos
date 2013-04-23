@@ -1,6 +1,7 @@
 root = exports ? this
 
 root.cubeFaceQuaternion = []
+root.cubeFaceMatrix = []
 
 
 # Maps plane coordinates (where top left = [0,0] and bottom right = [1,1])
@@ -23,6 +24,9 @@ initialize = ->
 	quat.setAxisAngle(cubeFaceQuaternion[4], unitX, xgl.degToRad(90))
 	quat.setAxisAngle(cubeFaceQuaternion[5], unitX, xgl.degToRad(-90))
 
+	for i in [0..5]
+		cubeFaceMatrix[i] = mat3.create()
+		mat3.fromQuat(cubeFaceMatrix[i], cubeFaceQuaternion[i])
 
 initialize()
 

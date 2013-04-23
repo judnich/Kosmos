@@ -18,7 +18,7 @@ void main(void) {
     gl_FragColor.xyz = vec3(l);
     gl_FragColor.w = alpha;
 
-    //gl_FragColor = vec4(tex.a, tex.a, tex.a, 1.0);
+    gl_FragColor = vec4(tex.a, tex.a, tex.a, 1.0);
 }
 
 """
@@ -26,16 +26,19 @@ void main(void) {
 
 vert = """
 
-attribute vec3 aPos;
 attribute vec2 aUV;
 
 uniform mat4 projMat;
 uniform mat4 modelViewMat;
+uniform mat3 cubeMat;
 
 varying vec3 vNormal;
 varying vec2 vUV;
 
 void main(void) {
+	vec3 aPos = vec3(aUV * 2.0 - 1.0, 1.0);
+	aPos = normalize(cubeMat * aPos);
+
 	vNormal = aPos;
 	vUV = aUV;
 
@@ -46,4 +49,4 @@ void main(void) {
 
 """
 
-xgl.addProgram("planetFarMesh", vert, frag)
+xgl.addProgram("planetNearMesh", vert, frag)

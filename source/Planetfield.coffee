@@ -53,11 +53,11 @@ class root.Planetfield
 
 		# prepare to render geometric planet representations as well
 		@farMesh = new PlanetFarMesh(8)
-
 		@farMapGen = new FarMapGenerator(128) # low resolution maps for far planet meshes
-
 		generateCallback = do (gen = @farMapGen) -> (seed) -> gen.generate(seed)
 		@farMapCache = new ContentCache(16, generateCallback) 
+
+		@nearMesh = new PlanetNearMesh(64)
 
 
 	setPlanetSprite: (index, position) ->
@@ -168,19 +168,47 @@ class root.Planetfield
 				localPos = vec3.fromValues(x, y, z)
 				vec3.add(globalPos, localPos, camera.position)
 
-				#lightVec = vec3.fromValues(lx - x, ly - y, lz - z)
 				vec3.subtract(lightVec, @lightCenter, localPos)
 				vec3.normalize(lightVec, lightVec)
 
 				seed = Math.floor(w * 1000000)
 				textureMap = @farMapCache.getContent(seed)
 				@farMesh.renderInstance(camera, globalPos, lightVec, alpha, textureMap)
+			else
+				# since planets are sorted in distance order, there's no need to keep
+				# iterating after we've passed the first one that's too close for a far mesh
+				break
 
 		@farMesh.finishRender()
 
 
 	renderNearMeshes: (camera, originOffset) ->
 		if not @meshPlanets or @meshPlanets.length == 0 or @starList.length == 0 then return
+
+		@nearMesh.startRender()
+
+		nearDistSq = @nearMeshRange*@nearMeshRange
+		[localPos, globalPos, lightVec] = [vec3.create(), vec3.create(), vec3.create()]
+		for i in [0 .. @meshPlanets.length-1]
+			[x, y, z, w, alpha] = @meshPlanets[i]
+
+			distSq = x*x + y*y + z*z
+			if distSq < nearDistSq
+				localPos = vec3.fromValues(x, y, z)
+				vec3.add(globalPos, localPos, camera.position)
+
+				vec3.subtract(lightVec, @lightCenter, localPos)
+				vec3.normalize(lightVec, lightVec)
+
+				seed = Math.floor(w * 1000000)
+				textureMap = @farMapCache.getContent(seed)
+				@nearMesh.renderInstance(camera, globalPos, lightVec, alpha, textureMap)
+			else
+				# since planets are sorted in distance order, there's no need to keep
+				# iterating after we've passed the last one that's close enough for near mesh rendering
+				break
+
+		@nearMesh.finishRender()
 
 
 

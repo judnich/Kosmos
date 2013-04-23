@@ -7,7 +7,7 @@ class root.PlanetNearMesh
 
 		# load planet shader
 		@shader = xgl.loadProgram("planetNearMesh")
-		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "alpha", "lightVec", "sampler"])
+		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "cubeMat", "alpha", "lightVec", "sampler"])
 		@shader.attribs = xgl.getProgramAttribs(@shader, ["aUV"])
 
 		# build vertex buffer (chunk grid with edge wall vertices)
@@ -15,7 +15,7 @@ class root.PlanetNearMesh
 		n = 0
 		for j in [0..@chunkRes]
 			for i in [0..@chunkRes]
-				[u, v] = [i / @chunkRes, j / @geomRes]
+				[u, v] = [i / @chunkRes, j / @chunkRes]
 				buff[n] = u
 				buff[n+1] = v
 				n += 2
@@ -28,12 +28,11 @@ class root.PlanetNearMesh
 		@vBuff.numItems = buff.length / @vBuff.itemSize
 
 		# build index buffer
-		buff = new Uint16Array((@geomRes)*(@geomRes) * 6)
+		buff = new Uint16Array((@chunkRes)*(@chunkRes) * 6)
 		n = 0
-		faceOffset = (@geomRes+1)*(@geomRes+1) * face
-		for j in [0..@geomRes-1]
-			for i in [0..@geomRes-1]
-				[v00, v01] = [i + j*(@geomRes+1) + faceOffset, i + (j+1)*(@geomRes+1) + faceOffset]
+		for j in [0..@chunkRes-1]
+			for i in [0..@chunkRes-1]
+				[v00, v01] = [i + j*(@chunkRes+1), i + (j+1)*(@chunkRes+1)]
 				[v10, v11] = [v00 + 1, v01 + 1]
 
 				buff[n] = v00
@@ -66,11 +65,14 @@ class root.PlanetNearMesh
 		gl.uniform3fv(@shader.uniforms.lightVec, lightVec)
 		gl.uniform1f(@shader.uniforms.alpha, alpha)
 
-		gl.activeTexture(gl.TEXTURE0)
-		gl.bindTexture(gl.TEXTURE_2D, textureMap)
-		gl.uniform1i(@shader.uniforms.sampler, 0);
+		for cubeFace in [0..5]
+			gl.activeTexture(gl.TEXTURE0)
+			gl.bindTexture(gl.TEXTURE_2D, textureMap)
+			gl.uniform1i(@shader.uniforms.sampler, 0);
 
-		gl.drawElements(gl.TRIANGLES, @iBuff.numItems, gl.UNSIGNED_SHORT, 0)
+			gl.uniformMatrix3fv(@shader.uniforms.cubeMat, false, cubeFaceMatrix[cubeFace])
+
+			gl.drawElements(gl.TRIANGLES, @iBuff.numItems, gl.UNSIGNED_SHORT, 0)
 
 		gl.bindTexture(gl.TEXTURE_2D, null)
 
