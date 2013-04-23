@@ -42,7 +42,7 @@ float heightFunc(vec3 coord)
         return a;
 }
 
-#define ONE_TEXEL (1.0/512.0)
+#define ONE_TEXEL (1.0/128.0)
 
 
 vec4 positionAndHeight(vec3 cubePos)
