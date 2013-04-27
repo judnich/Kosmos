@@ -16,9 +16,8 @@ void main(void) {
 	vec3 norm = normalize(tex.xyz * 2.0 - 1.0);
     float l = (tex.a * 0.5 + 0.4) * dot(norm, lightVec) * 0.9 + 0.1;
     gl_FragColor.xyz = vec3(l);
-    gl_FragColor.w = alpha;
+    gl_FragColor.w = 1.0; //alpha;
 
-    //gl_FragColor = vec4(tex.a, tex.a, tex.a, 1.0);
     //gl_FragColor = tex;
 }
 

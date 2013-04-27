@@ -95,7 +95,7 @@ root.kosmosMain = ->
 		minOrbitScale: 15,
 		maxOrbitScale: 30,
 		planetSize: 1.0,
-		nearMeshRange: 20.0,
+		nearMeshRange: 40.0,
 		farMeshRange: 100.0,
 		spriteRange: 30000.0
 	}
@@ -260,6 +260,8 @@ tick = ->
 	if animating then window.requestAnimFrame(tick)
 
 
+lastIdle = false
+
 sleepIfIdle = ->
 	idle = true
 	epsilon = 0.0000000001
@@ -274,8 +276,12 @@ sleepIfIdle = ->
 
 	if quatDist > epsilon then idle = false
 
-	if idle
+	if planetfield.isLoadingComplete() == false then idle = false
+
+	if lastIdle == true and idle == true
 		pauseAnimating()
+
+	lastIdle = idle
 
 render = ->
 	gl.viewport(0, 0, canvas.width, canvas.height);

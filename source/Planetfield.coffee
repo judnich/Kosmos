@@ -53,7 +53,7 @@ class root.Planetfield
 
 		# prepare to render geometric planet representations as well
 		@farMesh = new PlanetFarMesh(8)
-		@farMapGen = new FarMapGenerator(64) # low resolution maps for far planet meshes
+		@farMapGen = new FarMapGenerator(128) # low resolution maps for far planet meshes
 		generateCallback = do (t = this) -> (seed, partial) -> return t.farGenerateCallback(seed, partial)
 		@farMapCache = new ContentCache(16, generateCallback) 
 
@@ -64,7 +64,7 @@ class root.Planetfield
 
 		# perform this many partial load steps per cube face map
 		# larger means less load stutter, but longer load latency
-		@progressiveLoadSteps = 1.0 
+		@progressiveLoadSteps = 32.0 
 		@frameCount = 0
 
 
@@ -104,6 +104,10 @@ class root.Planetfield
 		else
 			# still more faces to load, so return a partial result			
 			return [false, {maps: maps, progress: progress, face: face}]
+
+
+	isLoadingComplete: ->
+		return @nearMapCache.isUpToDate() and @farMapCache.isUpToDate()
 
 
 	setPlanetSprite: (index, position) ->

@@ -42,6 +42,11 @@ class root.ContentCache
 		return null
 
 
+	# returns true if there is nothing more to load
+	isUpToDate: ->
+		return (@queuedItems.length == 0)
+
+
 	# The "getContent" method does not actually load or unload anything. It queues these jobs, so when
 	# you call update() all the pending loads and unloads are performed. The parameter allows you to adjust
 	# how many pending items at most may be loaded by this function call.

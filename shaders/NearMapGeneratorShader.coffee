@@ -66,7 +66,8 @@ void main(void) {
         float height = h00.a;
         gl_FragColor = vec4((normal + 1.0) * 0.5, height);
  
-        //gl_FragColor = vec4(normalize(vPos) * 0.5 + 0.5, 1.0);
+        //gl_FragColor = vec4(vPos * 0.5 + 0.5, 1.0);
+        //gl_FragColor = vec4(vPos.xy, 0.0, 1.0);
 }
 
 """
@@ -89,7 +90,7 @@ void main(void) {
         vBinormal = aBinormal;
 
         vec2 pos = aUV;
-        //pos.y = (pos.y - verticalViewport.x) / verticalViewport.y;
+        pos.y = (pos.y - verticalViewport.x) / verticalViewport.y;
         pos = pos * 2.0 - 1.0;
 
 	gl_Position = vec4(pos, 0.0, 1.0);

@@ -60,9 +60,13 @@ class root.NearMapGenerator
 		gl.enableVertexAttribArray(@shader.attribs.aTangent)
 		gl.vertexAttribPointer(@shader.attribs.aTangent, 3, gl.FLOAT, false, @quadVerts.itemSize*4, 4 *8)
 
+		gl.enable(gl.SCISSOR_TEST)
+
 
 	# call this after making call(s) to generateSubMap
 	finish: ->
+		gl.disable(gl.SCISSOR_TEST)
+
 		gl.disableVertexAttribArray(@shader.attribs.aUV)
 		gl.disableVertexAttribArray(@shader.attribs.aPos)
 		gl.disableVertexAttribArray(@shader.attribs.aBinormal)
@@ -106,7 +110,8 @@ class root.NearMapGenerator
 		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, dataMap, 0)
 
 		# select the subset of the viewport to generate
-		gl.viewport(0, @fbo.height * startFraction, @fbo.width, @fbo.height * endFraction)
+		gl.viewport(0, @fbo.height * startFraction, @fbo.width, @fbo.height * (endFraction - startFraction))
+		gl.scissor(0, @fbo.height * startFraction, @fbo.width, @fbo.height * (endFraction - startFraction))
 		gl.uniform2f(@shader.uniforms.verticalViewport, startFraction, endFraction - startFraction);
 
 		# run the generation shader
