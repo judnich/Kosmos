@@ -3,14 +3,27 @@ root = exports ? this
 # This object lets you manage a number of content objects which are uniquely identifiable with some
 # string or integer identifier in such a way that you can simply query them frequently and loading/unloading
 # will be managed automatically (with old content unloaded when the cache "spills" with too many items)
+#
+# Moreover, this allows progressive loading that may take multiple calls to the load function to "fully" load
+# an item. This is handled by your loader function returning a pair of [finished, object], so only when 
+# finished==true does the cache consider the object loaded and return it to the original requester.
 
 class root.ContentCache
 	# maxItems sets the maximum number of content items that may be loaded at any given time.
-	# loaderCallback should accept a "contentId" value and return some content object as appropriate.
+	# loaderCallback should accept two parameters (contentId, partialContent) and return a pair
+	# [finished, object], where finished is a boolean true/false representing whether the returned
+	# "object" is fully loaded. This allows you to implement progressive loading where several load steps 
+	# should be spaced out across several frames. The first call to loaderCallback will provide the
+	# partialContent parameter as null. If your callback returns "finished == false", then the loader
+	# will be called again in the future. In each successive call to your callback, "partialContent" 
+	# provides the "object" value returned from the last call to your callback. Only when 
+	# "finished == true" will the "object" be considered valid, and returned to the requester via 
+	# non-null return value of contentCache.getContent().
 	constructor: (maxItems, loaderCallback) ->
 		@loadedItems = {} # { contentId: [content, timestamp] }
 		@loadedCount = 0
-		@queuedItems = [] # list of contentIds pending load
+		@queuedItems = [] # list of [contentId, partialContent] pending load
+		@queuedIdSet = {} # set of contentIds pending load (to prevent duplicate insertion)
 		@maxItems = maxItems # the maximum number of items to cache before deleting old items
 		@loaderCallback = loaderCallback
 
@@ -23,7 +36,9 @@ class root.ContentCache
 			item = @loadedItems[contentId]
 			item[1] = (new Date()).getTime()
 			return item[0]
-		@queuedItems.push(contentId)
+		if not @queuedIdSet.hasOwnProperty(contentId)
+			@queuedItems.push({contentId: contentId, partialContent: null})
+			@queuedIdSet[contentId] = true
 		return null
 
 
@@ -37,12 +52,18 @@ class root.ContentCache
 		if len <= 0 then return
 
 		for i in [0 .. len-1]
-			contentId = @queuedItems.pop()
-			if contentId != undefined and @loadedItems[contentId] == undefined
-				console.log("Loading content: " + contentId)
-				content = @loaderCallback(contentId)
-				@loadedItems[contentId] = [content, (new Date()).getTime()]
-				@loadedCount++
+			loadTask = @queuedItems.pop()
+			if loadTask != undefined and @loadedItems[loadTask] == undefined
+				[finished, loadedObject] = @loaderCallback(loadTask.contentId, loadTask.partialContent)
+				if finished == true
+					# loading has finished - add to the loaded item map
+					@loadedItems[loadTask.contentId] = [loadedObject, (new Date()).getTime()]
+					@loadedCount++
+					delete @queuedIdSet[loadTask.contentId]
+				else
+					# loading hasn't finished - push the task back in the queue with the updated object
+					loadTask.partialContent = loadedObject
+					@queuedItems.push(loadTask)
 
 
 	_evictOldItems: ->

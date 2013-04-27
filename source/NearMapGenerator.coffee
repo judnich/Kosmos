@@ -100,7 +100,7 @@ class root.NearMapGenerator
 	# what part of the map to update. For example, if you update [0,1] then that will generate the entire face.
 	# Generating [0,.5] will fill in the first half of the map, and [.5,1] the second half. This can be used
 	# to generate any arbitrary subset of the image. (In the actual map this represents vertical intervals).
-	generateSubMap: (seed, maps, faceIndex, startFraction, endFraction) ->
+	generateSubMap: (maps, seed, faceIndex, startFraction, endFraction) ->
 		# bind the appropriate face map texture
 		dataMap = maps[faceIndex]
 		gl.bindTexture(gl.TEXTURE_2D, dataMap)
@@ -115,26 +115,6 @@ class root.NearMapGenerator
 
 		gl.bindTexture(gl.TEXTURE_2D, null)
 
-
-	###generate: (seed) ->
-		# create and attach texture map as render target
-		heightMap = gl.createTexture()
-		gl.bindTexture(gl.TEXTURE_2D, heightMap)
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, @fbo.width, @fbo.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
-		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, heightMap, 0)
-		#gl.generateMipmap(gl.TEXTURE_2D)
-
-		#gl.uniform3fv(@shader.uniforms.todo, todo)
-		face = 0
-		indicesPerFace = @quadVerts.numItems / 6
-		gl.drawArrays(gl.TRIANGLES, indicesPerFace * face, indicesPerFace);
-		gl.bindTexture(gl.TEXTURE_2D, null)
-
-		return heightMap###
 
 
 

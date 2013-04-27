@@ -54,13 +54,54 @@ class root.Planetfield
 		# prepare to render geometric planet representations as well
 		@farMesh = new PlanetFarMesh(8)
 		@farMapGen = new FarMapGenerator(128) # low resolution maps for far planet meshes
-		generateCallback = do (gen = @farMapGen) -> (seed) -> gen.generate(seed)
+		generateCallback = do (t = this) -> (seed, partial) -> return t.farGenerateCallback(seed, partial)
 		@farMapCache = new ContentCache(16, generateCallback) 
 
 		@nearMesh = new PlanetNearMesh(64)
 		@nearMapGen = new NearMapGenerator(1024)
-		generateCallback = do (gen = @nearMapGen) -> (seed) -> gen.generate(seed)
+		generateCallback = do (t = this) -> (seed, partial) -> return t.nearGenerateCallback(seed, partial)
 		@nearMapCache = new ContentCache(3, generateCallback)
+
+		# perform this many partial load steps per cube face map
+		# larger means less load stutter, but longer load latency
+		@progressiveLoadSteps = 8.0 
+		@frameCount = 0
+
+
+	farGenerateCallback: (seed, partial) ->
+		return [true, @farMapGen.generate(seed)]
+
+
+	nearGenerateCallback: (seed, partial) ->
+		if partial == null
+			progress = 0.0
+			maps = @nearMapGen.createMaps()
+			face = 0
+			console.log("Creating new near maps")
+		else
+			progress = partial.progress
+			maps = partial.maps
+			face = partial.face
+
+		#console.log("Loading near map #{seed} face #{face} at #{progress}")
+
+		progressPlusOne = progress + (1.0 / @progressiveLoadSteps)
+		@nearMapGen.generateSubMap(maps, seed, face, progress, progressPlusOne)
+
+		if progressPlusOne >= 1.0-0.0000001
+			# we're done with this face
+			face++
+			progress = 0
+		else
+			# still more loading to do on this face
+			progress = progressPlusOne
+
+		if face > 1#6
+			# all faces have been loaded! time to return the final maps
+			return [true, maps]
+		else
+			# still more faces to load, so return a partial result			
+			return [false, {maps: maps, progress: progress, face: face}]
 
 
 	setPlanetSprite: (index, position) ->
@@ -106,9 +147,12 @@ class root.Planetfield
 		@farMapCache.update(1)
 		@farMapGen.finish()
 
-		@nearMapGen.start()
-		@nearMapCache.update(1)
-		@nearMapGen.finish()
+		@frameCount++
+		if @frameCount >= 0
+			@frameCount = 0
+			@nearMapGen.start()
+			@nearMapCache.update(1)
+			@nearMapGen.finish()
 
 
 	generatePlanetPositions: ->
@@ -169,22 +213,27 @@ class root.Planetfield
 		[localPos, globalPos, lightVec] = [vec3.create(), vec3.create(), vec3.create()]
 		for i in [@meshPlanets.length-1 .. 0]
 			[x, y, z, w, alpha] = @meshPlanets[i]
+			seed = Math.floor(w * 1000000)
 
+			# far planet is visible only if it's beyond the near planet range
 			distSq = x*x + y*y + z*z
-			if distSq >= nearDistSq
+			visible = (distSq >= nearDistSq)
+
+			# however if the near planet isn't done loading, draw the far planet instead
+			if not visible
+				nearTextureMap = @nearMapCache.getContent(seed)
+				if not nearTextureMap then visible = true
+
+			if visible
 				localPos = vec3.fromValues(x, y, z)
 				vec3.add(globalPos, localPos, camera.position)
 
 				vec3.subtract(lightVec, @lightCenter, localPos)
 				vec3.normalize(lightVec, lightVec)
 
-				seed = Math.floor(w * 1000000)
 				textureMap = @farMapCache.getContent(seed)
-				@farMesh.renderInstance(camera, globalPos, lightVec, alpha, textureMap)
-			else
-				# since planets are sorted in distance order, there's no need to keep
-				# iterating after we've passed the first one that's too close for a far mesh
-				break
+				if textureMap
+					@farMesh.renderInstance(camera, globalPos, lightVec, alpha, textureMap)
 
 		@farMesh.finishRender()
 
@@ -209,11 +258,12 @@ class root.Planetfield
 
 				seed = Math.floor(w * 1000000)
 				textureMap = @nearMapCache.getContent(seed)
-				@nearMesh.renderInstance(camera, globalPos, lightVec, alpha, textureMap)
-			else
-				# since planets are sorted in distance order, there's no need to keep
-				# iterating after we've passed the last one that's close enough for near mesh rendering
-				break
+				if textureMap
+					@nearMesh.renderInstance(camera, globalPos, lightVec, alpha, textureMap[0])
+
+				# in case the user linked directly to a high-res planet view, we want to cache the
+				# low res representation as well so there's no stutter when backing away from the planet
+				dummy = @farMapCache.getContent(seed)
 
 		@nearMesh.finishRender()
 
