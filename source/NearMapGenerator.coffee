@@ -4,7 +4,7 @@ class root.NearMapGenerator
 	constructor: (mapResolution) ->
 		# load shader
 		@shader = xgl.loadProgram("nearMapGenerator")
-		#@shader.uniforms = xgl.getProgramUniforms(@shader, [])
+		@shader.uniforms = xgl.getProgramUniforms(@shader, ["verticalViewport"])
 		@shader.attribs = xgl.getProgramAttribs(@shader, ["aUV", "aPos", "aTangent", "aBinormal"])
 
 		# initialize FBO
@@ -85,7 +85,7 @@ class root.NearMapGenerator
 			maps[face] = gl.createTexture()
 			gl.bindTexture(gl.TEXTURE_2D, maps[face])
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST)
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, @fbo.width, @fbo.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
@@ -103,18 +103,22 @@ class root.NearMapGenerator
 	generateSubMap: (maps, seed, faceIndex, startFraction, endFraction) ->
 		# bind the appropriate face map texture
 		dataMap = maps[faceIndex]
-		gl.bindTexture(gl.TEXTURE_2D, dataMap)
 		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, dataMap, 0)
 
 		# select the subset of the viewport to generate
 		gl.viewport(0, @fbo.height * startFraction, @fbo.width, @fbo.height * endFraction)
+		gl.uniform2f(@shader.uniforms.verticalViewport, startFraction, endFraction - startFraction);
 
 		# run the generation shader
 		indicesPerFace = @quadVerts.numItems / 6
 		gl.drawArrays(gl.TRIANGLES, indicesPerFace * faceIndex, indicesPerFace);
 
+
+	# call t his to finalize map generation
+	finalizeMaps: (maps) ->
+		for i in [0..5]
+			gl.bindTexture(gl.TEXTURE_2D, maps[i])
+			gl.generateMipmap(gl.TEXTURE_2D)
 		gl.bindTexture(gl.TEXTURE_2D, null)
-
-
 
 

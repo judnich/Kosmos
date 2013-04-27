@@ -18,7 +18,8 @@ void main(void) {
     gl_FragColor.xyz = vec3(l);
     gl_FragColor.w = alpha;
 
-    gl_FragColor = vec4(tex.a, tex.a, tex.a, 1.0);
+    //gl_FragColor = vec4(tex.a, tex.a, tex.a, 1.0);
+    //gl_FragColor = tex;
 }
 
 """
@@ -37,7 +38,7 @@ varying vec2 vUV;
 
 void main(void) {
 	vec3 aPos = vec3(aUV * 2.0 - 1.0, 1.0);
-	aPos = normalize(cubeMat * aPos);
+	aPos = normalize(aPos * cubeMat);
 
 	vNormal = aPos;
 	vUV = aUV;

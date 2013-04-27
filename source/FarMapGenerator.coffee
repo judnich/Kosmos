@@ -84,12 +84,12 @@ class root.FarMapGenerator
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, @fbo.width, @fbo.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+		gl.bindTexture(gl.TEXTURE_2D, null)
+
 		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, heightMap, 0)
-		#gl.generateMipmap(gl.TEXTURE_2D)
 
 		#gl.uniform3fv(@shader.uniforms.todo, todo)
 		gl.drawArrays(gl.TRIANGLES, 0, @quadVerts.numItems);
-		gl.bindTexture(gl.TEXTURE_2D, null)
 
 		return heightMap
 

@@ -53,7 +53,7 @@ class root.Planetfield
 
 		# prepare to render geometric planet representations as well
 		@farMesh = new PlanetFarMesh(8)
-		@farMapGen = new FarMapGenerator(128) # low resolution maps for far planet meshes
+		@farMapGen = new FarMapGenerator(64) # low resolution maps for far planet meshes
 		generateCallback = do (t = this) -> (seed, partial) -> return t.farGenerateCallback(seed, partial)
 		@farMapCache = new ContentCache(16, generateCallback) 
 
@@ -64,7 +64,7 @@ class root.Planetfield
 
 		# perform this many partial load steps per cube face map
 		# larger means less load stutter, but longer load latency
-		@progressiveLoadSteps = 8.0 
+		@progressiveLoadSteps = 1.0 
 		@frameCount = 0
 
 
@@ -89,6 +89,8 @@ class root.Planetfield
 		@nearMapGen.generateSubMap(maps, seed, face, progress, progressPlusOne)
 
 		if progressPlusOne >= 1.0-0.0000001
+			@nearMapGen.finalizeMaps(maps)
+
 			# we're done with this face
 			face++
 			progress = 0
@@ -96,7 +98,7 @@ class root.Planetfield
 			# still more loading to do on this face
 			progress = progressPlusOne
 
-		if face > 1#6
+		if face >= 6
 			# all faces have been loaded! time to return the final maps
 			return [true, maps]
 		else
@@ -259,7 +261,7 @@ class root.Planetfield
 				seed = Math.floor(w * 1000000)
 				textureMap = @nearMapCache.getContent(seed)
 				if textureMap
-					@nearMesh.renderInstance(camera, globalPos, lightVec, alpha, textureMap[0])
+					@nearMesh.renderInstance(camera, globalPos, lightVec, alpha, textureMap)
 
 				# in case the user linked directly to a high-res planet view, we want to cache the
 				# low res representation as well so there's no stutter when backing away from the planet

@@ -42,7 +42,7 @@ float heightFunc(vec3 coord)
         return a;
 }
 
-#define ONE_TEXEL (1.0/128.0)
+#define ONE_TEXEL (1.0/1024.0)
 
 
 vec4 positionAndHeight(vec3 cubePos)
@@ -65,6 +65,8 @@ void main(void) {
 
         float height = h00.a;
         gl_FragColor = vec4((normal + 1.0) * 0.5, height);
+ 
+        //gl_FragColor = vec4(normalize(vPos) * 0.5 + 0.5, 1.0);
 }
 
 """
@@ -79,11 +81,18 @@ varying vec3 vPos;
 varying vec3 vTangent;
 varying vec3 vBinormal;
 
+uniform vec2 verticalViewport;
+
 void main(void) {
 	vPos = aPos;
         vTangent = aTangent;
         vBinormal = aBinormal;
-	gl_Position = vec4(aUV * 2.0 - 1.0, 0.0, 1.0);
+
+        vec2 pos = aUV;
+        //pos.y = (pos.y - verticalViewport.x) / verticalViewport.y;
+        pos = pos * 2.0 - 1.0;
+
+	gl_Position = vec4(pos, 0.0, 1.0);
 }
 
 """

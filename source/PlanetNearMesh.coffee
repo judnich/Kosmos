@@ -55,7 +55,7 @@ class root.PlanetNearMesh
 
 
 	# WARNING: be sure to call startRender first and endRender after done calling this
-	renderInstance: (camera, posVec, lightVec, alpha, textureMap) ->
+	renderInstance: (camera, posVec, lightVec, alpha, textureMaps) ->
 		modelViewMat = mat4.create()
 		mat4.translate(modelViewMat, modelViewMat, posVec)
 		mat4.mul(modelViewMat, camera.viewMat, modelViewMat)
@@ -65,13 +65,12 @@ class root.PlanetNearMesh
 		gl.uniform3fv(@shader.uniforms.lightVec, lightVec)
 		gl.uniform1f(@shader.uniforms.alpha, alpha)
 
+		gl.activeTexture(gl.TEXTURE0)
+		gl.uniform1i(@shader.uniforms.sampler, 0);
+
 		for cubeFace in [0..5]
-			gl.activeTexture(gl.TEXTURE0)
-			gl.bindTexture(gl.TEXTURE_2D, textureMap)
-			gl.uniform1i(@shader.uniforms.sampler, 0);
-
+			gl.bindTexture(gl.TEXTURE_2D, textureMaps[cubeFace])
 			gl.uniformMatrix3fv(@shader.uniforms.cubeMat, false, cubeFaceMatrix[cubeFace])
-
 			gl.drawElements(gl.TRIANGLES, @iBuff.numItems, gl.UNSIGNED_SHORT, 0)
 
 		gl.bindTexture(gl.TEXTURE_2D, null)
