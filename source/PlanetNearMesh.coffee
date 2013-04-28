@@ -55,9 +55,9 @@ class root.PlanetNearMesh
 
 
 	# WARNING: be sure to call startRender first and endRender after done calling this
-	renderInstance: (camera, posVec, lightVec, alpha, textureMaps) ->
+	renderInstance: (camera, planetPos, lightVec, alpha, textureMaps) ->
 		modelViewMat = mat4.create()
-		mat4.translate(modelViewMat, modelViewMat, posVec)
+		mat4.translate(modelViewMat, modelViewMat, planetPos)
 		mat4.mul(modelViewMat, camera.viewMat, modelViewMat)
 
 		gl.uniformMatrix4fv(@shader.uniforms.projMat, false, camera.projMat)
@@ -68,42 +68,56 @@ class root.PlanetNearMesh
 		gl.activeTexture(gl.TEXTURE0)
 		gl.uniform1i(@shader.uniforms.sampler, 0);
 
-		relPlanetCenter = vec3.create()
-		vec3.sub(relPlanetCenter, posVec, camera.position)
-
 		fullRect = new Rect()
 
 		for cubeFace in [0..5]
 			gl.bindTexture(gl.TEXTURE_2D, textureMaps[cubeFace])
 			gl.uniformMatrix3fv(@shader.uniforms.cubeMat, false, cubeFaceMatrix[cubeFace])
 
-			@renderChunkRecursive(cubeFace, fullRect, relPlanetCenter)
+			@renderChunkRecursive(camera, planetPos, cubeFace, fullRect)
 
 		gl.bindTexture(gl.TEXTURE_2D, null)
 
 
-	getChunkCenter: (face, rect, relPlanetCenter) ->
-		uv = rect.getCenter()
-		pos = mapPlaneToCube(uv[0], uv[1], face)
+	mapToSphere: (face, point, height) ->
+		pos = mapPlaneToCube(point[0], point[1], face)
 		vec3.normalize(pos, pos)
-		vec3.add(pos, pos, relPlanetCenter)
+		vec3.scale(pos, pos, 1.0 + height * 0.005)
 		return pos
 
 
-	renderChunkRecursive: (face, rect, relPlanetCenter) ->
+	renderChunkRecursive: (camera, planetPos, face, rect) ->
 		rectSize = rect.max[0] - rect.min[0]
 
-		center = @getChunkCenter(face, rect, relPlanetCenter)
+		# generate bounding convex hull and check visibility
+		corners = rect.getCorners()
+		boundingHull = []
+		for i in [0..3]
+			p = @mapToSphere(face, corners[i], 0.0)
+			vec3.add(p, p, planetPos)
+			boundingHull[i] = p
+
+			p = @mapToSphere(face, corners[i], 1.0)
+			vec3.add(p, p, planetPos)
+			boundingHull[i+4] = p
+
+		if not camera.isVisibleVertices(boundingHull) then return
+
+		# determine distance to nearest point of the chunk
+		center = @mapToSphere(face, rect.getCenter(), 1.0)
+		vec3.add(center, center, planetPos)
+		vec3.sub(center, center, camera.position)
 		dist = vec3.length(center)
 		dist -= rectSize * 0.5
 		if dist < 0.0000000001 then dist = 0.0000000001
 
+		# compute screen space error and subdivide if beyond tolerated threshold
 		screenSpaceError = (rectSize / @chunkRes) / dist
 		if screenSpaceError < 0.015 or rectSize < (1.0 / 32.0)
 			@renderChunk(face, rect)
 		else
 			for i in [0..3]
-				@renderChunkRecursive(face, rect.getQuadrant(i), relPlanetCenter)
+				@renderChunkRecursive(camera, planetPos, face, rect.getQuadrant(i))
 
 
 	renderChunk: (face, rect) ->
