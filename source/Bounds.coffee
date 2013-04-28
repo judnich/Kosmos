@@ -1,8 +1,9 @@
 root = exports ? this
 
 class root.Box
-	@min = vec3.fromValues(0, 0, 0)
-	@max = vec3.fromValues(1, 1, 1)
+	constructor: (x0 = 0, y0 = 0, z0 = 0, x1 = 1, y1 = 1, z1 = 1) ->
+		@min = vec2.fromValues(x0, y0, z0)
+		@max = vec2.fromValues(x1, y1, z1)
 
 	normalize: ->
 		for i in [0..2]
@@ -61,8 +62,9 @@ class root.Box
 		return b
 
 class root.Rect
-	@min = vec2.fromValues(0, 0)
-	@max = vec2.fromValues(1, 1)
+	constructor: (x0 = 0, y0 = 0, x1 = 1, y1 = 1) ->
+		@min = vec2.fromValues(x0, y0)
+		@max = vec2.fromValues(x1, y1)
 
 	normalize: ->
 		for i in [0..1]

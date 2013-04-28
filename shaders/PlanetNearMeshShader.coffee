@@ -11,7 +11,7 @@ uniform vec3 lightVec;
 uniform sampler2D sampler;
 
 void main(void) {
-	vec4 tex = texture2D(sampler, vUV);
+	vec4 tex = texture2D(sampler, vUV, -0.5);
 	
 	vec3 norm = normalize(tex.xyz * 2.0 - 1.0);
     float l = (tex.a * 0.5 + 0.4) * dot(norm, lightVec) * 0.9 + 0.1;
@@ -35,8 +35,12 @@ uniform mat3 cubeMat;
 varying vec3 vNormal;
 varying vec2 vUV;
 
+uniform vec4 uvRect;
+
 void main(void) {
-	vec3 aPos = vec3(aUV * 2.0 - 1.0, 1.0);
+	vec2 uv = aUV * uvRect.zw + uvRect.xy;
+
+	vec3 aPos = vec3(uv * 2.0 - 1.0, 1.0);
 	aPos = normalize(aPos * cubeMat);
 
 	vNormal = aPos;

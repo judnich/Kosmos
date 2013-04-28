@@ -7,7 +7,7 @@ class root.PlanetNearMesh
 
 		# load planet shader
 		@shader = xgl.loadProgram("planetNearMesh")
-		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "cubeMat", "alpha", "lightVec", "sampler"])
+		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "cubeMat", "alpha", "lightVec", "sampler", "uvRect"])
 		@shader.attribs = xgl.getProgramAttribs(@shader, ["aUV"])
 
 		# build vertex buffer (chunk grid with edge wall vertices)
@@ -68,12 +68,30 @@ class root.PlanetNearMesh
 		gl.activeTexture(gl.TEXTURE0)
 		gl.uniform1i(@shader.uniforms.sampler, 0);
 
+		fullRect = new Rect()
+
 		for cubeFace in [0..5]
 			gl.bindTexture(gl.TEXTURE_2D, textureMaps[cubeFace])
 			gl.uniformMatrix3fv(@shader.uniforms.cubeMat, false, cubeFaceMatrix[cubeFace])
-			gl.drawElements(gl.TRIANGLES, @iBuff.numItems, gl.UNSIGNED_SHORT, 0)
+
+			@renderChunkRecursive(cubeFace, fullRect)
 
 		gl.bindTexture(gl.TEXTURE_2D, null)
+
+
+	getChunkCenter: (face, rect) ->
+		uv = rect.getCenter()
+		pos = mapPlaneToCube(uv[0], uv[1], face)
+
+
+	renderChunkRecursive: (face, rect) ->
+		center = @getChunkCenter(face, rect)
+		@renderChunk(face, rect)
+
+
+	renderChunk: (face, rect) ->
+		gl.uniform4f(@shader.uniforms.uvRect, rect.min[0], rect.min[1], (rect.max[0]-rect.min[0]), (rect.max[1]-rect.min[1]))
+		gl.drawElements(gl.TRIANGLES, @iBuff.numItems, gl.UNSIGNED_SHORT, 0)
 
 
 	startRender: ->

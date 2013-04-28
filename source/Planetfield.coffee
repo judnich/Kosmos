@@ -60,11 +60,11 @@ class root.Planetfield
 		@nearMesh = new PlanetNearMesh(64)
 		@nearMapGen = new NearMapGenerator(1024)
 		generateCallback = do (t = this) -> (seed, partial) -> return t.nearGenerateCallback(seed, partial)
-		@nearMapCache = new ContentCache(3, generateCallback)
+		@nearMapCache = new ContentCache(4, generateCallback)
 
 		# perform this many partial load steps per cube face map
 		# larger means less load stutter, but longer load latency
-		@progressiveLoadSteps = 32.0 
+		@progressiveLoadSteps = 32.0
 		@frameCount = 0
 
 
@@ -77,13 +77,11 @@ class root.Planetfield
 			progress = 0.0
 			maps = @nearMapGen.createMaps()
 			face = 0
-			console.log("Creating new near maps")
+			console.log("Loading high res maps for planet #{seed}")
 		else
 			progress = partial.progress
 			maps = partial.maps
 			face = partial.face
-
-		#console.log("Loading near map #{seed} face #{face} at #{progress}")
 
 		progressPlusOne = progress + (1.0 / @progressiveLoadSteps)
 		@nearMapGen.generateSubMap(maps, seed, face, progress, progressPlusOne)
@@ -138,7 +136,8 @@ class root.Planetfield
 
 		# draw medium range planets as a low res sphere
 		camera.far = @farMeshRange * 5.0
-		camera.near = @farMeshRange * 0.001
+		#camera.near = @farMeshRange * 0.001
+		camera.near = @nearMeshRange * 0.00001
 		camera.update()
 		@renderFarMeshes(camera, originOffset)
 
@@ -219,7 +218,7 @@ class root.Planetfield
 		[localPos, globalPos, lightVec] = [vec3.create(), vec3.create(), vec3.create()]
 		for i in [@meshPlanets.length-1 .. 0]
 			[x, y, z, w, alpha] = @meshPlanets[i]
-			seed = Math.floor(w * 1000000)
+			seed = Math.floor(w * 1000000000)
 
 			# far planet is visible only if it's beyond the near planet range
 			distSq = x*x + y*y + z*z
@@ -262,7 +261,7 @@ class root.Planetfield
 				vec3.subtract(lightVec, @lightCenter, localPos)
 				vec3.normalize(lightVec, lightVec)
 
-				seed = Math.floor(w * 1000000)
+				seed = Math.floor(w * 1000000000)
 				textureMap = @nearMapCache.getContent(seed)
 				if textureMap
 					@nearMesh.renderInstance(camera, globalPos, lightVec, alpha, textureMap)
