@@ -1,4 +1,5 @@
 compiled/*
 *.sublime*
 .DS_Store
+dist/*
 
