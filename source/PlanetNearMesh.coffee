@@ -7,7 +7,7 @@ class root.PlanetNearMesh
 
 		# load planet shader
 		@shader = xgl.loadProgram("planetNearMesh")
-		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "cubeMat", "alpha", "lightVec", "sampler", "uvRect"])
+		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "cubeMat", "lightVec", "sampler", "uvRect"])
 		@shader.attribs = xgl.getProgramAttribs(@shader, ["aUV"])
 
 		# build vertex buffer (chunk grid with edge wall vertices)
@@ -68,25 +68,42 @@ class root.PlanetNearMesh
 		gl.activeTexture(gl.TEXTURE0)
 		gl.uniform1i(@shader.uniforms.sampler, 0);
 
+		relPlanetCenter = vec3.create()
+		vec3.sub(relPlanetCenter, posVec, camera.position)
+
 		fullRect = new Rect()
 
 		for cubeFace in [0..5]
 			gl.bindTexture(gl.TEXTURE_2D, textureMaps[cubeFace])
 			gl.uniformMatrix3fv(@shader.uniforms.cubeMat, false, cubeFaceMatrix[cubeFace])
 
-			@renderChunkRecursive(cubeFace, fullRect)
+			@renderChunkRecursive(cubeFace, fullRect, relPlanetCenter)
 
 		gl.bindTexture(gl.TEXTURE_2D, null)
 
 
-	getChunkCenter: (face, rect) ->
+	getChunkCenter: (face, rect, relPlanetCenter) ->
 		uv = rect.getCenter()
 		pos = mapPlaneToCube(uv[0], uv[1], face)
+		vec3.normalize(pos, pos)
+		vec3.add(pos, pos, relPlanetCenter)
+		return pos
 
 
-	renderChunkRecursive: (face, rect) ->
-		center = @getChunkCenter(face, rect)
-		@renderChunk(face, rect)
+	renderChunkRecursive: (face, rect, relPlanetCenter) ->
+		rectSize = rect.max[0] - rect.min[0]
+
+		center = @getChunkCenter(face, rect, relPlanetCenter)
+		dist = vec3.length(center)
+		dist -= rectSize * 0.5
+		if dist < 0.0000000001 then dist = 0.0000000001
+
+		screenSpaceError = (rectSize / @chunkRes) / dist
+		if screenSpaceError < 0.015 or rectSize < (1.0 / 32.0)
+			@renderChunk(face, rect)
+		else
+			for i in [0..3]
+				@renderChunkRecursive(face, rect.getQuadrant(i), relPlanetCenter)
 
 
 	renderChunk: (face, rect) ->

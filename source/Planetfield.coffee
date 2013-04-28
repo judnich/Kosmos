@@ -197,6 +197,8 @@ class root.Planetfield
 
 
 	calculateLightSource: ->
+		if @starList.length < 1 then return
+
 		# calculate weighted sum of up to three near stars within +-50% distance
 		# to generate a approximate light source position to use in lighting calculations
 		@lightCenter = vec3.fromValues(@starList[0][0], @starList[0][1], @starList[0][2])
