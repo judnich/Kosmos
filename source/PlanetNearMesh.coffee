@@ -3,7 +3,9 @@ root = exports ? this
 class root.PlanetNearMesh
 	constructor: (chunkRes, maxRes) ->
 		@chunkRes = chunkRes
-		@maxLevels = Math.floor(Math.log(maxRes) / Math.log(chunkRes))
+		#@maxLevels = Math.floor(Math.log(maxRes) / Math.log(chunkRes))
+		@minRectSize = chunkRes / maxRes
+		@maxLodError = 0.015
 
 		# load planet shader
 		@shader = xgl.loadProgram("planetNearMesh")
@@ -113,7 +115,7 @@ class root.PlanetNearMesh
 
 		# compute screen space error and subdivide if beyond tolerated threshold
 		screenSpaceError = (rectSize / @chunkRes) / dist
-		if screenSpaceError < 0.015 or rectSize < (1.0 / 32.0)
+		if screenSpaceError < @maxLodError or rectSize < @minRectSize*0.99
 			@renderChunk(face, rect)
 		else
 			for i in [0..3]

@@ -57,7 +57,7 @@ class root.Planetfield
 		generateCallback = do (t = this) -> (seed, partial) -> return t.farGenerateCallback(seed, partial)
 		@farMapCache = new ContentCache(16, generateCallback) 
 
-		@nearMesh = new PlanetNearMesh(64)
+		@nearMesh = new PlanetNearMesh(64, 1024)
 		@nearMapGen = new NearMapGenerator(1024)
 		generateCallback = do (t = this) -> (seed, partial) -> return t.nearGenerateCallback(seed, partial)
 		@nearMapCache = new ContentCache(4, generateCallback)
