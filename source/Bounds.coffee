@@ -72,9 +72,9 @@ class root.Rect
 				[@min[i], @max[i]] = [@max[i], @min[i]]
 
 	getCenter: ->
-		center = vec3.create()
-		vec3.add(center, @min, @max)
-		vec3.scale(center, center, 0.5)
+		center = vec2.create()
+		vec2.add(center, @min, @max)
+		vec2.scale(center, center, 0.5)
 		return center
 
 	getRadius: ->

@@ -93,20 +93,49 @@ class root.PlanetNearMesh
 
 		# generate bounding convex hull and check visibility
 		corners = rect.getCorners()
+		mid = rect.getCenter()
 		boundingHull = []
-		for i in [0..3]
-			p = @mapToSphere(face, corners[i], 0.0)
-			vec3.add(p, p, planetPos)
+
+		# The top vertex is placed above the center the top of the convex volume. This top point is computed as essentially the 
+		# intersection of the tangent planes extending out from each top vertex of the bounding box, tangent to the sphere surface 
+		# normal. This intersection point is then guaranteed to produce a bounding volume convex hull in addition to the other 12
+		# that contains every possible terrain range, even with the curved surface of the planet.
+		center = @mapToSphere(face, mid, 1.0)
+		corner = @mapToSphere(face, corners[0], 1.0)
+		topPointRadius = 1.0 / vec3.dot(center, corner);
+
+		# add vertices for "corners" of the chunk
+		for i in [0..7]
+			p = @mapToSphere(face, corners[i%4], ((i < 4) - 0.5) * 2)
+			if i >= 4
+				vec3.scale(p, p, topPointRadius)
+			else
+				vec3.scale(p, p, 1/topPointRadius)
 			boundingHull[i] = p
 
-			p = @mapToSphere(face, corners[i], 1.0)
-			vec3.add(p, p, planetPos)
-			boundingHull[i+4] = p
+		# add vertices at midpoints along each edge of the chunk
+		for i in [0..3]
+			[a, b] = [ corners[i%4], corners[(i+1)%4] ]
+			c = vec2.create()
+			vec2.lerp(c, a, b, 0.5)
+			p = @mapToSphere(face, c, 1);
+			vec3.scale(p, p, topPointRadius)
+			boundingHull[i+8] = p
 
-		if not camera.isVisibleVertices(boundingHull) then return
+		# top vertex
+		p = @mapToSphere(face, mid, 1.0)
+		vec3.scale(p, p, topPointRadius)
+		boundingHull[12] = p
+
+		# translate bounding box into world space
+		for v in boundingHull
+			vec3.add(v, v, planetPos)
+
+		# return (don't render) if not visible
+		if not camera.isVisibleVertices(boundingHull)
+			return
 
 		# determine distance to nearest point of the chunk
-		center = @mapToSphere(face, rect.getCenter(), 1.0)
 		vec3.add(center, center, planetPos)
 		vec3.sub(center, center, camera.position)
 		dist = vec3.length(center)
