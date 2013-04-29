@@ -65,7 +65,6 @@ class root.Planetfield
 		# perform this many partial load steps per cube face map
 		# larger means less load stutter, but longer load latency
 		@progressiveLoadSteps = 32.0
-		@frameCount = 0
 
 
 	farGenerateCallback: (seed, partial) ->
@@ -129,22 +128,12 @@ class root.Planetfield
 		@calculateLightSource()
 
 		# draw distant planets as sprite dots on the screen
-		camera.far = @spriteRange * 1.1
-		camera.near = @farMeshRange * 0.9
-		camera.update()
 		@renderSprites(camera, originOffset, blur)
 
 		# draw medium range planets as a low res sphere
-		camera.far = @farMeshRange * 5.0
-		#camera.near = @farMeshRange * 0.001
-		camera.near = @nearMeshRange * 0.00001
-		camera.update()
 		@renderFarMeshes(camera, originOffset)
 
 		# draw the full resolution planets when really close
-		camera.far = @nearMeshRange * 1.1
-		camera.near = @nearMeshRange * 0.00001
-		camera.update()
 		@renderNearMeshes(camera, originOffset)
 
 		# load maps that were requested from the cache
@@ -152,12 +141,9 @@ class root.Planetfield
 		@farMapCache.update(1)
 		@farMapGen.finish()
 
-		@frameCount++
-		if @frameCount >= 0
-			@frameCount = 0
-			@nearMapGen.start()
-			@nearMapCache.update(1)
-			@nearMapGen.finish()
+		@nearMapGen.start()
+		@nearMapCache.update(1)
+		@nearMapGen.finish()
 
 
 	generatePlanetPositions: ->
@@ -214,6 +200,11 @@ class root.Planetfield
 	renderFarMeshes: (camera, originOffset) ->
 		if not @meshPlanets or @meshPlanets.length == 0 or @starList.length == 0 then return
 
+		# update camera depth range
+		camera.far = @farMeshRange * 5.0
+		camera.near = @nearMeshRange * 0.00001
+		camera.update()
+
 		@farMesh.startRender()
 
 		nearDistSq = @nearMeshRange*@nearMeshRange
@@ -222,9 +213,9 @@ class root.Planetfield
 			[x, y, z, w, alpha] = @meshPlanets[i]
 			seed = Math.floor(w * 1000000000)
 
-			# far planet is visible only if it's beyond the near planet range
+			# far planet is visible if it's beyond the near planet range or if it's not the closest planet
 			distSq = x*x + y*y + z*z
-			visible = (distSq >= nearDistSq)
+			visible = (distSq >= nearDistSq) or (i != 0)
 
 			# however if the near planet isn't done loading, draw the far planet instead
 			if not visible
@@ -252,11 +243,24 @@ class root.Planetfield
 
 		nearDistSq = @nearMeshRange*@nearMeshRange
 		[localPos, globalPos, lightVec] = [vec3.create(), vec3.create(), vec3.create()]
-		for i in [0 .. @meshPlanets.length-1]
+
+		# for now we just allow one planet rendered high res at any given time, because we need to adjust
+		# the z buffer range specifically for each planet (and it's preferred to not clear the z buffer multiple times)
+		for i in [0] #[0 .. @meshPlanets.length-1]
 			[x, y, z, w, alpha] = @meshPlanets[i]
 
 			distSq = x*x + y*y + z*z
-			if distSq < nearDistSq
+			if distSq < nearDistSq and i == 0
+				# update camera depth range to perfectly accommodate the planet
+				# NOTE: scaling by 1.733=sqrt(3) accounts for the fact that depths are frustum depths rather
+				# than actual distances from the camera, and therefore the corners of the screen (frustum)
+				# will be off by a factor as much as sqrt(3)
+				dist = Math.sqrt(distSq)
+				camera.far = dist * 1.733 + 1.0
+				camera.near = dist / 1.733 - 1.0
+				if camera.near <= 0.000001 then camera.near = 0.000001
+				camera.update()
+
 				localPos = vec3.fromValues(x, y, z)
 				vec3.add(globalPos, localPos, camera.position)
 
@@ -279,6 +283,11 @@ class root.Planetfield
 	renderSprites: (camera, originOffset, blur) ->
 		# return if nothing to render
 		if @numPlanets <= 0 then return
+
+		# update camera depth range
+		camera.far = @spriteRange * 1.1
+		camera.near = @farMeshRange * 0.9
+		camera.update()
 
 		# push render state
 		@_startRenderSprites()

@@ -84,7 +84,7 @@ class root.PlanetNearMesh
 	mapToSphere: (face, point, height) ->
 		pos = mapPlaneToCube(point[0], point[1], face)
 		vec3.normalize(pos, pos)
-		vec3.scale(pos, pos, 1.0 + height * 0.005)
+		vec3.scale(pos, pos, 0.995 + height * 0.005)
 		return pos
 
 

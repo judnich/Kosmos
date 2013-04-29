@@ -26,6 +26,8 @@ void main(void) {
 
 vert = """
 
+precision highp float;
+
 attribute vec2 aUV;
 
 uniform mat4 projMat;
