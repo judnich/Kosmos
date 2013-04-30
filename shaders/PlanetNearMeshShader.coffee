@@ -12,7 +12,7 @@ uniform sampler2D sampler;
 
 uniform vec4 uvRect;
 
-const float uvScalar = 1025.0 / 1024.0;
+const float uvScalar = 1.0;//1025.0 / 1024.0;
 
 void main(void) {
 	vec4 tex = texture2D(sampler, vUV * uvScalar, -0.5);
@@ -45,7 +45,7 @@ uniform vec4 uvRect;
 
 uniform sampler2D vertSampler;
 
-const float uvScalar = 1025.0 / 1024.0;
+const float uvScalar = 1.0; //1025.0 / 1024.0;
 
 void main(void) {
 	vec2 uv = aUV.xy * uvRect.zw + uvRect.xy;

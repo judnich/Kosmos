@@ -258,7 +258,8 @@ class root.Planetfield
 				dist = Math.sqrt(distSq)
 				camera.far = dist * 1.733 + 1.0
 				camera.near = dist / 1.733 - 1.0
-				if camera.near <= 0.000001 then camera.near = 0.000001
+				minNear = 0.000001 + Math.max(dist - 1.0, 0.0) * 0.1
+				if camera.near <= minNear then camera.near = minNear
 				camera.update()
 
 				localPos = vec3.fromValues(x, y, z)
