@@ -62,8 +62,8 @@ class root.Planetfield
 		generateCallback = do (t = this) -> (seed, partial) -> return t.farGenerateCallback(seed, partial)
 		@farMapCache = new ContentCache(16, generateCallback) 
 
-		@nearMesh = new PlanetNearMesh(64, 1024)
-		@nearMapGen = new NearMapGenerator(1024)
+		@nearMesh = new PlanetNearMesh(64, 4096)
+		@nearMapGen = new NearMapGenerator(4096)
 		generateCallback = do (t = this) -> (seed, partial) -> return t.nearGenerateCallback(seed, partial)
 		@nearMapCache = new ContentCache(4, generateCallback)
 
@@ -157,7 +157,7 @@ class root.Planetfield
 	getDistanceToClosestObject: -> Math.min(@getDistanceToClosestPlanet(), @getDistanceToClosestStar())
 	getClosestStar: -> @closestStar
 	getClosestPlanet: -> @closestPlanet
-	
+
 
 	generatePlanetPositions: ->
 		randomStream = new RandomStream()

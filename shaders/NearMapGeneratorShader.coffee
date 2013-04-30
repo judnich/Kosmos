@@ -12,8 +12,7 @@ float heightFunc(vec3 coord)
         //float p = 4.0;
         float p = 8.0;
 
-        //for (int i = 0; i < 5; ++i) {
-        for (int i = 0; i < 7; ++i) {
+        for (int i = 0; i < 6; ++i) {
                 v.x = coord.x * p; v.y = coord.y * p; v.z = coord.z * p;
 
                 float ridged;
@@ -42,7 +41,7 @@ float heightFunc(vec3 coord)
         return a;
 }
 
-#define ONE_TEXEL (1.0/1024.0)
+#define ONE_TEXEL (1.0/4096.0)
 
 
 vec4 positionAndHeight(vec3 cubePos)
