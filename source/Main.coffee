@@ -201,7 +201,8 @@ root.loadLocation = ->
 		# set location from url hash
 		if not parseLocationString(window.location.hash)
 			# else, use a default location
-			parseLocationString("#go:-25.552404403686523:-30.029766082763672:-63.47420883178711:-15872:5888:11008:0.036:0.687:0.683:0.247")
+			#parseLocationString("#go:-25.552404403686523:-30.029766082763672:-63.47420883178711:-15872:5888:11008:0.036:0.687:0.683:0.247")
+			parseLocationString("#go:-137.62518310546875:13.487885475158691:-41.893638610839844:6784:-6272:16128:0.551:-0.258:0.194:0.769")
 
 		# remove hash from URL
 		history.pushState("", document.title, window.location.pathname + window.location.search)
@@ -245,7 +246,7 @@ tick = ->
 	vec3.transformQuat(moveVec, moveVec, smoothRotation)
 	vec3.add(camera.position, camera.position, moveVec)
 
-	# when near planets, orient the camera upward
+	# when near planets, orient the camera upright
 	distToPlanet = planetfield.getDistanceToClosestPlanet()
 	if distToPlanet < 0.1
 		planetVec = planetfield.getClosestPlanet()
