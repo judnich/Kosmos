@@ -54,7 +54,7 @@ void main(void) {
 	aPos = normalize(aPos * cubeMat);
 
 	float height = texture2D(vertSampler, uv * uvScalar).a;
-	aPos *= 1.0 + (height - (uvRect.z * 2.0) * aUV.z) * 0.01;
+	aPos *= 0.99 + (height - (uvRect.z * 2.0) * aUV.z) * 0.01;
 
 	vNormal = aPos;
 	vUV = uv.xy;

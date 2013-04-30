@@ -111,7 +111,7 @@ class root.PlanetNearMesh
 	mapToSphere: (face, point, height) ->
 		pos = mapPlaneToCube(point[0], point[1], face)
 		vec3.normalize(pos, pos)
-		vec3.scale(pos, pos, 0.995 + height * 0.005)
+		vec3.scale(pos, pos, 0.99 + height * 0.01)
 		return pos
 
 
@@ -133,8 +133,8 @@ class root.PlanetNearMesh
 
 		# add vertices for "corners" of the chunk
 		for i in [0..7]
-			p = @mapToSphere(face, corners[i%4], ((i < 4) - 0.5) * 2)
-			if i >= 4 then vec3.scale(p, p, topPointRadius)
+			p = @mapToSphere(face, corners[i%4], (i < 4))
+			if i < 4 then vec3.scale(p, p, topPointRadius)
 			boundingHull[i] = p
 
 		# add vertices at midpoints along each edge of the chunk
