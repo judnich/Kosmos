@@ -152,15 +152,12 @@ class root.Planetfield
 
 
 	# these functions return the closest distance, or null if no such object is populated
-	getDistanceToClosestPlanet: ->
-		return Math.max(@closestPlanetDist - 1.0, 0.01) or @_starfield.viewRange
-
-	getDistanceToClosestStar: ->
-		return Math.max(@closestStarDist - 100.0, 100) or @_starfield.viewRange
-
-	getDistanceToClosestObject: ->
-		return Math.min(@getDistanceToClosestPlanet(), @getDistanceToClosestStar())
-
+	getDistanceToClosestPlanet: -> Math.max(@closestPlanetDist - 1.0, 0.01) or @_starfield.viewRange
+	getDistanceToClosestStar: -> Math.max(@closestStarDist - 100.0, 100) or @_starfield.viewRange
+	getDistanceToClosestObject: -> Math.min(@getDistanceToClosestPlanet(), @getDistanceToClosestStar())
+	getClosestStar: -> @closestStar
+	getClosestPlanet: -> @closestPlanet
+	
 
 	generatePlanetPositions: ->
 		randomStream = new RandomStream()

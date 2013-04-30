@@ -245,7 +245,40 @@ tick = ->
 	vec3.transformQuat(moveVec, moveVec, smoothRotation)
 	vec3.add(camera.position, camera.position, moveVec)
 
-	# rotate camera
+	# when near planets, orient the camera upward
+	distToPlanet = planetfield.getDistanceToClosestPlanet()
+	if distToPlanet < 0.1
+		planetVec = planetfield.getClosestPlanet()
+		a = Math.min((0.1 - distToPlanet) * 10, 1.0)
+		a = a * a
+
+		if planetVec != null
+			[x, y, z] = planetVec
+
+			mat = mat3.create()
+			mat3.fromQuat(mat, desiredRotation)
+
+			right = vec3.fromValues(mat[0], mat[3], mat[6])
+			up = vec3.fromValues(mat[1], mat[4], mat[7])
+			look = vec3.fromValues(mat[2], mat[5], mat[8])
+
+			up = vec3.fromValues(-x, -y, -z)
+			vec3.normalize(up, up)
+
+			vec3.cross(right, up, look)
+			vec3.normalize(right, right)
+			vec3.cross(up, look, right)
+
+			[mat[0], mat[3], mat[6]] = right
+			[mat[1], mat[4], mat[7]] = up
+			[mat[2], mat[5], mat[8]] = look
+
+			q = quat.create()
+			quat.fromMat3(q, mat)
+			quat.slerp(desiredRotation, desiredRotation, q, 0.05 * a)
+			#desiredRotation = q
+
+	# rotate camera towards user designated destination
 	quat.slerp(smoothRotation, smoothRotation, desiredRotation, 0.05)
 	camera.setRotation(smoothRotation)
 
