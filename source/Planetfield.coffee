@@ -17,6 +17,11 @@ class root.Planetfield
 		@minOrbitScale = minOrbitScale
 		@maxOrbitScale = maxOrbitScale
 
+		@closestPlanetDist = null
+		@closestPlanet = null
+		@closestStarDist = null
+		@closestStar = null
+
 		randomStream = new RandomStream(universeSeed)
 
 		# load planet shader
@@ -146,12 +151,28 @@ class root.Planetfield
 		@nearMapGen.finish()
 
 
+	# these functions return the closest distance, or null if no such object is populated
+	getDistanceToClosestPlanet: ->
+		return Math.max(@closestPlanetDist - 1.0, 0.01) or @_starfield.viewRange
+
+	getDistanceToClosestStar: ->
+		return Math.max(@closestStarDist - 100.0, 100) or @_starfield.viewRange
+
+	getDistanceToClosestObject: ->
+		return Math.min(@getDistanceToClosestPlanet(), @getDistanceToClosestStar())
+
+
 	generatePlanetPositions: ->
 		randomStream = new RandomStream()
 		@numPlanets = 0
 
 		@meshPlanets = []
 		numMeshPlanets = 0
+
+		@closestPlanetDist = null
+		@closestPlanet = null
+		@closestStarDist = null
+		@closestStar = null
 
 		for [dx, dy, dz, w] in @starList
 			randomStream.seed = Math.floor(w * 1000000)
@@ -176,6 +197,17 @@ class root.Planetfield
 				@setPlanetSprite(@numPlanets, [x, y, z])
 				@numPlanets++
 
+				# keep track of closest planet (for autopilot stuff)
+				if @closestPlanet == null or dist < @closestPlanetDist
+					@closestPlanet = [x, y, z]
+					@closestPlanetDist = dist
+
+			# keep track of closest star (for autopilot stuff)
+			starDist = Math.sqrt(dx*dx + dy*dy + dz*dz)
+			if @closestStar == null or starDist < @closestStarDist
+				@closestStar = [dx, dy, dz]
+				@closestStarDist = starDist
+
 		# sort the list of planets to render in depth order, since later we need to render farthest to nearest
 		# because the depth buffer is not enabled yet (we're still rendering on massive scales, potentially)
 		if @meshPlanets and @meshPlanets.length > 0
@@ -188,8 +220,9 @@ class root.Planetfield
 		# calculate weighted sum of up to three near stars within +-50% distance
 		# to generate a approximate light source position to use in lighting calculations
 		@lightCenter = vec3.fromValues(@starList[0][0], @starList[0][1], @starList[0][2])
-		for i in [1 .. Math.min(2, @starList.length)]
+		for i in [1..2]
 			star = @starList[i]
+			if not star? then break
 			lightPos = vec3.fromValues(star[0], star[1], star[2])
 			if Math.abs(1.0 - (vec3.distance(lightPos, @lightCenter) / vec3.length(@lightCenter))) < 0.5
 				vec3.scale(@lightCenter, @lightCenter, 0.75)
