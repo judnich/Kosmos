@@ -9,40 +9,66 @@ class root.PlanetNearMesh
 
 		# load planet shader
 		@shader = xgl.loadProgram("planetNearMesh")
-		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "cubeMat", "lightVec", "sampler", "uvRect"])
+		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "cubeMat", "lightVec", "sampler", "vertSampler", "uvRect"])
 		@shader.attribs = xgl.getProgramAttribs(@shader, ["aUV"])
 
-		# build vertex buffer (chunk grid with edge wall vertices)
-		buff = new Float32Array((@chunkRes+1)*(@chunkRes+1) * 2)
+		# build vertex buffer (chunk grid)
+		buff = new Float32Array( ((@chunkRes+1)*(@chunkRes+1) + (@chunkRes+1)*4) * 3 )
 		n = 0
 		for j in [0..@chunkRes]
 			for i in [0..@chunkRes]
 				[u, v] = [i / @chunkRes, j / @chunkRes]
-				buff[n] = u
-				buff[n+1] = v
-				n += 2
+				[buff[n], buff[n+1], buff[n+2]] = [u, v, 0.0]
+				n += 3
+
+		# edge wall vertices
+		for j in [0, @chunkRes]
+			for i in [0..@chunkRes]
+				[u, v] = [i / @chunkRes, j / @chunkRes]
+				[buff[n], buff[n+1], buff[n+2]] = [u, v, 1.0]
+				n += 3
+		for i in [0, @chunkRes]
+			for j in [0..@chunkRes]
+				[u, v] = [i / @chunkRes, j / @chunkRes]
+				[buff[n], buff[n+1], buff[n+2]] = [u, v, 1.0]
+				n += 3
 
 		@vBuff = gl.createBuffer()
 		gl.bindBuffer(gl.ARRAY_BUFFER, @vBuff);
 		gl.bufferData(gl.ARRAY_BUFFER, buff, gl.STATIC_DRAW)
 		gl.bindBuffer(gl.ARRAY_BUFFER, null)
-		@vBuff.itemSize = 2
+		@vBuff.itemSize = 3
 		@vBuff.numItems = buff.length / @vBuff.itemSize
 
 		# build index buffer
-		buff = new Uint16Array((@chunkRes)*(@chunkRes) * 6)
+		buff = new Uint16Array(((@chunkRes)*(@chunkRes) + @chunkRes*4) * 6)
 		n = 0
 		for j in [0..@chunkRes-1]
 			for i in [0..@chunkRes-1]
 				[v00, v01] = [i + j*(@chunkRes+1), i + (j+1)*(@chunkRes+1)]
 				[v10, v11] = [v00 + 1, v01 + 1]
+				[buff[n], buff[n+1], buff[n+2], buff[n+3], buff[n+4], buff[n+5]] = [v00, v10, v11, v00, v11, v01]
+				n += 6
 
-				buff[n] = v00
-				buff[n+1] = v10
-				buff[n+2] = v11
-				buff[n+3] = v00
-				buff[n+4] = v11
-				buff[n+5] = v01
+		# edge wall indices
+		wallStart = (@chunkRes+1)*(@chunkRes+1)
+		for j in [0, 1]
+			for i in [0..@chunkRes-1]
+				[v00, v01] = [i + j*(@chunkRes)*(@chunkRes+1), wallStart + i + j*(@chunkRes+1)]
+				[v10, v11] = [v00 + 1, v01 + 1]
+				if j == 1
+					[buff[n], buff[n+1], buff[n+2], buff[n+3], buff[n+4], buff[n+5]] = [v00, v10, v11, v00, v11, v01]
+				else 
+					[buff[n], buff[n+1], buff[n+2], buff[n+3], buff[n+4], buff[n+5]] = [v11, v10, v00, v01, v11, v00]
+				n += 6
+		for j in [0, 1]
+			for i in [0..@chunkRes-1]
+				[v00, v01] = [j*@chunkRes + i*(@chunkRes+1), wallStart + i + (j+2)*(@chunkRes+1)]
+				[v10, v11] = [v00 + (@chunkRes+1), v01 + 1]
+				if j == 0
+					[buff[n], buff[n+1], buff[n+2], buff[n+3], buff[n+4], buff[n+5]] = [v00, v10, v11, v00, v11, v01]
+				else 
+					[buff[n], buff[n+1], buff[n+2], buff[n+3], buff[n+4], buff[n+5]] = [v11, v10, v00, v01, v11, v00]
 				n += 6
 
 		@iBuff = gl.createBuffer()
@@ -69,6 +95,7 @@ class root.PlanetNearMesh
 
 		gl.activeTexture(gl.TEXTURE0)
 		gl.uniform1i(@shader.uniforms.sampler, 0);
+		gl.uniform1i(@shader.uniforms.vertSampler, 0);
 
 		fullRect = new Rect()
 
@@ -107,10 +134,7 @@ class root.PlanetNearMesh
 		# add vertices for "corners" of the chunk
 		for i in [0..7]
 			p = @mapToSphere(face, corners[i%4], ((i < 4) - 0.5) * 2)
-			if i >= 4
-				vec3.scale(p, p, topPointRadius)
-			else
-				vec3.scale(p, p, 1/topPointRadius)
+			if i >= 4 then vec3.scale(p, p, topPointRadius)
 			boundingHull[i] = p
 
 		# add vertices at midpoints along each edge of the chunk
@@ -159,6 +183,7 @@ class root.PlanetNearMesh
 	startRender: ->
 		#gl.enable(gl.BLEND)
 		#gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+		#gl.disable(gl.CULL_FACE)
 
 		gl.useProgram(@shader)
 
@@ -166,7 +191,7 @@ class root.PlanetNearMesh
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, @iBuff)
 
 		gl.enableVertexAttribArray(@shader.attribs.aUV)
-		gl.vertexAttribPointer(@shader.attribs.aUV, 2, gl.FLOAT, false, @vBuff.itemSize*4, 0)
+		gl.vertexAttribPointer(@shader.attribs.aUV, 3, gl.FLOAT, false, @vBuff.itemSize*4, 0)
 
 
 	finishRender: ->

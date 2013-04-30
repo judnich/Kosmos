@@ -1,4 +1,4 @@
-frag = """precision mediump float;
+frag = """precision highp float;
 
 varying vec3 vPos;
 varying vec3 vTangent;
@@ -7,6 +7,7 @@ varying vec3 vBinormal;
 float heightFunc(vec3 coord)
 {
         vec3 v;
+        coord *= 0.5;
 
         float a = 0.0;
         //float p = 4.0;
