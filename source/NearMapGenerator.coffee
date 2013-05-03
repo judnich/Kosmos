@@ -86,7 +86,7 @@ class root.NearMapGenerator
 			maps[face] = gl.createTexture()
 			gl.bindTexture(gl.TEXTURE_2D, maps[face])
 			if face < 6
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST)
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)#_MIPMAP_NEAREST)
 				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
 			else
 				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
@@ -158,10 +158,17 @@ class root.NearMapGenerator
 
 	# call this to finalize map generation
 	finalizeMaps: (maps) ->
-		for i in [0..5]
-			gl.bindTexture(gl.TEXTURE_2D, maps[i])
-			gl.generateMipmap(gl.TEXTURE_2D)
-		gl.bindTexture(gl.TEXTURE_2D, null)
+		# note: it seems generating mipmaps leads to some glitches either in intel HD 4000 or webgl,
+		# causing MAJOR permanent lag for the remainder of the program, and this occurs RANDOMLY.
+		# impossible to know when, and impossible to predict. so I've disabled this. FORTUNATELY,
+		# it turns out for whatever reason, disabling mipmaps entirely looks great with no visible pixel
+		# shimmer on my retina macbook at least, most likely because the high res maps are used only
+		# when you're near the planet anyway, thus effectively being a sort of manual objectwide mipmap anyway.
+
+		#for i in [0..5]
+			#gl.bindTexture(gl.TEXTURE_2D, maps[i])
+			#gl.generateMipmap(gl.TEXTURE_2D)
+		#gl.bindTexture(gl.TEXTURE_2D, null)
 		delete maps[6]
 
 

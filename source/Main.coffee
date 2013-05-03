@@ -355,4 +355,14 @@ updateCoordinateSystem = ->
 			camera.position[i] -= n * localMax
 			originOffset[i] += n * localMax
 
+	#distToPlanet = planetfield.getDistanceToClosestPlanet()
+	#if distToPlanet < 1.0
+	#	planetVec = planetfield.getClosestPlanet()
+	#	planetPos = vec3.create()
+	#	vec3.add(planetPos, camera.position, planetVec)
+	#
+	#	vec3.sub(camera.position, camera.position, planetPos)
+	#	vec3.add(originOffset, originOffset, planetPos)
+
+
 

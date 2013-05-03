@@ -9,7 +9,7 @@ class root.PlanetNearMesh
 
 		# load planet shader
 		@shader = xgl.loadProgram("planetNearMesh")
-		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "cubeMat", "lightVec", "sampler", "vertSampler", "uvRect"])
+		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "cubeMat", "lightVec", "camPos", "sampler", "vertSampler", "uvRect"])
 		@shader.attribs = xgl.getProgramAttribs(@shader, ["aUV"])
 
 		# build vertex buffer (chunk grid)
@@ -93,6 +93,10 @@ class root.PlanetNearMesh
 		gl.uniform3fv(@shader.uniforms.lightVec, lightVec)
 		gl.uniform1f(@shader.uniforms.alpha, alpha)
 
+		relCamPos = vec3.create()
+		vec3.sub(relCamPos, planetPos, camera.position)
+		gl.uniform3fv(@shader.uniforms.camPos, relCamPos)
+
 		gl.activeTexture(gl.TEXTURE0)
 		gl.uniform1i(@shader.uniforms.sampler, 0);
 		gl.uniform1i(@shader.uniforms.vertSampler, 0);
@@ -166,8 +170,15 @@ class root.PlanetNearMesh
 		dist -= rectSize * 0.5
 		if dist < 0.0000000001 then dist = 0.0000000001
 
-		# compute screen space error and subdivide if beyond tolerated threshold
-		screenSpaceError = (rectSize / @chunkRes) / dist
+		# compute screen space error
+		p0 = @mapToSphere(face, corners[0], 1)
+		p1 = @mapToSphere(face, corners[3], 1)
+		pdiag = vec3.create()
+		vec3.sub(pdiag, p1, p0)
+		ldiag = vec3.length(pdiag)
+		screenSpaceError = (ldiag / @chunkRes) / dist
+
+		# subdivide if screen space error is beyond threshold
 		if screenSpaceError < @maxLodError or rectSize < @minRectSize*0.99
 			@renderChunk(face, rect)
 		else
