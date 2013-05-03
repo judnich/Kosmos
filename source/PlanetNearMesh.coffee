@@ -5,7 +5,7 @@ class root.PlanetNearMesh
 		@chunkRes = chunkRes
 		#@maxLevels = Math.floor(Math.log(maxRes) / Math.log(chunkRes))
 		@minRectSize = chunkRes / maxRes
-		@maxLodError = 0.015
+		@maxLodError = 0.020
 
 		# load planet shader
 		@shader = xgl.loadProgram("planetNearMesh")

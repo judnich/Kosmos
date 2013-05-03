@@ -44,29 +44,16 @@ float heightFunc(vec3 coord)
 #define ONE_TEXEL (1.0/4096.0)
 
 
-vec4 positionAndHeight(vec3 cubePos)
+float getHeightOnCube(vec3 cubePos)
 {
         vec3 pos = normalize(cubePos);
-        float h = heightFunc(pos);
-        pos *= 0.997 + h * 0.003;
-        return vec4(pos, h);
-}
+        return heightFunc(pos);
+ }
 
 
 void main(void) {
-	vec4 h00 = positionAndHeight(vPos);
-        vec4 h10 = positionAndHeight(vPos + ONE_TEXEL * vBinormal);
-        vec4 h01 = positionAndHeight(vPos + ONE_TEXEL * vTangent);
-        
-        vec3 right = (h10.xyz - h00.xyz);
-        vec3 forward = (h01.xyz - h00.xyz);
-        vec3 normal = normalize(cross(right, forward));
-
-        float height = h00.a;
-        gl_FragColor = vec4((normal + 1.0) * 0.5, height);
- 
-        //gl_FragColor = vec4(vPos * 0.5 + 0.5, 1.0);
-        //gl_FragColor = vec4(vPos.xy, 0.0, 1.0);
+        float height = getHeightOnCube(vPos);
+        gl_FragColor = vec4(height, height, height, height);
 }
 
 """

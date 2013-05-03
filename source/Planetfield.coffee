@@ -69,7 +69,7 @@ class root.Planetfield
 
 		# perform this many partial load steps per cube face map
 		# larger means less load stutter, but longer load latency
-		@progressiveLoadSteps = 32.0
+		@progressiveLoadSteps = 64.0
 
 
 	farGenerateCallback: (seed, partial) ->
@@ -87,12 +87,16 @@ class root.Planetfield
 			maps = partial.maps
 			face = partial.face
 
-		progressPlusOne = progress + (1.0 / @progressiveLoadSteps)
-		@nearMapGen.generateSubMap(maps, seed, face, progress, progressPlusOne)
+		if progress < 1.0-0.0000001
+			progressPlusOne = progress + (2.0 / @progressiveLoadSteps)
+			if progressPlusOne > 1.0 then progressPlusOne = 1.0
+			@nearMapGen.generateSubMap(maps, seed, face, progress, progressPlusOne)
+		else
+			progressPlusOne = progress + 16 * (2.0 / @progressiveLoadSteps)
+			if progressPlusOne > 2.0 then progressPlusOne = 2.0
+			@nearMapGen.generateSubFinalMap(maps, seed, face, progress-1.0, progressPlusOne-1.0)
 
-		if progressPlusOne >= 1.0-0.0000001
-			@nearMapGen.finalizeMaps(maps)
-
+		if progressPlusOne >= 2.0-0.0000001
 			# we're done with this face
 			face++
 			progress = 0
@@ -101,7 +105,10 @@ class root.Planetfield
 			progress = progressPlusOne
 
 		if face >= 6
+			@nearMapGen.finalizeMaps(maps)
+
 			# all faces have been loaded! time to return the final maps
+			console.log("Done loading high res maps for planet #{seed}!")
 			return [true, maps]
 		else
 			# still more faces to load, so return a partial result			
