@@ -219,12 +219,8 @@ function updateSpeed() {
 	sliderBar.style.height = ((1.0 - cSpeed) * 100.0) + "%";
 
 	var speed = (_speed - speedBarZeroArea);
-	var espeed = Math.pow(3.0, Math.abs(speed) * 8.0 + 0.0);
 
-	if (speed <= 0) espeed = 0;
-	if (_reverseMode) espeed *= -1;
-
-	kosmosSetSpeed(espeed);
+	kosmosSetSpeed(speed, _reverseMode);
 }
 
 function updateButtons() {

@@ -131,8 +131,15 @@ root.kosmosResize = ->
 		camera.aspect = canvas.width / canvas.height
 		resumeAnimating()
 
-root.kosmosSetSpeed = (speed) ->
-	desiredSpeed = speed
+root.kosmosSetSpeed = (speed, reverse) ->
+	if autopilot == true
+		espeed = Math.pow(3.0, Math.abs(speed) * 8.0 + 0.0)
+	else
+		espeed = Math.pow(3.0, Math.abs(speed) * 22.0 - 12.0)
+	if speed <= 0 then espeed = 0
+	if reverse then espeed *= -1
+
+	desiredSpeed = espeed
 	resumeAnimating()
 
 root.kosmosSetAutopilot = (enabled) ->
