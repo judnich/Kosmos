@@ -53,7 +53,7 @@ mouseUp = (event) ->
 	mouseIsDown = false
 
 mouseMove = (event) ->
-	[x, y] = [event.x, event.y]
+	[x, y] = [event.clientX, event.clientY]
 	rightPanel = document.getElementById("rightbar")
 	x = (x - rightPanel.offsetLeft - 1) / canvas.clientWidth
 	y = (y - rightPanel.offsetTop - 1) / canvas.clientHeight
@@ -67,10 +67,11 @@ root.kosmosMain = ->
 	console.log("Initializing Kosmos Engine")
 
 	# setup events
-	root.canvas = document.getElementById("kosmosCanvas")
-	canvas.addEventListener("mousedown", mouseDown, false);
-	canvas.addEventListener("mouseup", mouseUp, false);
-	canvas.addEventListener("mousemove", mouseMove, false);
+	root.canvas = $("#kosmosCanvas")[0]
+
+	$(canvas).mousedown(mouseDown)
+	$(canvas).mouseup(mouseUp)
+	$(canvas).mousemove(mouseMove)
 
 	# set up canvas
 	kosmosResize()
@@ -108,6 +109,8 @@ root.kosmosMain = ->
 
 	# restore last location
 	loadLocation()
+
+	window.onhashchange = -> loadLocation()
 
 	resumeAnimating()
 
@@ -206,6 +209,9 @@ root.loadLocation = ->
 
 		# remove hash from URL
 		history.pushState("", document.title, window.location.pathname + window.location.search)
+
+	desiredSpeed = 0.0
+	smoothSpeed = 0.0
 
 
 root.parseLocationString = (hash) ->

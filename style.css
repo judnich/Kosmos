@@ -18,6 +18,7 @@ body {
 
 a {
 	text-decoration: none;
+	color: #9e9;
 }
 
 canvas {
@@ -143,6 +144,12 @@ canvas {
 	height: 250px;
 }
 
+.big {
+	width: 400px;
+	height: 275px;
+	text-align: left;
+}
+
 .okButton {
 	display: block;
 	width: 100px;
@@ -160,6 +167,10 @@ canvas {
 	background-color: #111;
 	background: -webkit-linear-gradient(#222, #111);
 	background: -moz-linear-gradient(#222, #111);
+}
+
+.wide {
+	width: 160px;
 }
 
 .slider {

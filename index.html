@@ -11,6 +11,7 @@
 
 		<link href="style.css" rel="stylesheet" type="text/css"/>
 
+		<script type="text/javascript" src="external/jquery-1.9.1.min.js"></script>
 		<script type="text/javascript" src="index.js"></script>
 	</head>
 
@@ -49,23 +50,25 @@
 			<div class="okButton" onClick="hideIntro();">Ok</div>
 		</div>
 
-		<div class="message" id="browserErrorMessage">
-			<div class="title">Pre-Alpha Error</div>
-			<p>Unfortunately, Kosmos is really early in development and has only been tested on <b>Google Chrome</b>.
-			Although e.g. Firefox has all the necessary features, miscellaneous API differences still need to be resolved.</p>
-			<div class="okButton" onClick="window.location.href='http://google.com/chrome';">Get Chrome</div>
+		<div class="message" id="glErrorMessage">
+			<div class="title">3D Graphics Error!</div>
+			<p>Unfortunately, your web browser reports it does not support 3D graphics (no "WebGL").</p><p>
+			Please upgrade to a modern browser to use Kosmos. <b>Mozilla Firefox</b> seems to work the best.</p>
+			<div class="okButton" onClick="hideErrorMessage()">Ok</div>
 		</div>
 
-		<div class="message" id="glErrorMessage">
-			<div class="title">Outdated Browser</div>
-			<p>Unfortunately, your web browser does not seem to support 3D graphics (no "WebGL").</p><p>
-			Please upgrade to a modern browser to use Kosmos. We recommend <b>Google Chrome</b>.</p>
-			<div class="okButton" onClick="window.location.href='http://google.com/chrome';">Get Chrome</div>
+		<div class="message big" id="browserErrorMessage">
+			<div class="title">Compatibility Warning</div>
+			<p>Unfortunately, we found that some browsers (especially Chrome on Windows) have serious compatibility issues with <i>complex</i> WebGL apps
+			(Kosmos runs very complex programs on your GPU).</p>
+			<p>While Chrome and Firefox should work fine on Mac and Linux, only <a href="http://www.mozilla.org/en-US/firefox/new/"><b>Mozilla Firefox</b></a> 
+			worked consistently in our testing across all operating systems.</p>
+			<div class="okButton wide" onClick="hideBrowserMessage();">Try Anyway</div>
 		</div>
 
 		<div class="message tall" id="shareMessage">
 			<div class="title">Share this View</div>
-			<p>The URL below to links directly to what you're seeing now. Simply copy and paste into your preferred networking/messaging app.</p>
+			<p>The URL below to links directly to what you're seeing now. Simply copy and paste into your preferred networking app.</p>
 
 			<textarea readonly rows="3" id="shareLink" onClick="this.focus(); this.select()" class="linkBox"></textarea>
 

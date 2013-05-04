@@ -111,14 +111,14 @@ class root.NearMapGenerator
 		gl.vertexAttribPointer(@normalGenShader.attribs.aBinormal, 3, gl.FLOAT, false, @quadVerts.itemSize*4, 4 *5)
 		gl.vertexAttribPointer(@normalGenShader.attribs.aTangent, 3, gl.FLOAT, false, @quadVerts.itemSize*4, 4 *8)
 
-		# bind the appropriate face map texture
-		dataMap = maps[faceIndex]
-		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, dataMap, 0)
-
 		# bind the heightmap input
 		gl.activeTexture(gl.TEXTURE0)
 		gl.bindTexture(gl.TEXTURE_2D, maps[6])
 		gl.uniform1i(@normalGenShader.uniforms.sampler, 0);
+
+		# bind the appropriate face map texture
+		dataMap = maps[faceIndex]
+		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, dataMap, 0)
 
 		# select the subset of the viewport to generate
 		gl.viewport(0, @fbo.height * startFraction, @fbo.width, @fbo.height * (endFraction - startFraction))
@@ -128,6 +128,8 @@ class root.NearMapGenerator
 		# run the generation shader
 		indicesPerFace = @quadVerts.numItems / 6
 		gl.drawArrays(gl.TRIANGLES, indicesPerFace * faceIndex, indicesPerFace);
+
+		gl.bindTexture(gl.TEXTURE_2D, null)
 
 
 	# generates a heightmap output to maps[6], for later processing by generateSubFinalMap

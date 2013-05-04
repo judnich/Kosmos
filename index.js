@@ -5,16 +5,34 @@
 _speed = 0.0;
 _reverseMode = false;
 _sliderMouseDown = false;
+_ignoreWarning = false;
 
 function jsMain() {
 	updateMessagePositions();
 
-	var is_chrome = !(window.chrome === undefined);
-	//var is_safari = navigator.userAgent.toLowerCase().indexOf('safari/') > -1;
+	var is_chrome = navigator.userAgent.indexOf('Chrome') > -1;
+	var is_explorer = navigator.userAgent.indexOf('MSIE') > -1;
+	var is_firefox = navigator.userAgent.indexOf('Firefox') > -1;
+	var is_safari = navigator.userAgent.indexOf("Safari") > -1;
+	var is_Opera = navigator.userAgent.indexOf("Presto") > -1;
+	if ((is_chrome)&&(is_safari)) {is_safari=false;}
 
-	if (!is_chrome) {
+	var OSName="Unknown OS";
+	if (navigator.appVersion.indexOf("Win")!=-1) OSName="Windows";
+	if (navigator.appVersion.indexOf("Mac")!=-1) OSName="MacOS";
+	if (navigator.appVersion.indexOf("X11")!=-1) OSName="UNIX";
+	if (navigator.appVersion.indexOf("Linux")!=-1) OSName="Linux";
+
+	/*if (!is_chrome) {
 		document.getElementById("browserErrorMessage").style.display = "block";
 		return;
+	}*/
+
+	if ( is_safari || is_Opera || is_explorer || (OSName == "Windows" && !is_firefox) ) {
+		if (_ignoreWarning != true) {
+			document.getElementById("browserErrorMessage").style.display = "block";
+			return;
+		}
 	}
 
 	function resizeCanvas() {
@@ -34,8 +52,11 @@ function jsMain() {
 		updateSpeed();
 	}
 
-	window.onmousewheel = function(event) {
-		d = event.wheelDelta
+	function mouseWheelEvent(event) {
+		if (event.wheelDelta)
+			d = event.wheelDelta;
+		else
+			d = event.detail * -30.0; // stupid firefox incompatibility
 		_speed -= d / 4000.0	
 		if (_speed > 1) _speed = 1;
 		updateSpeed();
@@ -43,26 +64,36 @@ function jsMain() {
 		return false;
 	}
 
+	var mousewheelevt=(/Firefox/i.test(navigator.userAgent))? "DOMMouseScroll" : "mousewheel" //FF doesn't recognize mousewheel as of FF3.x
+	if (document.attachEvent) //if IE (and Opera depending on user setting)
+	    document.attachEvent("on"+mousewheelevt, mouseWheelEvent)
+	else if (document.addEventListener) //WC3 browsers
+	    document.addEventListener(mousewheelevt, mouseWheelEvent, false)
+
 	document.body.style.overflow = 'hidden';
 
-	slider.addEventListener("mousedown", function(event) {
+	$(slider).mousedown(function(e) {
 		_sliderMouseDown = true;
-		sliderEvent(event.offsetX, event.offsetY);
-	}, false);
+		var offX  = (e.offsetX || e.clientX - $(e.target).offset().left);
+		var offY  = (e.offsetY || e.clientY - $(e.target).offset().top);
+		sliderEvent(offX, offY);
+	});
 
-	slider.addEventListener("mouseup", function(event) {
+	$(slider).mouseup(function(event) {
 		_sliderMouseDown = false;
-	}, false);
+	});
 
-	slider.addEventListener("mousemove", function(event) {
+	$(slider).mousemove(function(e) {
 		if (_sliderMouseDown) {
-			sliderEvent(event.offsetX, event.offsetY);
+			var offX  = (e.offsetX || e.clientX - $(e.target).offset().left);
+			var offY  = (e.offsetY || e.clientY - $(e.target).offset().top);
+			sliderEvent(offX, offY);
 		}
-	}, false);
+	});
 
-	document.addEventListener("mouseup", function(event) {
+	$(document).mouseup(function(event) {
 		_sliderMouseDown = false;
-	}, false);
+	});
 
 
 	// CoffeeScript code entry point
@@ -108,7 +139,18 @@ function jsMain() {
 function hideIntro() {
 	var msg = document.getElementById("introMessage");
 	msg.style.display = "none";
-	//msg.parentNode.removeChild(msg);
+}
+
+function hideBrowserMessage() {
+	var msg = document.getElementById("browserErrorMessage");
+	msg.style.display = "none";
+	_ignoreWarning = true;
+	jsMain();
+}
+
+function hideErrorMessage() {
+	var msg = document.getElementById("glErrorMessage");
+	msg.style.display = "none";
 }
 
 function updateMessagePositions() {
