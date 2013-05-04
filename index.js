@@ -6,6 +6,7 @@ _speed = 0.0;
 _reverseMode = false;
 _sliderMouseDown = false;
 _ignoreWarning = false;
+_autopilotMode = true;
 
 function jsMain() {
 	updateMessagePositions();
@@ -228,13 +229,19 @@ function updateSpeed() {
 
 function updateButtons() {
 	document.getElementById("reverse").className = (_reverseMode ? "btn lit" : "btn");
-	//document.getElementById("stop").className = (_stoppedMode ? "btn redlit" : "btn red");
+	document.getElementById("autopilot").className = (_autopilotMode ? "btn lit" : "btn");
 }
 
 function toggleReverse() {
 	_reverseMode = !_reverseMode;
 	updateButtons();
 	updateSpeed();
+}
+
+function toggleAutopilot() {
+	_autopilotMode = !_autopilotMode;
+	updateButtons();
+	kosmosSetAutopilot(_autopilotMode);
 }
 
 function killSimulation() {

@@ -28,6 +28,8 @@ desiredRotation = quat.create()
 smoothRotation = quat.create()
 #rotationAccel = 0.0
 
+autopilot = true
+
 mouseIsDown = false
 mouseX = 0
 mouseY = 0
@@ -132,6 +134,9 @@ root.kosmosResize = ->
 root.kosmosSetSpeed = (speed) ->
 	desiredSpeed = speed
 	resumeAnimating()
+
+root.kosmosSetAutopilot = (enabled) ->
+	autopilot = enabled
 
 
 updateTickElapsed = ->
@@ -241,8 +246,10 @@ tick = ->
 	# scale speed based on proximity of nearby objects
 	speedScale = planetfield.getDistanceToClosestObject() * 0.01
 	if speedScale > 1000.0 then speedScale = 1000.0
-	a = Math.max(Math.min(((Math.abs(desiredSpeed) - 2000) / 2000), 1.0), 0.0)
-	speedScale = speedScale * (1-a) + a * 1000.0
+	#a = Math.max(Math.min(((Math.abs(desiredSpeed) - 2000) / 2000), 1.0), 0.0)
+	#if autopilot == false then a = 1.0
+	#speedScale = speedScale * (1-a) + a * 1000.0
+	if autopilot == false then speedScale = 1000.0
 
 	# update camera speed with smoothing
 	smoothSpeed = smoothSpeed * 0.90 + 0.10 * desiredSpeed * speedScale
