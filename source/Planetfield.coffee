@@ -69,7 +69,7 @@ class root.Planetfield
 
 		# perform this many partial load steps per cube face map
 		# larger means less load stutter, but longer load latency
-		@progressiveLoadSteps = 64.0
+		@progressiveLoadSteps = 128.0
 
 
 	farGenerateCallback: (seed, partial) ->
