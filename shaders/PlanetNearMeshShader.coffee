@@ -10,8 +10,6 @@ uniform float alpha;
 uniform vec3 lightVec;
 uniform sampler2D sampler;
 
-varying vec3 vView;
-
 uniform vec4 uvRect;
 
 const float uvScalar = 4097.0 / 4096.0;
@@ -19,20 +17,10 @@ const float uvScalar = 4097.0 / 4096.0;
 
 float computeLighting(vec3 N)
 {
-	vec3 V = normalize(vView);
 	vec3 L = lightVec;
 
-	/*float shininess = 1.0;
-	float attenuation = 0.0;
-
-	float diffuse = dot(N, L);
-
-	float specularReflection;
-	if (diffuse < 0.0) {
-		specularReflection = 0.0;
-	}
-	else {
-		specularReflection = attenuation * pow(max(0.0, dot(reflect(-L, N), V)), shininess);
+	/*for (int i = 0; i < 8; ++i) {
+		tex = tex * 0.5 + texture2D(sampler, vUV * uvScalar + vec2(ONE_TEXEL, ONE_TEXEL) * float(i), -0.5) * 0.5;
 	}*/
 
 	float d = dot(N, L);
@@ -42,13 +30,14 @@ float computeLighting(vec3 N)
 void main(void) {
 	vec4 tex = texture2D(sampler, vUV * uvScalar, -0.5);
 
-	/*for (int i = 0; i < 8; ++i) {
-		tex = tex * 0.5 + texture2D(sampler, vUV * uvScalar + vec2(ONE_TEXEL, ONE_TEXEL) * float(i), -0.5) * 0.5;
-	}*/
-
 	float ao = (tex.a * 0.5 + 0.5);
+	
+	// extract normal and horizon values
 	vec3 norm = normalize(tex.xyz * 2.0 - 1.0);
-	float l = ao * computeLighting(norm) * 0.9 + 0.1;
+
+	float l = ao * computeLighting(norm) ;//* 0.9 + 0.1;
+
+	//l = 1.0 - horizon;
 
     gl_FragColor.xyz = vec3(l);
     gl_FragColor.w = 1.0; //alpha;
@@ -71,7 +60,6 @@ uniform mat3 cubeMat;
 
 varying vec3 vNormal;
 varying vec2 vUV;
-varying vec3 vView;
 
 uniform vec4 uvRect;
 uniform sampler2D vertSampler;
@@ -94,8 +82,6 @@ void main(void) {
 	vec4 pos = vec4(aPos, 1.0);
 	pos = modelViewMat * pos;
     gl_Position = projMat * pos;
-
-    vView = normalize(aPos.xyz - camPos);
 }
 
 """

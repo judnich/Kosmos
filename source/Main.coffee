@@ -276,7 +276,7 @@ tick = ->
 
 			q = quat.create()
 			quat.fromMat3(q, mat)
-			quat.slerp(desiredRotation, desiredRotation, q, 0.05 * a)
+			quat.slerp(desiredRotation, desiredRotation, q, 0.15 * a)
 			#desiredRotation = q
 
 	# rotate camera towards user designated destination
