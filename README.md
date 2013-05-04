@@ -1,9 +1,27 @@
-## Kosmos - A Virtual 3D Universe
+# Kosmos - A Virtual 3D Universe
 
-Kosmos allows you to explore a computer-generated 3D universe from your browser. This universe contains *trillions* of stars, planets, and moons to explore! Try it yourself by clicking the image below.
+Kosmos allows you to explore a computer-generated 3D universe from your browser. This virtual universe is extremely vast, containing **trillions** of stars, planets, and moons to explore. To run Kosmos for yourself, simply click the image below!
+
+*System Requirements:* Most modern laptops and ultrabooks should be able to run Kosmos smoothly. As long as your GPU is as fast or faster than an Intel HD 4000, Kosmos should run seamlessly up to 1600p+ screen resolutions. (Note however that there may be some inital lag when you approach planets, since it takes a lot of computational power to generate high resolution data.)
 
 [![Click to run Kosmos now!](https://raw.github.com/judnich/Kosmos/master/screenshots/intro.png "Click to run Kosmos now!")](http://judnich.github.io/KosmosAlpha/ )
 
 http://judnich.github.io/KosmosAlpha/ 
 
-Note: This project is currently under development, and only irregularly updated alpha snapshots are currently availible.
+Disclaimer: This project is still under active development, and only occasional alpha snapshots are currently availible to run online.
+
+## About
+
+Kosmos is my (John Judnich) senior design project for my BS degree at Santa Clara University. I wrote this entire project in WebGL/HTML5 after implementing several other similar prototypes in native code (C++/OpenGL/etc.) The decision to implement in WebGL/HTML5 was due to a number of factors, but mainly for the learning experience to try something new (this is really my first time making a nontrivial HTML5 app).
+
+Also, web apps tend to be significantly more easy and convenient for random people to try and play with, as opposed to bit native executable packages which almost everyone (myself included) hesitates before downloading and installing. Therefore another justification for trying WebGL/HTML5 is simply: Why make something if other people are less likely to be able to enjoy it? :)
+
+Note that this entire project was written completely from scratch in about *three weeks* of solid work (spread out across about four weeks with breaks in between), during which time I learned the necessary tools: CoffeeScript (because I dislike JavaScript), WebGL, glMatrix, jQuery. As always, it's just a matter of Googling a lot of things until you're proficient, which never takes long. Also, no third party 3D engine was used to build Kosmos, because none were powerful enough to accomplish what I needed (huge universe, high resolution planets, running almost everything on the GPU, etc.)
+
+All of Kosmos (the source code you see in this repository except for the "external" folder) was implemented from the ground up over these few weeks. However, the ideas/algorithms behind Kosmos's technology have been generally within my focus over the past few years (I'm very familiar in-depth in many areas of 3D graphics) which no doubt accelerated my learning curve.
+
+## License
+
+Kosmos is released as open source under the MIT license.
+
+Copyright (C) 2013 John Judnich
