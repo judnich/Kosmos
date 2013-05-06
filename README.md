@@ -20,8 +20,18 @@ Note that this entire project was written completely from scratch in about *thre
 
 All of Kosmos (the source code you see in this repository except for the "external" folder) was implemented from the ground up over these few weeks. However, the ideas / algorithms behind Kosmos's technology have been generally within my focus over the past few years (I'm very familiar in-depth in many areas of 3D graphics) which no doubt accelerated my learning curve.
 
+## Credits
+
+The following external open-source libraries were used in Kosmos:
+
+* [glMatrix](http://glmatrix.net/) (JavaScript matrix/vector math) - Brandon Jones and Colin MacKenzie IV
+* [jQuery](http://jquery.com/) (Cross-browser compatibility) - jQuery Foundation, Inc.
+* [Simplex Noise](https://github.com/ashima/webgl-noise) (Pseudorandom 3D noise) - Ian McEwan, Ashima Arts.
+
+All technology and design of Kosmos (from UI/UX design and 3D engine implementation, to several cutting-edge technology/algorithm inventions) is the sole creation of John Judnich, designed and implemented entirely from scratch using only the external open-source libraries mentioned above.
+
 ## License
 
-Kosmos is released as open source under the MIT license.
+#### Kosmos is released as open source under [The MIT License](https://github.com/judnich/Kosmos/blob/master/LICENSE).
 
-Copyright (C) 2013 John Judnich
+#### Copyright (C) 2013 John Judnich. All Rights Reserved.
