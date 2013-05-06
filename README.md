@@ -14,11 +14,11 @@ Disclaimer: This project is still under active development, and only occasional 
 
 Kosmos is my (John Judnich) senior design project for my BS degree at Santa Clara University. I wrote this entire project in WebGL/HTML5 after implementing several other similar prototypes in native code (C++/OpenGL/etc.) The decision to implement in WebGL/HTML5 was due to a number of factors, but mainly for the learning experience to try something new (this is really my first time making a nontrivial HTML5 app).
 
-Also, web apps tend to be significantly more easy and convenient for random people to try and play with, as opposed to bit native executable packages which almost everyone (myself included) hesitates before downloading and installing. Therefore another justification for trying WebGL/HTML5 is simply: Why make something if other people are less likely to be able to enjoy it? :)
+Also, random people are far more likely to try a web app than a native app (simply because web apps don't require you to invest the time, effort, caution, etc. that is associated with installing and running native binary packages) -- so even for this reason alone, I could have justified the risky proposition of rewriting my entire senior design project from scratch, in HTML5 (WebGL+JS).
 
 Note that this entire project was written completely from scratch in about *three weeks* of solid work (spread out across about four weeks with breaks in between), during which time I learned the necessary tools: CoffeeScript (because I dislike JavaScript), WebGL, glMatrix, jQuery. As always, it's just a matter of Googling a lot of things until you're proficient, which never takes long. Also, no third party 3D engine was used to build Kosmos, because none were powerful enough to accomplish what I needed (huge universe, high resolution planets, running almost everything on the GPU, etc.)
 
-All of Kosmos (the source code you see in this repository except for the "external" folder) was implemented from the ground up over these few weeks. However, the ideas/algorithms behind Kosmos's technology have been generally within my focus over the past few years (I'm very familiar in-depth in many areas of 3D graphics) which no doubt accelerated my learning curve.
+All of Kosmos (the source code you see in this repository except for the "external" folder) was implemented from the ground up over these few weeks. However, the ideas / algorithms behind Kosmos's technology have been generally within my focus over the past few years (I'm very familiar in-depth in many areas of 3D graphics) which no doubt accelerated my learning curve.
 
 ## License
 
