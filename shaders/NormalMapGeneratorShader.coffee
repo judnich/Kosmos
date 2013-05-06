@@ -14,7 +14,7 @@ vec4 positionAndHeight(vec3 cubePos, vec2 uv)
 {
         vec3 pos = normalize(cubePos);
         float h = texture2D(sampler, uv).a;
-        pos *= 0.997 + h * 0.003;
+        pos *= 0.995 + h * 0.005;
         return vec4(pos, h);
 }
 
@@ -33,15 +33,29 @@ void main(void) {
         vec3 normal = normalize(cross(right, forward));
 
         // ========================== Compute horizon angle ==========================
-        /*float horizon = 0.0;
+        float horizon = 0.0;
         vec3 vUnitPos = normalize(vPos);
-        for (int i = 1; i < 16; ++i) {
-                float n = float(i + i*i) * 0.53 + 1.0;
-                //float n = float(4*i);
-                vec3 hR = positionAndHeight(vPos + ONE_TEXEL * vBinormal * n, vUV + vec2(ONE_TEXEL, 0) * n).xyz - hCenter.xyz;
-                vec3 hF = positionAndHeight(vPos + ONE_TEXEL * vTangent * n, vUV + vec2(0, ONE_TEXEL) * n).xyz - hCenter.xyz;
-                vec3 hL = positionAndHeight(vPos - ONE_TEXEL * vBinormal * n, vUV - vec2(ONE_TEXEL, 0) * n).xyz - hCenter.xyz;
-                vec3 hB = positionAndHeight(vPos - ONE_TEXEL * vTangent * n, vUV - vec2(0, ONE_TEXEL) * n).xyz - hCenter.xyz;
+        for (int i = 1; i < 8; ++i) {
+                float n = float(i);
+
+                float a = n * .0981748;
+                float x, y;
+
+                x = sin(a);
+                y = cos(a);
+                vec3 hR = positionAndHeight(vPos + x * ONE_TEXEL * vBinormal * n + y * ONE_TEXEL * vTangent * n, vUV + vec2(x, y) * ONE_TEXEL * n).xyz - hCenter.xyz;
+
+                x = sin(a + 1.57079632);
+                y = cos(a + 1.57079632);
+                vec3 hF = positionAndHeight(vPos + x * ONE_TEXEL * vBinormal * n + y * ONE_TEXEL * vTangent * n, vUV + vec2(x, y) * ONE_TEXEL * n).xyz - hCenter.xyz;
+
+                x = sin(a + 1.57079632 * 2.0);
+                y = cos(a + 1.57079632 * 2.0);
+                vec3 hL = positionAndHeight(vPos + x * ONE_TEXEL * vBinormal * n + y * ONE_TEXEL * vTangent * n, vUV + vec2(x, y) * ONE_TEXEL * n).xyz - hCenter.xyz;
+
+                x = sin(a + 1.57079632 * 3.0);
+                y = cos(a + 1.57079632 * 3.0);
+                vec3 hB = positionAndHeight(vPos + x * ONE_TEXEL * vBinormal * n + y * ONE_TEXEL * vTangent * n, vUV + vec2(x, y) * ONE_TEXEL * n).xyz - hCenter.xyz;
 
                 float d1 = dot(normalize(hR), vUnitPos);
                 float d2 = dot(normalize(hF), vUnitPos);
@@ -51,7 +65,7 @@ void main(void) {
                 float d = max(d1, max(d2, max(d3, d4)));
                 horizon = max(horizon, d);
         }
-        horizon =  clamp(horizon, 0.0, 1.0);*/
+        horizon = clamp(horizon, 0.0, 1.0);
 
 
         // this is a very unique and extremely efficient hack
@@ -68,8 +82,8 @@ void main(void) {
 
         float ave = (hR.a + hF.a + hL.a + hB.a) * 0.25;
         float diff = abs(hCenter.a - ave) * 500.0;
-        normal /= (1.0 + diff);
-        //normal *= (horizon * 0.9375 + 0.0625);
+        //normal /= (1.0 + diff);
+        normal *= ((1.0-horizon) * 0.9375 + 0.0625);
 
 
         float height = hCenter.a;

@@ -41,14 +41,14 @@ float heightFunc(vec3 coord)
         return a;
 }
 
-#define ONE_TEXEL (1.0/128.0)
+#define ONE_TEXEL (1.0/256.0)
 
 
 vec4 positionAndHeight(vec3 cubePos)
 {
         vec3 pos = normalize(cubePos);
         float h = heightFunc(pos);
-        pos *= 0.997 + h * 0.003;
+        pos *= 0.995 + h * 0.005;
         return vec4(pos, h);
 }
 

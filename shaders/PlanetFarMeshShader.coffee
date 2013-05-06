@@ -14,7 +14,13 @@ void main(void) {
 	vec4 tex = texture2D(sampler, vUV);
 	
 	vec3 norm = normalize(tex.xyz * 2.0 - 1.0);
-    float l = (tex.a * 0.5 + 0.5) * clamp(dot(norm, lightVec), 0.0, 1.0);
+
+	float gd = clamp(-dot(lightVec, vNormal), 0.0, 1.0);
+
+	float dt = dot(norm, lightVec);
+
+    float l = (tex.a * 0.5 + 0.5) * (clamp(dt, 0.0, 1.0) * 0.95 + mix(0.1, 0.0, gd));
+
     gl_FragColor.xyz = vec3(l);
     gl_FragColor.w = alpha;
 
