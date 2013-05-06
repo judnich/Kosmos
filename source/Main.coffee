@@ -127,9 +127,9 @@ root.kosmosResize = ->
 	if devicePixelRatio < 2 and (canvas.clientWidth < 1440 or canvas.clientHeight < 900)
 		devicePixelRatio = 2
 
-	if devicePixelRatio < 2 then devicePixelRatio = 2 # forced supersampling on nonretina
 	canvas.width  = canvas.clientWidth * devicePixelRatio
 	canvas.height = canvas.clientHeight * devicePixelRatio
+	
 	console.log("Main framebuffer resolution #{canvas.width} x #{canvas.height}"
 				"with device pixel ratio #{devicePixelRatio}")
 
