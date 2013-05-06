@@ -28,7 +28,7 @@ The following external open-source libraries were used in Kosmos:
 * [jQuery](http://jquery.com/) (Cross-browser compatibility) - jQuery Foundation, Inc.
 * [Simplex Noise](https://github.com/ashima/webgl-noise) (Pseudorandom 3D noise) - Ian McEwan, Ashima Arts.
 
-All technology and design of Kosmos (from UI/UX design and 3D engine implementation, to several cutting-edge technology/algorithm inventions) is the sole creation of John Judnich, designed and implemented entirely from scratch using only the external open-source libraries mentioned above.
+All design and technologies of Kosmos (from UI/UX design and 3D engine implementation, to several cutting-edge technology/algorithm inventions) are the sole creations of John Judnich, designed and implemented entirely from scratch using only the external open-source libraries mentioned above.
 
 ## License
 
