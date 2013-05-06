@@ -123,7 +123,8 @@ root.kosmosResize = ->
 	if not enableRetina then console.log("Note: Device pixel scaling (retina) is disabled.")
 	devicePixelRatio = if enableRetina then window.devicePixelRatio || 1 else 1
 
-	if devicePixelRatio < 2 and (canvas.clientWidth < 1280 or canvas.clientHeight < 800)
+	# force supersampling if the user screen resolution isn't as high as necessary
+	if devicePixelRatio < 2 and (canvas.clientWidth < 1440 or canvas.clientHeight < 900)
 		devicePixelRatio = 2
 
 	if devicePixelRatio < 2 then devicePixelRatio = 2 # forced supersampling on nonretina

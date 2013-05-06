@@ -16,18 +16,21 @@ uniform vec4 uvRect;
 const float uvScalar = 4097.0 / 4096.0;
 #define ONE_TEXEL (1.0/4096.0)
 
-float computeLighting(vec3 N)
+vec3 computeLighting(vec3 N, vec3 color)
 {
-	float d = clamp(dot(lightVec, N), 0.0, 1.0);
-	float gd = clamp(0.5 - dot(lightVec, vNormal) * 4.0, 0.0, 1.0);
+	float diffuse = clamp(dot(lightVec, N), 0.0, 1.0);
+	float globalDot = clamp(0.5 - dot(lightVec, vNormal) * 4.0, 0.0, 1.0);
 
  	float ambient = clamp(1.0 - 2.0 * acos(dot(N, normalize(vNormal))), 0.0, 1.0);
  	ambient *= ambient;
 
- 	float nightLight = clamp(0.1 / camDist - 0.015, 0.0, 1.0);
-	d = d + gd * (ambient * 0.09 + 0.01) * nightLight;
+ 	float nightLight = clamp(0.2 / sqrt(camDist) - 0.001, 0.0, 1.0);
+ 	float ambientNight = globalDot * (ambient * 0.14 + 0.02) * nightLight;
 
- 	return d;
+ 	float grayColor = (color.r + color.g + color.b) / 3.0;
+ 	vec3 nightColor = vec3(grayColor * 0.4, grayColor * 0.1, grayColor * 1.0);
+
+ 	return color * diffuse + nightColor * ambientNight;
 }
 
 void main(void) {
@@ -37,9 +40,9 @@ void main(void) {
 	
 	// extract normal and horizon values
 	vec3 norm = normalize(tex.xyz * 2.0 - 1.0);
-	float l = ao * computeLighting(norm);
 
-    gl_FragColor.xyz = vec3(l);
+	gl_FragColor.xyz = computeLighting(norm, vec3(ao, ao, ao));
+
     gl_FragColor.w = 1.0; //alpha;
 }
 
@@ -81,7 +84,7 @@ void main(void) {
 	pos = modelViewMat * pos;
     gl_Position = projMat * pos;
 
-    camDist = gl_Position.z;
+    camDist = length(pos.xyz);
 }
 
 """
