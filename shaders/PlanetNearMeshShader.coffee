@@ -16,16 +16,18 @@ uniform vec4 uvRect;
 const float uvScalar = 4097.0 / 4096.0;
 #define ONE_TEXEL (1.0/4096.0)
 
-float computeLighting(vec3 N, float ambient)
+float computeLighting(vec3 N)
 {
 	float d = clamp(dot(lightVec, N), 0.0, 1.0);
-	float gd = clamp(-dot(lightVec, vNormal), 0.0, 1.0);
+	float gd = clamp(0.5 - dot(lightVec, vNormal) * 4.0, 0.0, 1.0);
+
+ 	float ambient = clamp(1.0 - 2.0 * acos(dot(N, normalize(vNormal))), 0.0, 1.0);
+ 	ambient *= ambient;
 
  	float nightLight = clamp(0.1 / camDist - 0.015, 0.0, 1.0);
- 	d = d * 0.90 + ambient * mix(0.1, nightLight * 0.1, gd);
+	d = d + gd * (ambient * 0.09 + 0.01) * nightLight;
 
  	return d;
- 	//return ambient * mix(0.1, 0.025, gd);
 }
 
 void main(void) {
@@ -34,12 +36,8 @@ void main(void) {
 	float ao = (tex.a * 0.5 + 0.5);
 	
 	// extract normal and horizon values
-	vec3 norm = tex.xyz * 2.0 - 1.0;
-	float len = length(norm);
-	norm /= len;
-	float ambient = clamp(((len - 0.0625) / 0.9375), 0.0, 1.0);
-
-	float l = ao * computeLighting(norm, ambient);
+	vec3 norm = normalize(tex.xyz * 2.0 - 1.0);
+	float l = ao * computeLighting(norm);
 
     gl_FragColor.xyz = vec3(l);
     gl_FragColor.w = 1.0; //alpha;

@@ -48,7 +48,7 @@ vec4 positionAndHeight(vec3 cubePos)
 {
         vec3 pos = normalize(cubePos);
         float h = heightFunc(pos);
-        pos *= 0.995 + h * 0.005;
+        pos *= 0.997 + h * 0.003;
         return vec4(pos, h);
 }
 

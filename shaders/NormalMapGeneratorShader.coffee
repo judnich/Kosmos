@@ -14,7 +14,7 @@ vec4 positionAndHeight(vec3 cubePos, vec2 uv)
 {
         vec3 pos = normalize(cubePos);
         float h = texture2D(sampler, uv).a;
-        pos *= 0.995 + h * 0.005;
+        pos *= 0.997 + h * 0.003;
         return vec4(pos, h);
 }
 
@@ -33,7 +33,7 @@ void main(void) {
         vec3 normal = normalize(cross(right, forward));
 
         // ========================== Compute horizon angle ==========================
-        float horizon = 0.0;
+        /*float horizon = 0.0;
         vec3 vUnitPos = normalize(vPos);
         for (int i = 1; i < 8; ++i) {
                 float n = float(i);
@@ -65,7 +65,7 @@ void main(void) {
                 float d = max(d1, max(d2, max(d3, d4)));
                 horizon = max(horizon, d);
         }
-        horizon = clamp(horizon, 0.0, 1.0);
+        horizon = clamp(horizon, 0.0, 1.0);*/
 
 
         // this is a very unique and extremely efficient hack
@@ -82,8 +82,8 @@ void main(void) {
 
         float ave = (hR.a + hF.a + hL.a + hB.a) * 0.25;
         float diff = abs(hCenter.a - ave) * 500.0;
-        //normal /= (1.0 + diff);
-        normal *= ((1.0-horizon) * 0.9375 + 0.0625);
+        normal /= (1.0 + diff);
+        //normal *= ((1.0-horizon) * 0.9375 + 0.0625);
 
 
         float height = hCenter.a;

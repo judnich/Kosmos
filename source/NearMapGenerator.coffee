@@ -86,7 +86,8 @@ class root.NearMapGenerator
 			maps[face] = gl.createTexture()
 			gl.bindTexture(gl.TEXTURE_2D, maps[face])
 			if face < 6
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)#_MIPMAP_NEAREST)
+				#gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST)
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
 				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
 			else
 				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
@@ -168,8 +169,8 @@ class root.NearMapGenerator
 		# when you're near the planet anyway, thus effectively being a sort of manual objectwide mipmap anyway.
 
 		#for i in [0..5]
-			#gl.bindTexture(gl.TEXTURE_2D, maps[i])
-			#gl.generateMipmap(gl.TEXTURE_2D)
+		#	gl.bindTexture(gl.TEXTURE_2D, maps[i])
+		#	gl.generateMipmap(gl.TEXTURE_2D)
 		#gl.bindTexture(gl.TEXTURE_2D, null)
 		delete maps[6]
 
