@@ -1,6 +1,6 @@
-*Note: All images below are raw, unedited screen captures from Kosmos with NO retouching of any kind (other than text captions)*
-
 [![Click to run Kosmos now!](https://raw.github.com/judnich/Kosmos/master/screenshots/KosmosBanner.png "Click to run Kosmos now!")](http://judnich.github.io/KosmosAlpha/ )
+
+*Note: All of these images are raw, unedited screen captures from Kosmos with NO retouching of any kind (other than text captions)*
 
 Kosmos allows you to explore a computer-generated 3D universe from your browser. This virtual universe is extremely vast, containing **trillions** of stars, planets, and moons to explore. To run Kosmos for yourself, simply click any of these images!
 
