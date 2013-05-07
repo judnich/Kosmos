@@ -18,14 +18,17 @@ const float uvScalar = 4097.0 / 4096.0;
 
 vec3 computeLighting(vec3 N, vec3 color)
 {
+	float globalDot = dot(lightVec, vNormal);
+	//float edge = clamp(1.0 - sqrt(abs(globalDot)), 0.0, 1.0);
+
 	float diffuse = clamp(dot(lightVec, N), 0.0, 1.0);
-	float globalDot = clamp(0.5 - dot(lightVec, vNormal) * 4.0, 0.0, 1.0);
 
  	float ambient = clamp(1.0 - 2.0 * acos(dot(N, normalize(vNormal))), 0.0, 1.0);
  	ambient *= ambient;
 
+	float nightBlend = clamp(0.5 - globalDot * 4.0, 0.0, 1.0);
  	float nightLight = clamp(0.2 / sqrt(camDist) - 0.001, 0.0, 1.0);
- 	float ambientNight = globalDot * (ambient * 0.14 + 0.02) * nightLight;
+ 	float ambientNight = nightBlend * (ambient * 0.14 + 0.02) * nightLight;
 
  	float grayColor = (color.r + color.g + color.b) / 3.0;
  	vec3 nightColor = vec3(grayColor * 0.4, grayColor * 0.1, grayColor * 1.0);
