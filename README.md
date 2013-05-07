@@ -1,20 +1,24 @@
-# Kosmos - A Virtual 3D Universe
-
-Kosmos allows you to explore a computer-generated 3D universe from your browser. This virtual universe is extremely vast, containing **trillions** of stars, planets, and moons to explore. To run Kosmos for yourself, simply click the image below!
-
-*System Requirements:* Most modern laptops and ultrabooks should be able to run Kosmos smoothly. As long as your GPU is as fast or faster than an Intel HD 4000, Kosmos should run seamlessly up to 1600p+ screen resolutions. (Note however that there may be some inital lag when you approach planets, since it takes a lot of computational power to generate high resolution data.)
+*Note: All images below are raw, unedited screen captures from Kosmos with NO retouching of any kind (other than text captions)*
 
 [![Click to run Kosmos now!](https://raw.github.com/judnich/Kosmos/master/screenshots/KosmosBanner.png "Click to run Kosmos now!")](http://judnich.github.io/KosmosAlpha/ )
 
+Kosmos allows you to explore a computer-generated 3D universe from your browser. This virtual universe is extremely vast, containing **trillions** of stars, planets, and moons to explore. To run Kosmos for yourself, simply click any of these images!
+
 [![Click to run Kosmos now!](https://raw.github.com/judnich/Kosmos/master/screenshots/moon.png "Click to run Kosmos now!")](http://judnich.github.io/KosmosAlpha/ )
+
+"Eclipse"
 
 [![Click to run Kosmos now!](https://raw.github.com/judnich/Kosmos/master/screenshots/small-eclipse.png "Click to run Kosmos now!")](http://judnich.github.io/KosmosAlpha/ )
 
-[![Click to run Kosmos now!](https://raw.github.com/judnich/Kosmos/master/screenshots/red-shift.png "Click to run Kosmos now!")](http://judnich.github.io/KosmosAlpha/ )
+"Warp 1"
 
 [![Click to run Kosmos now!](https://raw.github.com/judnich/Kosmos/master/screenshots/blue-shift.png "Click to run Kosmos now!")](http://judnich.github.io/KosmosAlpha/ )
 
-http://judnich.github.io/KosmosAlpha/ 
+## System Requirements
+
+*System Requirements:* Most modern laptops and ultrabooks should be able to run Kosmos smoothly. As long as your GPU is as fast or faster than an Intel HD 4000, Kosmos should run seamlessly up to 1600p+ screen resolutions. (Note however that there may be some inital lag when you approach planets, since it takes a lot of computational power to generate high resolution data.)
+
+Click any of the images above to start Kosmos now, or click this link: http://judnich.github.io/KosmosAlpha/ 
 
 Disclaimer: This project is still under active development, and only occasional alpha snapshots are currently availible to run online.
 
