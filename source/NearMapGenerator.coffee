@@ -154,7 +154,9 @@ class root.NearMapGenerator
 		gl.uniform2f(@heightGenShader.uniforms.verticalViewport, startFraction, endFraction - startFraction);
 
 		# set random seed
-		gl.uniform1f(@heightGenShader.uniforms.randomSeed, seed)
+		rndStr = new RandomStream(seed)
+		seeds = [rndStr.unit(), rndStr.unit(), rndStr.unit(), rndStr.unit()]
+		gl.uniform4fv(@heightGenShader.uniforms.randomSeed, seeds)
 
 		# run the generation shader
 		indicesPerFace = @quadVerts.numItems / 6

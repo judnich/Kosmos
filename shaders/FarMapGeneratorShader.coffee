@@ -4,35 +4,35 @@ varying vec3 vPos;
 varying vec3 vTangent;
 varying vec3 vBinormal;
 
-uniform float randomSeed;
+uniform vec4 randomSeed;
 
-float heightFunc(vec3 coord)
+float heightFunc(vec3 coord, vec4 random)
 {
         vec3 v;
 
-        coord += randomSeed * 101.0;
+        coord += random.xyz * 1001.0;
 
         float a = 0.0;
         //float p = 4.0;
         float p = 8.0;
 
         for (int i = 0; i < 6; ++i) {
-                v.x = coord.x * p; v.y = coord.y * p; v.z = coord.z * p;
+                v = coord * p;
 
                 float ridged;
 
                 ridged = 1.0 - abs(snoise(v));
                 ridged /= float(i)+1.0;
 
-                v.x = coord.x * p / 2.5; v.y = coord.y * p / 2.5; v.z = coord.z * p / 2.5;
+                v = coord * p / 2.5;
                 float k = (snoise(v)+1.0) / 2.0;
 
-                v.x = coord.x * p / 1.0; v.y = coord.y * p / 1.0; v.z = coord.z * p / 1.0;
+                v = coord * p;
 
                 a += ridged * k;
                 
                 if (i >= 3) {
-                        v.x = coord.x * p * 8.0; v.y = coord.y * p * 8.0; v.z = coord.z * p * 8.0;
+                        v = coord * p * 8.0;
                         float rolling = (snoise(v)+1.0) / 2.0;
                         a += (rolling) * (1.0-k) / float(50);
                 }
@@ -51,7 +51,7 @@ float heightFunc(vec3 coord)
 vec4 positionAndHeight(vec3 cubePos)
 {
         vec3 pos = normalize(cubePos);
-        float h = heightFunc(pos);
+        float h = heightFunc(pos, randomSeed);
         pos *= 0.997 + h * 0.003;
         return vec4(pos, h);
 }

@@ -88,7 +88,11 @@ class root.FarMapGenerator
 
 		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, heightMap, 0)
 
-		gl.uniform1f(@shader.uniforms.randomSeed, seed)
+		# set random seed
+		rndStr = new RandomStream(seed)
+		seeds = [rndStr.unit(), rndStr.unit(), rndStr.unit(), rndStr.unit()]
+		gl.uniform4fv(@shader.uniforms.randomSeed, seeds)
+
 		gl.drawArrays(gl.TRIANGLES, 0, @quadVerts.numItems);
 
 		return heightMap
