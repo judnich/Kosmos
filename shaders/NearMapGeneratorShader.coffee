@@ -1,10 +1,9 @@
-frag = """precision highp float;
+frag = """//precision highp float;
 
 varying vec3 vPos;
 varying vec3 vTangent;
 varying vec3 vBinormal;
-
-uniform vec4 randomSeed;
+varying vec3 vRandomSeed;
 
 #define ONE_TEXEL (1.0/4096.0)
 
@@ -12,7 +11,7 @@ uniform vec4 randomSeed;
 float getHeightOnCube(vec3 cubePos)
 {
         vec3 pos = normalize(cubePos);
-        return heightFunc(pos, randomSeed);
+        return heightFunc(pos, vRandomSeed);
  }
 
 
@@ -35,10 +34,14 @@ varying vec3 vBinormal;
 
 uniform vec2 verticalViewport;
 
+varying vec3 vRandomSeed;
+uniform vec4 randomSeed;
+
 void main(void) {
 	vPos = aPos;
         vTangent = aTangent;
         vBinormal = aBinormal;
+        vRandomSeed = randomSeed.xyz;
 
         vec2 pos = aUV;
         pos.y = (pos.y - verticalViewport.x) / verticalViewport.y;
