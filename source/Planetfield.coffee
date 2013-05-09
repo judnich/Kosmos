@@ -87,6 +87,7 @@ class root.Planetfield
 		# perform this many partial load steps per cube face map
 		# larger means less load stutter, but longer load latency
 		@progressiveLoadSteps = 128.0
+		@loadingHurryFactor = 1.0;
 
 
 	farGenerateCallback: (seed, partial) ->
@@ -105,11 +106,11 @@ class root.Planetfield
 			face = partial.face
 
 		if progress < 1.0-0.0000001
-			progressPlusOne = progress + (2.0 / @progressiveLoadSteps)
+			progressPlusOne = progress + (2.0 / @progressiveLoadSteps) * @loadingHurryFactor
 			if progressPlusOne > 1.0 then progressPlusOne = 1.0
 			@nearMapGen.generateSubMap(maps, seed, face, progress, progressPlusOne)
 		else
-			progressPlusOne = progress + 16 * (2.0 / @progressiveLoadSteps)
+			progressPlusOne = progress + 16 * (2.0 / @progressiveLoadSteps) * @loadingHurryFactor
 			if progressPlusOne > 2.0 then progressPlusOne = 2.0
 			@nearMapGen.generateSubFinalMap(maps, seed, face, progress-1.0, progressPlusOne-1.0)
 
@@ -164,6 +165,14 @@ class root.Planetfield
 
 		# draw the full resolution planets when really close
 		@renderNearMeshes(camera, originOffset)
+
+		# configure loading speed based on proximity to planet
+		nearestPlanetDist = @getDistanceToClosestPlanet()
+		@_oldHurry = @loadingHurryFactor
+		if nearestPlanetDist < 1.0 then @loadingHurryFactor = 8.0
+		else if nearestPlanetDist < 2.5 then @loadingHurryFactor = 4.0
+		else if nearestPlanetDist < 5.0 then @loadingHurryFactor = 2.0
+		else @loadingHurryFactor = 1.0
 
 		# load maps that were requested from the cache
 		@farMapGen.start()
