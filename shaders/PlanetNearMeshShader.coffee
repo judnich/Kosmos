@@ -16,19 +16,21 @@ uniform vec4 uvRect;
 const float uvScalar = 4097.0 / 4096.0;
 #define ONE_TEXEL (1.0/4096.0)
 
-vec3 computeLighting(vec3 N, vec3 color)
+	//vec3 planetColor1 = vec3(0.2, 0.6, 0.3);
+	//vec3 planetColor2 = vec3(0.4, 0.3, 0.1);
+
+	//vec3 planetColor1 = vec3(1, 1, 1);
+	//vec3 planetColor2 = vec3(0.5, 0.5, 0.5);
+
+	vec3 planetColor1 = vec3(0.75, 0.3, 0.0);
+	vec3 planetColor2 = vec3(0.5, 0.0, 0.0);
+
+
+vec3 computeLighting(float globalDot, float diffuse, float ambient, vec3 color)
 {
-	float globalDot = dot(lightVec, vNormal);
-	//float edge = clamp(1.0 - sqrt(abs(globalDot)), 0.0, 1.0);
-
-	float diffuse = clamp(dot(lightVec, N), 0.0, 1.0);
-
- 	float ambient = clamp(1.0 - 2.0 * acos(dot(N, normalize(vNormal))), 0.0, 1.0);
- 	ambient *= ambient;
-
 	float nightBlend = clamp(0.5 - globalDot * 4.0, 0.0, 1.0);
  	float nightLight = clamp(0.2 / sqrt(camDist) - 0.001, 0.0, 1.0);
- 	float ambientNight = nightBlend * (ambient * 0.14 + 0.02) * nightLight;
+ 	float ambientNight = nightBlend * (ambient * ambient * 0.14 + 0.02) * nightLight;
 
  	float grayColor = (color.r + color.g + color.b) / 3.0;
  	vec3 nightColor = vec3(grayColor * 0.4, grayColor * 0.1, grayColor * 1.0);
@@ -36,15 +38,35 @@ vec3 computeLighting(vec3 N, vec3 color)
  	return color * diffuse + nightColor * ambientNight;
 }
 
-void main(void) {
-	vec4 tex = texture2D(sampler, vUV * uvScalar, -0.5);
+vec3 computeColor(float height, float ambient)
+{
+	float selfShadowing = 1.01 - dot(planetColor1, vec3(1,1,1)/3.0);
 
-	float ao = (tex.a * 0.5 + 0.5);
-	
-	// extract normal and horizon values
+	vec3 color = vec3(1,1,1);
+	float edge = mix(1.0, ambient, selfShadowing);
+	color *= mix(planetColor2, vec3(1,1,1) * edge, clamp(abs(height - 0.0) / 1.5, 0.0, 1.0));
+	color *= mix(planetColor1, vec3(1,1,1) * edge, clamp(abs(height - 0.5) / 2.5, 0.0, 1.0));
+
+	color *= height * 0.25 + 1.00;
+
+	return color;
+}
+
+void main(void) {
+	// extract terrain info
+	vec4 tex = texture2D(sampler, vUV * uvScalar, -0.5);
 	vec3 norm = normalize(tex.xyz * 2.0 - 1.0);
 
-	gl_FragColor.xyz = computeLighting(norm, vec3(ao, ao, ao));
+	// compute terrain shape features values
+	float globalDot = dot(lightVec, vNormal);
+	float diffuse = clamp(dot(lightVec, norm), 0.0, 1.0);
+ 	float ambient = clamp(1.0 - 2.0 * acos(dot(norm, normalize(vNormal))), 0.0, 1.0);
+	float height = tex.a;
+
+	// compute color based on terrain features
+ 	vec3 color = computeColor(height, ambient);
+
+	gl_FragColor.xyz = computeLighting(globalDot, diffuse, ambient, color);
 
     gl_FragColor.w = 1.0; //alpha;
 }
