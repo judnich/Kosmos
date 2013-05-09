@@ -2,10 +2,12 @@ root = exports ? this
 
 class root.FarMapGenerator
 	constructor: (mapResolution) ->
-		# load shader
-		@shader = xgl.loadProgram("farMapGenerator")
-		@shader.uniforms = xgl.getProgramUniforms(@shader, ["randomSeed"])
-		@shader.attribs = xgl.getProgramAttribs(@shader, ["aUV", "aPos", "aTangent", "aBinormal"])
+		# load shaders
+		@shader = []
+		for i in [0 .. kosmosShaderHeightFunctions.length-1]
+			@shader[i] = xgl.loadProgram("farMapGenerator" + i)
+			@shader[i].uniforms = xgl.getProgramUniforms(@shader[i], ["randomSeed"])
+			@shader[i].attribs = xgl.getProgramAttribs(@shader[i], ["aUV", "aPos", "aTangent", "aBinormal"])
 
 		# initialize FBO
 		@fbo = gl.createFramebuffer()
@@ -44,27 +46,22 @@ class root.FarMapGenerator
 		gl.disable(gl.DEPTH_TEST)
 		gl.depthMask(false)
 
-		gl.useProgram(@shader)
-
 		gl.bindFramebuffer(gl.FRAMEBUFFER, @fbo)
 		gl.viewport(0, 0, @fbo.width, @fbo.height)
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, @quadVerts)
-		gl.enableVertexAttribArray(@shader.attribs.aUV)
-		gl.vertexAttribPointer(@shader.attribs.aUV, 2, gl.FLOAT, false, @quadVerts.itemSize*4, 0)
-		gl.enableVertexAttribArray(@shader.attribs.aPos)
-		gl.vertexAttribPointer(@shader.attribs.aPos, 3, gl.FLOAT, false, @quadVerts.itemSize*4, 4 *2)
-		gl.enableVertexAttribArray(@shader.attribs.aBinormal)
-		gl.vertexAttribPointer(@shader.attribs.aBinormal, 3, gl.FLOAT, false, @quadVerts.itemSize*4, 4 *5)
-		gl.enableVertexAttribArray(@shader.attribs.aTangent)
-		gl.vertexAttribPointer(@shader.attribs.aTangent, 3, gl.FLOAT, false, @quadVerts.itemSize*4, 4 *8)
+
+		gl.enableVertexAttribArray(@shader[0].attribs.aUV)
+		gl.enableVertexAttribArray(@shader[0].attribs.aPos)
+		gl.enableVertexAttribArray(@shader[0].attribs.aBinormal)
+		gl.enableVertexAttribArray(@shader[0].attribs.aTangent)
 
 
 	finish: ->
-		gl.disableVertexAttribArray(@shader.attribs.aUV)
-		gl.disableVertexAttribArray(@shader.attribs.aPos)
-		gl.disableVertexAttribArray(@shader.attribs.aBinormal)
-		gl.disableVertexAttribArray(@shader.attribs.aTangent)
+		gl.disableVertexAttribArray(@shader[0].attribs.aUV)
+		gl.disableVertexAttribArray(@shader[0].attribs.aPos)
+		gl.disableVertexAttribArray(@shader[0].attribs.aBinormal)
+		gl.disableVertexAttribArray(@shader[0].attribs.aTangent)
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, null)
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null)
@@ -76,6 +73,19 @@ class root.FarMapGenerator
 
 
 	generate: (seed) ->
+		# setup seed values
+		rndStr = new RandomStream(seed)
+		seeds = [rndStr.unit(), rndStr.unit(), rndStr.unit(), rndStr.unit()]
+		shaderIndex = 0
+
+		# set shader from seed
+		gl.useProgram(@shader[shaderIndex])
+		gl.vertexAttribPointer(@shader[shaderIndex].attribs.aUV, 2, gl.FLOAT, false, @quadVerts.itemSize*4, 0)
+		gl.vertexAttribPointer(@shader[shaderIndex].attribs.aPos, 3, gl.FLOAT, false, @quadVerts.itemSize*4, 4 *2)
+		gl.vertexAttribPointer(@shader[shaderIndex].attribs.aBinormal, 3, gl.FLOAT, false, @quadVerts.itemSize*4, 4 *5)
+		gl.vertexAttribPointer(@shader[shaderIndex].attribs.aTangent, 3, gl.FLOAT, false, @quadVerts.itemSize*4, 4 *8)
+		gl.uniform4fv(@shader[shaderIndex].uniforms.randomSeed, seeds)
+
 		# create and attach texture map as render target
 		heightMap = gl.createTexture()
 		gl.bindTexture(gl.TEXTURE_2D, heightMap)
@@ -87,11 +97,6 @@ class root.FarMapGenerator
 		gl.bindTexture(gl.TEXTURE_2D, null)
 
 		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, heightMap, 0)
-
-		# set random seed
-		rndStr = new RandomStream(seed)
-		seeds = [rndStr.unit(), rndStr.unit(), rndStr.unit(), rndStr.unit()]
-		gl.uniform4fv(@shader.uniforms.randomSeed, seeds)
 
 		gl.drawArrays(gl.TRIANGLES, 0, @quadVerts.numItems);
 

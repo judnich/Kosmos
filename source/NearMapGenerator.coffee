@@ -3,9 +3,11 @@ root = exports ? this
 class root.NearMapGenerator
 	constructor: (mapResolution) ->
 		# load shaders
-		@heightGenShader = xgl.loadProgram("nearMapGenerator")
-		@heightGenShader.uniforms = xgl.getProgramUniforms(@heightGenShader, ["verticalViewport", "randomSeed"])
-		@heightGenShader.attribs = xgl.getProgramAttribs(@heightGenShader, ["aUV", "aPos", "aTangent", "aBinormal"])
+		@heightGenShader = []
+		for i in [0 .. kosmosShaderHeightFunctions.length-1]
+			@heightGenShader[i] = xgl.loadProgram("nearMapGenerator" + i)
+			@heightGenShader[i].uniforms = xgl.getProgramUniforms(@heightGenShader[i], ["verticalViewport", "randomSeed"])
+			@heightGenShader[i].attribs = xgl.getProgramAttribs(@heightGenShader[i], ["aUV", "aPos", "aTangent", "aBinormal"])
 
 		@normalGenShader = xgl.loadProgram("normalMapGenerator")
 		@normalGenShader.uniforms = xgl.getProgramUniforms(@normalGenShader, ["verticalViewport", "sampler"])
@@ -136,13 +138,19 @@ class root.NearMapGenerator
 	# generates a heightmap output to maps[6], for later processing by generateSubFinalMap
 	# for face faceIndex. partial generation is allowed via start/endFraction ranging [0,1]
 	generateSubMap: (maps, seed, faceIndex, startFraction, endFraction) ->
-		# select the height map generation program
-		gl.useProgram(@heightGenShader)
+		# setup seed values
+		rndStr = new RandomStream(seed)
+		seeds = [rndStr.unit(), rndStr.unit(), rndStr.unit(), rndStr.unit()]
+		shaderIndex = 0
+
+		# set shader from seed
+		gl.useProgram(@heightGenShader[shaderIndex])
 		gl.bindBuffer(gl.ARRAY_BUFFER, @quadVerts)
-		gl.vertexAttribPointer(@heightGenShader.attribs.aUV, 2, gl.FLOAT, false, @quadVerts.itemSize*4, 0)
-		gl.vertexAttribPointer(@heightGenShader.attribs.aPos, 3, gl.FLOAT, false, @quadVerts.itemSize*4, 4 *2)
-		gl.vertexAttribPointer(@heightGenShader.attribs.aBinormal, 3, gl.FLOAT, false, @quadVerts.itemSize*4, 4 *5)
-		gl.vertexAttribPointer(@heightGenShader.attribs.aTangent, 3, gl.FLOAT, false, @quadVerts.itemSize*4, 4 *8)
+		gl.vertexAttribPointer(@heightGenShader[shaderIndex].attribs.aUV, 2, gl.FLOAT, false, @quadVerts.itemSize*4, 0)
+		gl.vertexAttribPointer(@heightGenShader[shaderIndex].attribs.aPos, 3, gl.FLOAT, false, @quadVerts.itemSize*4, 4 *2)
+		gl.vertexAttribPointer(@heightGenShader[shaderIndex].attribs.aBinormal, 3, gl.FLOAT, false, @quadVerts.itemSize*4, 4 *5)
+		gl.vertexAttribPointer(@heightGenShader[shaderIndex].attribs.aTangent, 3, gl.FLOAT, false, @quadVerts.itemSize*4, 4 *8)
+		gl.uniform4fv(@heightGenShader[shaderIndex].uniforms.randomSeed, seeds)
 
 		# bind the appropriate face map texture
 		dataMap = maps[6]
@@ -151,12 +159,7 @@ class root.NearMapGenerator
 		# select the subset of the viewport to generate
 		gl.viewport(0, @fbo.height * startFraction, @fbo.width, @fbo.height * (endFraction - startFraction))
 		gl.scissor(0, @fbo.height * startFraction, @fbo.width, @fbo.height * (endFraction - startFraction))
-		gl.uniform2f(@heightGenShader.uniforms.verticalViewport, startFraction, endFraction - startFraction);
-
-		# set random seed
-		rndStr = new RandomStream(seed)
-		seeds = [rndStr.unit(), rndStr.unit(), rndStr.unit(), rndStr.unit()]
-		gl.uniform4fv(@heightGenShader.uniforms.randomSeed, seeds)
+		gl.uniform2f(@heightGenShader[shaderIndex].uniforms.verticalViewport, startFraction, endFraction - startFraction);
 
 		# run the generation shader
 		indicesPerFace = @quadVerts.numItems / 6
