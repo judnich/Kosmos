@@ -1,4 +1,4 @@
-xgl.commonNoiseShaderSource = """precision mediump float;
+xgl.commonNoiseShaderSource = """precision highp float;
 
 //
 // Description : Array and textureless GLSL 2D/3D/4D simplex 

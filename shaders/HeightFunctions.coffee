@@ -1,6 +1,7 @@
 hfunctions = []
 
-hfunctions[0] = """
+hfunctions[0] = """precision highp float;
+
 float heightFunc(vec3 coord, vec4 random)
 {
         vec3 v;
@@ -39,7 +40,8 @@ float heightFunc(vec3 coord, vec4 random)
 
 """
 
-hfunctions[1] = """
+hfunctions[1] = """precision highp float;
+
 float heightFunc(vec3 coord, vec4 random)
 {
         vec3 v;
@@ -82,7 +84,8 @@ float heightFunc(vec3 coord, vec4 random)
 
 """
 
-hfunctions[2] = """
+hfunctions[2] = """precision highp float;
+
 float heightFunc(vec3 coord, vec4 random)
 {
         vec3 v;

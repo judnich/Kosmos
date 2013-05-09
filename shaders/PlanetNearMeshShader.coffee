@@ -1,7 +1,7 @@
 
 frag = """
 
-precision mediump float;
+precision highp float;
 
 varying vec3 vNormal;
 varying vec2 vUV;
@@ -75,6 +75,10 @@ void main(void) {
 vert = """
 
 precision highp float;
+precision highp vec3;
+precision highp vec4;
+precision highp mat3;
+precision highp mat4;
 
 attribute vec3 aUV;
 
