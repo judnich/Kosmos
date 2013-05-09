@@ -6,7 +6,6 @@ precision mediump float;
 varying vec3 vNormal;
 varying vec2 vUV;
 
-uniform float alpha;
 uniform vec3 lightVec;
 uniform sampler2D sampler;
 
@@ -56,7 +55,7 @@ void main(void) {
 
 	gl_FragColor.xyz = computeLighting(globalDot, diffuse, ambient, color);
 
-    gl_FragColor.w = 1.0; //alpha;
+    gl_FragColor.w = 1.0;
 }
 
 """

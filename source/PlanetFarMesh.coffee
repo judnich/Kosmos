@@ -6,7 +6,7 @@ class root.PlanetFarMesh
 
 		# load planet shader
 		@shader = xgl.loadProgram("planetFarMesh")
-		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "alpha", "lightVec", "sampler", "planetColor1", "planetColor2"])
+		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "lightVec", "sampler", "planetColor1", "planetColor2"])
 		@shader.attribs = xgl.getProgramAttribs(@shader, ["aPos", "aUV"])
 
 		# build vertex buffer (subdivided cube, normalized to be spherical)
