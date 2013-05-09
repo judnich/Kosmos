@@ -122,6 +122,8 @@ class root.PlanetNearMesh
 		gl.activeTexture(gl.TEXTURE1)
 		gl.bindTexture(gl.TEXTURE_2D, null)
 
+		gl.activeTexture(gl.TEXTURE0)
+
 
 	mapToSphere: (face, point, height) ->
 		pos = mapPlaneToCube(point[0], point[1], face)

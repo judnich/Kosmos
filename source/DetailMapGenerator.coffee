@@ -74,6 +74,8 @@ class root.DetailMapGenerator
 
 		gl.drawArrays(gl.TRIANGLES, 0, @quadVerts.numItems);
 
+		gl.useProgram(null)
+
 		@_finish()
 
 		return detailMap
