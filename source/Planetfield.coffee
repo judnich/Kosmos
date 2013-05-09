@@ -2,6 +2,16 @@ root = exports ? this
 
 root.planetBufferSize = 100
 
+
+root.planetColors = [
+	[[0.90, 0.95, 1.0], [0.5, 0.5, 0.5]],
+#	[[0.2, 0.6, 0.3], [0.4, 0.3, 0.1]], #too green
+	[[0.2, 0.6, 0.3], [0.4, 0.3, 0.1]],
+#	[[0.75, 0.3, 0.0], [0.5, 0.0, 0.0]], #too red
+	[[0.562, 0.225, 0.0], [0.375, 0.0, 0.0]],
+]
+
+
 class root.Planetfield
 	constructor: ({starfield, maxPlanetsPerSystem, minOrbitScale, maxOrbitScale, planetSize, nearMeshRange, farMeshRange, spriteRange}) ->
 		@_starfield = starfield
@@ -268,7 +278,9 @@ class root.Planetfield
 
 				textureMap = @farMapCache.getContent(seed)
 				if textureMap
-					@farMesh.renderInstance(camera, globalPos, lightVec, alpha, textureMap)
+					colorIndex = seed % planetColors.length
+					[planetColor1, planetColor2] = planetColors[colorIndex]
+					@farMesh.renderInstance(camera, globalPos, lightVec, alpha, textureMap, planetColor1, planetColor2)
 
 		@farMesh.finishRender()
 
@@ -308,7 +320,9 @@ class root.Planetfield
 				seed = Math.floor(w * 1000000000)
 				textureMap = @nearMapCache.getContent(seed)
 				if textureMap
-					@nearMesh.renderInstance(camera, globalPos, lightVec, alpha, textureMap)
+					colorIndex = seed % planetColors.length
+					[planetColor1, planetColor2] = planetColors[colorIndex]
+					@nearMesh.renderInstance(camera, globalPos, lightVec, alpha, textureMap, planetColor1, planetColor2)
 
 				# in case the user linked directly to a high-res planet view, we want to cache the
 				# low res representation as well so there's no stutter when backing away from the planet

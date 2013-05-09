@@ -9,7 +9,7 @@ class root.PlanetNearMesh
 
 		# load planet shader
 		@shader = xgl.loadProgram("planetNearMesh")
-		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "cubeMat", "lightVec", "sampler", "vertSampler", "uvRect"])
+		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "cubeMat", "lightVec", "sampler", "vertSampler", "uvRect", "planetColor1", "planetColor2"])
 		@shader.attribs = xgl.getProgramAttribs(@shader, ["aUV"])
 
 		# build vertex buffer (chunk grid)
@@ -83,7 +83,7 @@ class root.PlanetNearMesh
 
 
 	# WARNING: be sure to call startRender first and endRender after done calling this
-	renderInstance: (camera, planetPos, lightVec, alpha, textureMaps) ->
+	renderInstance: (camera, planetPos, lightVec, alpha, textureMaps, color1, color2) ->
 		modelViewMat = mat4.create()
 		mat4.translate(modelViewMat, modelViewMat, planetPos)
 		mat4.mul(modelViewMat, camera.viewMat, modelViewMat)
@@ -92,6 +92,8 @@ class root.PlanetNearMesh
 		gl.uniformMatrix4fv(@shader.uniforms.modelViewMat, false, modelViewMat)
 		gl.uniform3fv(@shader.uniforms.lightVec, lightVec)
 		gl.uniform1f(@shader.uniforms.alpha, alpha)
+		gl.uniform3fv(@shader.uniforms.planetColor1, color1)
+		gl.uniform3fv(@shader.uniforms.planetColor2, color2)
 
 		relCamPos = vec3.create()
 		vec3.sub(relCamPos, planetPos, camera.position)

@@ -10,14 +10,8 @@ uniform float alpha;
 uniform vec3 lightVec;
 uniform sampler2D sampler;
 
-	//vec3 planetColor1 = vec3(0.2, 0.6, 0.3);
-	//vec3 planetColor2 = vec3(0.4, 0.3, 0.1);
-
-	//vec3 planetColor1 = vec3(1, 1, 1);
-	//vec3 planetColor2 = vec3(0.5, 0.5, 0.5);
-
-	vec3 planetColor1 = vec3(0.75, 0.3, 0.0);
-	vec3 planetColor2 = vec3(0.5, 0.0, 0.0);
+uniform vec3 planetColor1;
+uniform vec3 planetColor2;
 
 
 vec3 computeLighting(float globalDot, float diffuse, float ambient, vec3 color)

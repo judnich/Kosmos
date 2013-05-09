@@ -13,17 +13,11 @@ uniform sampler2D sampler;
 
 uniform vec4 uvRect;
 
+uniform vec3 planetColor1;
+uniform vec3 planetColor2;
+
 const float uvScalar = 4097.0 / 4096.0;
 #define ONE_TEXEL (1.0/4096.0)
-
-	//vec3 planetColor1 = vec3(0.2, 0.6, 0.3);
-	//vec3 planetColor2 = vec3(0.4, 0.3, 0.1);
-
-	//vec3 planetColor1 = vec3(1, 1, 1);
-	//vec3 planetColor2 = vec3(0.5, 0.5, 0.5);
-
-	vec3 planetColor1 = vec3(0.75, 0.3, 0.0);
-	vec3 planetColor2 = vec3(0.5, 0.0, 0.0);
 
 
 vec3 computeLighting(float globalDot, float diffuse, float ambient, vec3 color)
@@ -32,8 +26,7 @@ vec3 computeLighting(float globalDot, float diffuse, float ambient, vec3 color)
  	float nightLight = clamp(0.2 / sqrt(camDist) - 0.001, 0.0, 1.0);
  	float ambientNight = nightBlend * (ambient * ambient * 0.14 + 0.02) * nightLight;
 
- 	float grayColor = (color.r + color.g + color.b) / 3.0;
- 	vec3 nightColor = vec3(grayColor * 0.4, grayColor * 0.1, grayColor * 1.0);
+ 	vec3 nightColor = normalize(color) * 0.4 + vec3(0.4, 0.1, 1.0) * 0.4;
 
  	return color * diffuse + nightColor * ambientNight;
 }
