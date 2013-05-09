@@ -4,7 +4,7 @@ class root.NearMapGenerator
 	constructor: (mapResolution) ->
 		# load shaders
 		@heightGenShader = xgl.loadProgram("nearMapGenerator")
-		@heightGenShader.uniforms = xgl.getProgramUniforms(@heightGenShader, ["verticalViewport"])
+		@heightGenShader.uniforms = xgl.getProgramUniforms(@heightGenShader, ["verticalViewport", "randomSeed"])
 		@heightGenShader.attribs = xgl.getProgramAttribs(@heightGenShader, ["aUV", "aPos", "aTangent", "aBinormal"])
 
 		@normalGenShader = xgl.loadProgram("normalMapGenerator")
@@ -152,6 +152,9 @@ class root.NearMapGenerator
 		gl.viewport(0, @fbo.height * startFraction, @fbo.width, @fbo.height * (endFraction - startFraction))
 		gl.scissor(0, @fbo.height * startFraction, @fbo.width, @fbo.height * (endFraction - startFraction))
 		gl.uniform2f(@heightGenShader.uniforms.verticalViewport, startFraction, endFraction - startFraction);
+
+		# set random seed
+		gl.uniform1f(@heightGenShader.uniforms.randomSeed, seed)
 
 		# run the generation shader
 		indicesPerFace = @quadVerts.numItems / 6

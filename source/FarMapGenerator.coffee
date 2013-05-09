@@ -4,7 +4,7 @@ class root.FarMapGenerator
 	constructor: (mapResolution) ->
 		# load shader
 		@shader = xgl.loadProgram("farMapGenerator")
-		#@shader.uniforms = xgl.getProgramUniforms(@shader, [])
+		@shader.uniforms = xgl.getProgramUniforms(@shader, ["randomSeed"])
 		@shader.attribs = xgl.getProgramAttribs(@shader, ["aUV", "aPos", "aTangent", "aBinormal"])
 
 		# initialize FBO
@@ -88,7 +88,7 @@ class root.FarMapGenerator
 
 		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, heightMap, 0)
 
-		#gl.uniform3fv(@shader.uniforms.todo, todo)
+		gl.uniform1f(@shader.uniforms.randomSeed, seed)
 		gl.drawArrays(gl.TRIANGLES, 0, @quadVerts.numItems);
 
 		return heightMap

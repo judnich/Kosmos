@@ -247,8 +247,7 @@ class root.Planetfield
 		nearDistSq = @nearMeshRange*@nearMeshRange
 		[localPos, globalPos, lightVec] = [vec3.create(), vec3.create(), vec3.create()]
 		for i in [@meshPlanets.length-1 .. 0]
-			[x, y, z, w, alpha] = @meshPlanets[i]
-			seed = Math.floor(w * 1000000000)
+			[x, y, z, seed, alpha] = @meshPlanets[i]
 
 			# far planet is visible if it's beyond the near planet range or if it's not the closest planet
 			distSq = x*x + y*y + z*z
@@ -284,7 +283,7 @@ class root.Planetfield
 		# for now we just allow one planet rendered high res at any given time, because we need to adjust
 		# the z buffer range specifically for each planet (and it's preferred to not clear the z buffer multiple times)
 		for i in [0] #[0 .. @meshPlanets.length-1]
-			[x, y, z, w, alpha] = @meshPlanets[i]
+			[x, y, z, seed, alpha] = @meshPlanets[i]
 
 			distSq = x*x + y*y + z*z
 			if distSq < nearDistSq and i == 0
@@ -305,7 +304,6 @@ class root.Planetfield
 				vec3.subtract(lightVec, @lightCenter, localPos)
 				vec3.normalize(lightVec, lightVec)
 
-				seed = Math.floor(w * 1000000000)
 				textureMap = @nearMapCache.getContent(seed)
 				if textureMap
 					@nearMesh.renderInstance(camera, globalPos, lightVec, alpha, textureMap)

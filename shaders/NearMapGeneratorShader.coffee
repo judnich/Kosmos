@@ -4,9 +4,13 @@ varying vec3 vPos;
 varying vec3 vTangent;
 varying vec3 vBinormal;
 
+uniform float randomSeed;
+
 float heightFunc(vec3 coord)
 {
         vec3 v;
+
+        coord += randomSeed * 101.0;
 
         float a = 0.0;
         //float p = 4.0;
