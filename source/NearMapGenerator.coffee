@@ -141,7 +141,7 @@ class root.NearMapGenerator
 		# setup seed values
 		rndStr = new RandomStream(seed)
 		seeds = [rndStr.unit(), rndStr.unit(), rndStr.unit(), rndStr.unit()]
-		shaderIndex = 0
+		shaderIndex = rndStr.intRange(0, kosmosShaderHeightFunctions.length-1)
 
 		# set shader from seed
 		gl.useProgram(@heightGenShader[shaderIndex])

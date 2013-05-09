@@ -76,7 +76,8 @@ class root.FarMapGenerator
 		# setup seed values
 		rndStr = new RandomStream(seed)
 		seeds = [rndStr.unit(), rndStr.unit(), rndStr.unit(), rndStr.unit()]
-		shaderIndex = 0
+		shaderIndex = rndStr.intRange(0, kosmosShaderHeightFunctions.length-1)
+		console.log("Using planet category " + shaderIndex)
 
 		# set shader from seed
 		gl.useProgram(@shader[shaderIndex])
