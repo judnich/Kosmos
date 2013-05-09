@@ -10,6 +10,7 @@ varying float camDist;
 uniform float alpha;
 uniform vec3 lightVec;
 uniform sampler2D sampler;
+uniform sampler2D detailSampler;
 
 uniform vec4 uvRect;
 
@@ -58,8 +59,12 @@ void main(void) {
 
 	// compute color based on terrain features
  	vec3 color = computeColor(height, ambient);
+ 	vec4 detailColor = texture2D(detailSampler, vUV * 256.0, -0.5) * 2.0 - 1.0;
+  	float detailPower = clamp(1.0 / (camDist * 25.0), 0.0, 1.0) * (1.20 - clamp(globalDot, 0.0, 1.0));
+	color *= 1.0 + detailColor.xyz * detailPower;
 
 	gl_FragColor.xyz = computeLighting(globalDot, diffuse, ambient, color);
+	//gl_FragColor.xyz = detailColor.xyz;
 
     gl_FragColor.w = 1.0; //alpha;
 }

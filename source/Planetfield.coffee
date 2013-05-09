@@ -78,6 +78,12 @@ class root.Planetfield
 		generateCallback = do (t = this) -> (seed, partial) -> return t.nearGenerateCallback(seed, partial)
 		@nearMapCache = new ContentCache(4, generateCallback)
 
+		# generate planet detail map
+		console.log("Generating detail maps")
+		detailMapGen = new DetailMapGenerator(512)
+		@detailMapTex = detailMapGen.generate()
+		console.log("Done generating detail maps")
+
 		# perform this many partial load steps per cube face map
 		# larger means less load stutter, but longer load latency
 		@progressiveLoadSteps = 128.0
@@ -323,7 +329,7 @@ class root.Planetfield
 				if textureMap
 					colorIndex = seed % planetColors.length
 					[planetColor1, planetColor2] = planetColors[colorIndex]
-					@nearMesh.renderInstance(camera, globalPos, lightVec, alpha, textureMap, planetColor1, planetColor2)
+					@nearMesh.renderInstance(camera, globalPos, lightVec, alpha, textureMap, @detailMapTex, planetColor1, planetColor2)
 
 				# in case the user linked directly to a high-res planet view, we want to cache the
 				# low res representation as well so there's no stutter when backing away from the planet

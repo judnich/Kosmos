@@ -9,7 +9,9 @@ class root.PlanetNearMesh
 
 		# load planet shader
 		@shader = xgl.loadProgram("planetNearMesh")
-		@shader.uniforms = xgl.getProgramUniforms(@shader, ["modelViewMat", "projMat", "cubeMat", "lightVec", "sampler", "vertSampler", "uvRect", "planetColor1", "planetColor2"])
+		@shader.uniforms = xgl.getProgramUniforms(@shader, 
+			["modelViewMat", "projMat", "cubeMat", "lightVec", "sampler",
+			"vertSampler", "detailSampler", "uvRect", "planetColor1", "planetColor2"])
 		@shader.attribs = xgl.getProgramAttribs(@shader, ["aUV"])
 
 		# build vertex buffer (chunk grid)
@@ -83,7 +85,7 @@ class root.PlanetNearMesh
 
 
 	# WARNING: be sure to call startRender first and endRender after done calling this
-	renderInstance: (camera, planetPos, lightVec, alpha, textureMaps, color1, color2) ->
+	renderInstance: (camera, planetPos, lightVec, alpha, textureMaps, detailMap, color1, color2) ->
 		modelViewMat = mat4.create()
 		mat4.translate(modelViewMat, modelViewMat, planetPos)
 		mat4.mul(modelViewMat, camera.viewMat, modelViewMat)
@@ -99,6 +101,10 @@ class root.PlanetNearMesh
 		vec3.sub(relCamPos, planetPos, camera.position)
 		gl.uniform3fv(@shader.uniforms.camPos, relCamPos)
 
+		gl.activeTexture(gl.TEXTURE1)
+		gl.bindTexture(gl.TEXTURE_2D, detailMap)
+		gl.uniform1i(@shader.uniforms.detailSampler, 1);
+
 		gl.activeTexture(gl.TEXTURE0)
 		gl.uniform1i(@shader.uniforms.sampler, 0);
 		gl.uniform1i(@shader.uniforms.vertSampler, 0);
@@ -111,6 +117,9 @@ class root.PlanetNearMesh
 
 			@renderChunkRecursive(camera, planetPos, cubeFace, fullRect)
 
+		gl.bindTexture(gl.TEXTURE_2D, null)
+
+		gl.activeTexture(gl.TEXTURE1)
 		gl.bindTexture(gl.TEXTURE_2D, null)
 
 
