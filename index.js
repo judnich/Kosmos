@@ -41,7 +41,7 @@ function jsMain() {
 	if (navigator.appVersion.indexOf("Linux")!=-1) OSName="Linux";
 
 	if (is_mobile) {
-		document.location = "judnich.github.io/KosmosMobile";
+		document.location = "http://judnich.github.io/KosmosMobile";
 	}
 
 	if ( !is_firefox || OSName=="Windows" ) {
