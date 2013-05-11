@@ -8,6 +8,21 @@ _sliderMouseDown = false;
 _ignoreWarning = false;
 _autopilotMode = true;
 
+function detectMobile() { 
+	if( navigator.userAgent.match(/Android/i)
+		|| navigator.userAgent.match(/webOS/i)
+		|| navigator.userAgent.match(/iPhone/i)
+		|| navigator.userAgent.match(/iPad/i)
+		|| navigator.userAgent.match(/iPod/i)
+		|| navigator.userAgent.match(/BlackBerry/i)
+		|| navigator.userAgent.match(/Windows Phone/i) ){
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 function jsMain() {
 	updateMessagePositions();
 
@@ -15,8 +30,9 @@ function jsMain() {
 	var is_explorer = navigator.userAgent.indexOf('MSIE') > -1;
 	var is_firefox = navigator.userAgent.indexOf('Firefox') > -1;
 	var is_safari = navigator.userAgent.indexOf("Safari") > -1;
-	var is_Opera = navigator.userAgent.indexOf("Presto") > -1;
+	var is_opera = navigator.userAgent.indexOf("Presto") > -1;
 	if ((is_chrome)&&(is_safari)) {is_safari=false;}
+	var is_mobile = detectMobile();
 
 	var OSName="Unknown OS";
 	if (navigator.appVersion.indexOf("Win")!=-1) OSName="Windows";
@@ -24,10 +40,9 @@ function jsMain() {
 	if (navigator.appVersion.indexOf("X11")!=-1) OSName="UNIX";
 	if (navigator.appVersion.indexOf("Linux")!=-1) OSName="Linux";
 
-	/*if (!is_chrome) {
-		document.getElementById("browserErrorMessage").style.display = "block";
-		return;
-	}*/
+	if (is_mobile) {
+		document.location = "judnich.github.io/KosmosMobile";
+	}
 
 	if ( !is_firefox || OSName=="Windows" ) {
 		if (_ignoreWarning != true) {
