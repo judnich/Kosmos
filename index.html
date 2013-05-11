@@ -59,15 +59,14 @@
 
 		<div class="message big" id="browserErrorMessage">
 			<div class="title">Compatibility Warning</div>
-			<p>Unfortunately, we found that some browsers (especially <i>Google Chrome</i> and <i>Apple Safari</i>) have serious performance and/or compatibility issues with <b>complex</b> WebGL apps, like Kosmos.</p>
-			<p>While Chrome and Firefox should work fine on Mac and Linux, only <a href="http://www.mozilla.org/en-US/firefox/new/"><b>Mozilla Firefox</b></a> 
-			worked consistently in our testing across all operating systems.</p>
+			<p>Unfortunately, we found some browsers and operating sytems (especially <i>Microsoft Windows</i> and <i>Google Chrome</i>) have serious compatibility and performance issues with <b>complex</b> WebGL apps.</p>
+			<p>While Kosmos currently works perfectly on Macs, planets do not appear correctly on Windows. However we are working to find a way to patch the incompatibilities on Windows as soon as possible.</p>
 			<div class="okButton wide" onClick="hideBrowserMessage();">Try Anyway</div>
 		</div>
 
 		<div class="message tall" id="shareMessage">
 			<div class="title">Share this View</div>
-			<p>The URL below to links directly to what you're seeing now. Simply copy and paste into your preferred networking app.</p>
+			<p>The URL below to links directly to what you see now. Simply copy and paste into your preferred networking/messaging app.</p>
 
 			<textarea readonly rows="3" id="shareLink" onClick="this.focus(); this.select()" class="linkBox"></textarea>
 

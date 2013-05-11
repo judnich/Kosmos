@@ -29,7 +29,7 @@ function jsMain() {
 		return;
 	}*/
 
-	if ( !is_firefox ) {
+	if ( !is_firefox || OSName=="Windows" ) {
 		if (_ignoreWarning != true) {
 			document.getElementById("browserErrorMessage").style.display = "block";
 			return;
