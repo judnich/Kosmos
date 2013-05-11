@@ -55,7 +55,8 @@ void main(void) {
 	// fade out distant sprites
 	float dist = length(pos.xyz);
 	float alpha = clamp( (1.0 - (dist / spriteSizeAndViewRangeAndBlur.z)) * 1.5, 0.0, 1.0 );
-	alpha *= clamp( ((dist / spriteSizeAndViewRangeAndBlur.y) - 1.0) * 0.5, 0.0, 1.0);
+	float fade = 1.0 - clamp( ((dist / spriteSizeAndViewRangeAndBlur.y) - 1.0) * 0.05, 0.0, 1.0);
+	alpha *= 1.0 - (fade*fade);
 
     // the UV coordinates are used to render the actual sprite radial gradient,
     // and alpha is used to modulate intensity of distant sprites as they fade out

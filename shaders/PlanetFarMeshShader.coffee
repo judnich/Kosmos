@@ -12,6 +12,8 @@ uniform sampler2D sampler;
 uniform vec3 planetColor1;
 uniform vec3 planetColor2;
 
+uniform float alpha;
+
 
 vec3 computeLighting(float globalDot, float diffuse, float ambient, vec3 color)
 {
@@ -55,7 +57,7 @@ void main(void) {
 
 	gl_FragColor.xyz = computeLighting(globalDot, diffuse, ambient, color);
 
-    gl_FragColor.w = 1.0;
+    gl_FragColor.w = alpha;
 }
 
 """

@@ -21,6 +21,7 @@ class root.Planetfield
 		@nearMeshRange = nearMeshRange
 		@farMeshRange = farMeshRange
 		@spriteRange = spriteRange
+		@spriteNearRange = nearMeshRange * 0.25
 
 		@planetSize = planetSize
 
@@ -353,7 +354,7 @@ class root.Planetfield
 
 		# update camera depth range
 		camera.far = @spriteRange * 1.1
-		camera.near = @farMeshRange * 0.9
+		camera.near = @spriteNearRange * 0.9
 		camera.update()
 
 		# push render state
@@ -378,7 +379,7 @@ class root.Planetfield
 		# set shader uniforms
 		gl.uniformMatrix4fv(@shader.uniforms.projMat, false, camera.projMat)
 		gl.uniformMatrix4fv(@shader.uniforms.modelViewMat, false, modelViewMat)
-		gl.uniform4f(@shader.uniforms.spriteSizeAndViewRangeAndBlur, @planetSize * 10.0, @farMeshRange, @spriteRange, blur)
+		gl.uniform4f(@shader.uniforms.spriteSizeAndViewRangeAndBlur, @planetSize * 10.0, @spriteNearRange, @spriteRange, blur)
 		# NOTE: Size is multiplied by 10 because the whole sprite needs to be bigger because only the center area appears filled
 
 		# issue draw operation
