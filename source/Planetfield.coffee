@@ -169,8 +169,7 @@ class root.Planetfield
 		# configure loading speed based on proximity to planet
 		nearestPlanetDist = @getDistanceToClosestPlanet()
 		@_oldHurry = @loadingHurryFactor
-		if nearestPlanetDist < 1.0 then @loadingHurryFactor = 8.0
-		else if nearestPlanetDist < 2.5 then @loadingHurryFactor = 4.0
+		if nearestPlanetDist < 2.0 then @loadingHurryFactor = 4.0
 		else if nearestPlanetDist < 5.0 then @loadingHurryFactor = 2.0
 		else @loadingHurryFactor = 1.0
 
