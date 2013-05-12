@@ -79,11 +79,11 @@ class root.Planetfield
 		generateCallback = do (t = this) -> (seed, partial) -> return t.nearGenerateCallback(seed, partial)
 		@nearMapCache = new ContentCache(4, generateCallback)
 
-		# generate planet detail map
-		console.log("Generating detail maps")
-		detailMapGen = new DetailMapGenerator(512)
-		@detailMapTex = detailMapGen.generate()
-		console.log("Done generating detail maps")
+		# set up the detail map texture to load after the first few frames
+		# this is because if we load immediately, too much initial loading lag makes loading time seem slow
+		# instead, we want a basic render up and running ASAP so the Kosmos intro can be shown immediately
+		@detailMapTex = null
+		@detailMapTime = 5
 
 		# perform this many partial load steps per cube face map
 		# larger means less load stutter, but longer load latency
@@ -182,6 +182,17 @@ class root.Planetfield
 		@nearMapGen.start()
 		@nearMapCache.update(1)
 		@nearMapGen.finish()
+
+		# generate planet detail map after the first few frames have been rendered, since this creates the perception
+		# of too much loading lag if we load it before displaying anything at all
+		if @detailMapTex == null
+			if @detailMapTime <= 0
+				console.log("Generating detail maps")
+				detailMapGen = new DetailMapGenerator(512)
+				@detailMapTex = detailMapGen.generate()
+				console.log("Done generating detail maps")
+			else
+				@detailMapTime--
 
 
 	# these functions return the closest distance, or null if no such object is populated
