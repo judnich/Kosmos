@@ -1,4 +1,4 @@
-xgl.commonNoiseShaderSource = """precision highp float;
+_common = """precision highp float;
 
 //
 // Description : Array and textureless GLSL 2D/3D/4D simplex 
@@ -35,6 +35,10 @@ vec4 taylorInvSqrt(vec4 r)
 {
   return 1.79284291400159 - 0.85373472095314 * r;
 }
+
+"""
+
+xgl.commonNoiseShaderSource3 = _common + """
 
 float snoise(vec3 v)
   { 
@@ -110,7 +114,10 @@ float snoise(vec3 v)
   return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), 
                                 dot(p2,x2), dot(p3,x3) ) );
   }
+"""
 
+
+xgl.commonNoiseShaderSource2 = _common + """
 
 float snoise(vec2 v)
   {
@@ -162,9 +169,5 @@ float snoise(vec2 v)
 }
 
 
-
-
-
-
-
 """
+

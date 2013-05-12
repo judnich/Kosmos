@@ -1,9 +1,11 @@
+
 frag = """//precision highp float;
 
 varying vec3 vPos;
 varying vec3 vTangent;
 varying vec3 vBinormal;
-varying vec3 vRandomSeed;
+
+""" + windowsCompatibilityUglyHacks.randomSeedDefString + """ //uniform vec3 randomSeed;
 
 #define ONE_TEXEL (1.0/4096.0)
 
@@ -11,7 +13,7 @@ varying vec3 vRandomSeed;
 float getHeightOnCube(vec3 cubePos)
 {
         vec3 pos = normalize(cubePos);
-        return heightFunc(pos, vRandomSeed);
+        return heightFunc(pos, randomSeed);
  }
 
 
@@ -34,14 +36,10 @@ varying vec3 vBinormal;
 
 uniform vec2 verticalViewport;
 
-varying vec3 vRandomSeed;
-uniform vec4 randomSeed;
-
 void main(void) {
 	vPos = aPos;
         vTangent = aTangent;
         vBinormal = aBinormal;
-        vRandomSeed = randomSeed.xyz;
 
         vec2 pos = aUV;
         pos.y = (pos.y - verticalViewport.x) / verticalViewport.y;
@@ -53,5 +51,5 @@ void main(void) {
 """
 
 for i in [0..kosmosShaderHeightFunctions.length-1]
-        xgl.addProgram("nearMapGenerator" + i, vert, xgl.commonNoiseShaderSource + kosmosShaderHeightFunctions[i] + frag)
+        xgl.addProgram("nearMapGenerator" + i, vert, xgl.commonNoiseShaderSource3 + kosmosShaderHeightFunctions[i] + frag)
 

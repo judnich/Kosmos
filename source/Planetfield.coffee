@@ -5,7 +5,7 @@ root.planetBufferSize = 100
 
 root.planetColors = [
 	[[0.9, 0.7, 0.4], [0.6, 0.4, 0.2]], # dry, hot, boring desert
-	[[0.05, 0.0, 0.05], [0.5, 0.1, 0.5]], # dark purple gas
+	[[0.2, 0.05, 0.2], [0.7, 0.1, 0.7]], # dark purple gas
 	[[0.2, 0.6, 0.3], [0.4, 0.3, 0.1]], # green jungles
 	[[0.90, 0.95, 1.0], [0.5, 0.5, 0.5]], # gray moon
 	[[0.0, -50.0, -50.0], [0.0, 10.0, 10.0]], # lava!!

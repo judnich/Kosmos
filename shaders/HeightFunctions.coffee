@@ -123,6 +123,7 @@ float heightFunc(vec3 coord, vec3 rndSeed)
 """
 
 
-
 root = exports ? this
 root.kosmosShaderHeightFunctions = hfunctions
+
+

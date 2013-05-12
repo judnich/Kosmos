@@ -59,8 +59,10 @@
 
 		<div class="message big" id="browserErrorMessage">
 			<div class="title">Compatibility Warning</div>
-			<p>Unfortunately, we found some browsers and operating sytems (especially <i>Microsoft Windows</i> and <i>Google Chrome</i>) have serious compatibility and performance issues with <b>complex</b> <a href="http://en.wikipedia.org/wiki/WebGL">WebGL</a> apps.</p>
-			<p>While currently, Kosmos seems to work great on Mac OS X, planets do not appear correctly on Windows. However we are working to find a way to patch the <a href="http://en.wikipedia.org/wiki/WebGL">WebGL</a> incompatibilities as soon as possible.</p>
+			<p>Some browsers and operating systems (particularly <i>Microsoft Windows</i>) have serious compatibility issues with complex <a href="http://en.wikipedia.org/wiki/WebGL">WebGL</a> applications like Kosmos.</p>
+
+			<p>While Kosmos works on any browser on Mac/Linux computers, on Windows only <a href="http://firefox.com">Firefox</a> seems to work. Even then, we were forced to disable features for Kosmos to function at all. Specifically, not all planets in the Kosmos universe will be unique, on Windows.</p>
+
 			<div class="okButton wide" onClick="hideBrowserMessage();">Try Anyway</div>
 		</div>
 
@@ -74,6 +76,8 @@
 			<div class="okButton" onClick="hideShare();">Share on Twitter</div>-->
 			<div class="okButton" onClick="hideShare();">Close</div>
 		</div>
+
+		<script type="text/javascript" src="compiled/WindowsCompatibilityUglyHacks.js"></script>
 
 		<script type="text/javascript" src="external/gl-matrix-min.js"></script>
 		<!--<script type="text/javascript" src="external/gl-matrix.js"></script>-->

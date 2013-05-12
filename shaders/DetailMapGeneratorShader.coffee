@@ -71,5 +71,5 @@ void main(void) {
 
 """
 
-xgl.addProgram("detailMapGenerator", vert, xgl.commonNoiseShaderSource + frag)
+xgl.addProgram("detailMapGenerator", vert, xgl.commonNoiseShaderSource2 + frag)
 

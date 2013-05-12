@@ -1,6 +1,9 @@
 // NOTE: Needs major cleanup, decouple events from html, change to coffeescript
 // This file is meant to cover all UI stuff and abstract that away from the main 
-// simulation/game code found in Main.coffee
+// simulation/game code found in Main.coffee. This file isn't that "important" right
+// now in the sense that most of Kosmos is in the 3D rendering stuff, not the management
+// of slider bars.
+
 
 _speed = 0.0;
 _reverseMode = false;
@@ -25,6 +28,7 @@ function detectMobile() {
 
 function jsMain() {
 	updateMessagePositions();
+	showIntro();
 
 	var is_chrome = navigator.userAgent.indexOf('Chrome') > -1;
 	var is_explorer = navigator.userAgent.indexOf('MSIE') > -1;
@@ -44,7 +48,7 @@ function jsMain() {
 		document.location = "http://judnich.github.io/KosmosMobile";
 	}
 
-	if ( !is_firefox || OSName=="Windows" ) {
+	if ( OSName=="Windows" ) {
 		if (_ignoreWarning != true) {
 			document.getElementById("browserErrorMessage").style.display = "block";
 			return;

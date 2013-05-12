@@ -75,7 +75,7 @@ class root.FarMapGenerator
 	generate: (seed) ->
 		# setup seed values
 		rndStr = new RandomStream(seed)
-		seeds = [rndStr.unit(), rndStr.unit(), rndStr.unit(), rndStr.unit()]
+		seeds = [rndStr.unit(), rndStr.unit(), rndStr.unit()]
 		shaderIndex = rndStr.intRange(0, kosmosShaderHeightFunctions.length-1)
 		console.log("Using planet category " + shaderIndex)
 
@@ -85,7 +85,7 @@ class root.FarMapGenerator
 		gl.vertexAttribPointer(@shader[shaderIndex].attribs.aPos, 3, gl.FLOAT, false, @quadVerts.itemSize*4, 4 *2)
 		gl.vertexAttribPointer(@shader[shaderIndex].attribs.aBinormal, 3, gl.FLOAT, false, @quadVerts.itemSize*4, 4 *5)
 		gl.vertexAttribPointer(@shader[shaderIndex].attribs.aTangent, 3, gl.FLOAT, false, @quadVerts.itemSize*4, 4 *8)
-		gl.uniform4fv(@shader[shaderIndex].uniforms.randomSeed, seeds)
+		gl.uniform3fv(@shader[shaderIndex].uniforms.randomSeed, seeds)
 
 		# create and attach texture map as render target
 		heightMap = gl.createTexture()

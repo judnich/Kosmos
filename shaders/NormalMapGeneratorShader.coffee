@@ -120,5 +120,5 @@ void main(void) {
 
 """
 
-xgl.addProgram("normalMapGenerator", vert, xgl.commonNoiseShaderSource + frag)
+xgl.addProgram("normalMapGenerator", vert, frag)
 

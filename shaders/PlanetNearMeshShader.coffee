@@ -59,8 +59,8 @@ void main(void) {
 
 	// compute color based on terrain features
  	vec3 color = computeColor(height, ambient);
- 	vec4 detailColor = texture2D(detailSampler, vUV * 256.0, -0.5) * 2.0 - 1.0;
-  	float detailPower = clamp(1.0 / (camDist * 25.0), 0.0, 1.0) * (1.20 - clamp(globalDot, 0.0, 1.0));
+ 	vec4 detailColor = texture2D(detailSampler, vUV * 128.0, -0.5) * 2.0 - 1.0;
+  	float detailPower = clamp(1.0 / (camDist * 25.0), 0.0, 1.0) * (0.80 - clamp(globalDot, 0.0, 1.0) * 0.5);
 	color *= 1.0 + detailColor.xyz * detailPower;
 
 	gl_FragColor.xyz = computeLighting(globalDot, diffuse, ambient, color);

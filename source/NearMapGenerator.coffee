@@ -140,7 +140,7 @@ class root.NearMapGenerator
 	generateSubMap: (maps, seed, faceIndex, startFraction, endFraction) ->
 		# setup seed values
 		rndStr = new RandomStream(seed)
-		seeds = [rndStr.unit(), rndStr.unit(), rndStr.unit(), rndStr.unit()]
+		seeds = [rndStr.unit(), rndStr.unit(), rndStr.unit()]
 		shaderIndex = rndStr.intRange(0, kosmosShaderHeightFunctions.length-1)
 
 		# set shader from seed
@@ -150,7 +150,7 @@ class root.NearMapGenerator
 		gl.vertexAttribPointer(@heightGenShader[shaderIndex].attribs.aPos, 3, gl.FLOAT, false, @quadVerts.itemSize*4, 4 *2)
 		gl.vertexAttribPointer(@heightGenShader[shaderIndex].attribs.aBinormal, 3, gl.FLOAT, false, @quadVerts.itemSize*4, 4 *5)
 		gl.vertexAttribPointer(@heightGenShader[shaderIndex].attribs.aTangent, 3, gl.FLOAT, false, @quadVerts.itemSize*4, 4 *8)
-		gl.uniform4fv(@heightGenShader[shaderIndex].uniforms.randomSeed, seeds)
+		gl.uniform3fv(@heightGenShader[shaderIndex].uniforms.randomSeed, seeds)
 
 		# bind the appropriate face map texture
 		dataMap = maps[6]
