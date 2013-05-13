@@ -135,7 +135,7 @@ class root.Planetfield
 
 
 	isLoadingComplete: ->
-		return @nearMapCache.isUpToDate() and @farMapCache.isUpToDate()
+		return @nearMapCache.isUpToDate() and @farMapCache.isUpToDate() and @detailMapTex != null
 
 
 	setPlanetSprite: (index, position) ->
