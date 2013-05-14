@@ -1,3 +1,6 @@
+# Copyright (C) 2013 John Judnich
+# Released under The MIT License - see "LICENSE" file for details.
+
 root = exports ? this
 
 root.planetBufferSize = 100
@@ -8,8 +11,8 @@ root.planetColors = [
 	[[0.7, 0.4, 0.0], [0.5, 0.0, 0.0]], # red mars light
 	[[0.2, 0.6, 0.3], [0.4, 0.3, 0.1]], # green jungles
 	[[0.562, 0.225, 0.0], [0.375, 0.0, 0.0]], # red mars dark
-	[[1.0, 1.0, 1.0], [0.4, 0.4, 0.7]], # ice planet
-	[[0.90, 0.95, 1.0], [0.5, 0.5, 0.5]], # gray moon
+	[[1.2, 1.2, 1.5], [0.4, 0.4, 0.7]], # ice planet
+ 	[[0.90, 0.95, 1.0], [0.5, 0.5, 0.5]], # gray moon
 	[[0.0, -50.0, -50.0], [0.0, 10.0, 10.0]], # lava!! (red)
 	[[0.2, 0.05, 0.2], [0.7, 0.1, 0.7]], # dark purple gas
 ]

@@ -1,3 +1,6 @@
+# Copyright (C) 2013 John Judnich
+# Released under The MIT License - see "LICENSE" file for details.
+
 hfunctions = []
 
 hfunctions[0] = """//precision highp float;

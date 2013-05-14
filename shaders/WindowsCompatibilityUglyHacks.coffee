@@ -1,3 +1,5 @@
+# Copyright (C) 2013 John Judnich
+# Released under The MIT License - see "LICENSE" file for details.
 
 # For some reason, Windows messes with GLSL shaders and sometimes, unexpectedly, with NO WARNING,
 # NO ERROR, and NO reason whatsoever -- just fails to output anything from the shader.

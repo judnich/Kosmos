@@ -1,3 +1,6 @@
+// Copyright (C) 2013 John Judnich
+// Released under The MIT License - see "LICENSE" file for details.
+
 // NOTE: Needs major cleanup, decouple events from html, change to coffeescript
 // This file is meant to cover all UI stuff and abstract that away from the main 
 // simulation/game code found in Main.coffee. This file isn't that "important" right

@@ -1,3 +1,5 @@
+# Copyright (C) 2013 John Judnich
+# Released under The MIT License - see "LICENSE" file for details.
 
 frag = """
 
@@ -34,7 +36,7 @@ vec3 computeLighting(float globalDot, float diffuse, float ambient, vec3 color)
 
 vec3 computeColor(float height, float ambient)
 {
-	float selfShadowing = 1.01 - dot(planetColor1, vec3(1,1,1)/2.0);
+	float selfShadowing = 1.00 - dot(planetColor1, vec3(1,1,1)/3.0);
 
 	vec3 color = vec3(1,1,1);
 	float edge = mix(1.0, ambient, selfShadowing);

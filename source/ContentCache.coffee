@@ -1,3 +1,6 @@
+# Copyright (C) 2013 John Judnich
+# Released under The MIT License - see "LICENSE" file for details.
+
 root = exports ? this
 
 # This object lets you manage a number of content objects which are uniquely identifiable with some

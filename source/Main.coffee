@@ -1,7 +1,9 @@
+# Copyright (C) 2013 John Judnich
+# Released under The MIT License - see "LICENSE" file for details.
+
 # Disclaimer: ALL of this file right now is horrible spaghetti code to test random stuff
 
 root = exports ? this
-
 
 enableRetina = true
 camera = null
