@@ -201,7 +201,7 @@ class root.Planetfield
 
 
 	# these functions return the closest distance, or null if no such object is populated
-	getDistanceToClosestPlanet: -> Math.max(@closestPlanetDist - 1.0, 0.01) or @_starfield.viewRange
+	getDistanceToClosestPlanet: -> Math.max(@closestPlanetDist - 0.985, 0.0) or @_starfield.viewRange
 	getDistanceToClosestStar: -> Math.max(@closestStarDist - 100.0, 100) or @_starfield.viewRange
 	getDistanceToClosestObject: -> Math.min(@getDistanceToClosestPlanet(), @getDistanceToClosestStar())
 	getClosestStar: -> @closestStar

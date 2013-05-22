@@ -260,7 +260,7 @@ tick = ->
 	updateMouse()
 
 	# scale speed based on proximity of nearby objects
-	speedScale = planetfield.getDistanceToClosestObject() * 0.01
+	speedScale = (Math.max(planetfield.getDistanceToClosestObject(), 0.01) + 0.01) * 0.01
 	if speedScale > 1000.0 then speedScale = 1000.0
 	#a = Math.max(Math.min(((Math.abs(desiredSpeed) - 2000) / 2000), 1.0), 0.0)
 	#if autopilot == false then a = 1.0
@@ -277,9 +277,10 @@ tick = ->
 
 	# when near planets, orient the camera upright
 	distToPlanet = planetfield.getDistanceToClosestPlanet()
-	if distToPlanet < 0.1
-		planetVec = planetfield.getClosestPlanet()
-		a = Math.min((0.1 - distToPlanet) * 10, 1.0)
+	planetVec = planetfield.getClosestPlanet()
+
+	if distToPlanet < 0.10
+		a = Math.min((0.10 - distToPlanet) * 10, 1.0)
 		a = a * a
 
 		if planetVec != null
@@ -307,6 +308,10 @@ tick = ->
 			quat.fromMat3(q, mat)
 			quat.slerp(desiredRotation, desiredRotation, q, 0.15 * a)
 			#desiredRotation = q
+
+	# basic camera-planet collision
+	#if distToPlanet <= 0.0
+		#cam.position -= planetVec * 0.01
 
 	# rotate camera towards user designated destination
 	quat.slerp(smoothRotation, smoothRotation, desiredRotation, 0.05)
