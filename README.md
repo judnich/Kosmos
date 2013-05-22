@@ -44,7 +44,7 @@ As long as your GPU is as fast or faster than an *Intel HD 4000*, Kosmos should 
 
 [![Click to run Kosmos now!](https://raw.github.com/judnich/Kosmos/master/screenshots/moon3.jpg "Click to run Kosmos now!")](http://judnich.github.io/Kosmos/ )
 
-"Alien Planet Surface"
+"Alien World"
 
 [![Click to run Kosmos now!](https://raw.github.com/judnich/Kosmos/master/screenshots/purple1.jpg "Click to run Kosmos now!")](http://judnich.github.io/Kosmos/ )
 
