@@ -71,6 +71,41 @@ Note that this entire project was written completely from scratch in about *four
 
 All of Kosmos (the source code you see in this repository except for the "external" folder) was implemented from the ground up over these few weeks. However, the ideas / algorithms behind Kosmos's technology have been generally within my focus over the past few years (I'm very familiar in-depth in many areas of 3D graphics) which no doubt accelerated my learning curve.
 
+### Future Plans
+
+Kosmos (this web based version version) was mostly an experimental, self-educational project for me. In retrospect, WebGL simply has too many compatibility issues/hassles for it to be a valuable target for my spare time projects. My future versions or projects will most likely be done with native code instead -- certainly until WebGL stops being flakey, and browsers figure out how to get closer to native performance.
+
+For example I'd like to make a future improved version of Kosmos as a mobile game app, targeting tablets in particular. Additionally, there are a lot of features I'd include that I didn't have time for in the current web based version:
+
+* Planet atmospheres with correct simulated atmospheric scattering effects
+
+* Much more ground-level detail (i.e. trees, grass, etc.)
+
+* Animated planet orbits and rotations
+
+* More variety of planet types (right now there's just a few base types)
+
+* Gameplay dynamics with space and ground combat
+
+However since following graduation most of my time will be dedicated to full-time work, "Kosmos 2.0" probably won't be likely any time soon exept possibly as a weekend project.
+
+### Lessons Learned
+
+* WebGL is flakey and not ready for "serious" 3D games yet (except the most rudimentary last-gen graphics)
+
+* Procedural content generation, while a nice idea in concept, ultimately doesn't "save" you all that much work. In theory it provides "infinite variation" of planets, stars, etc., but it does NOT provide infinite *novelty*.
+
+#### Sidenote: Thoughts on procedural generation
+
+What we find interesting artistically and visually is not variation, but "novelty". While admittedly a more vague word, novelty represents content that is truly "new", rather than just parameterized variations of the same thing seen before.
+
+Although procedural generation engines (like Kosmos) can provide infinitely varying universes with trillions of stars without the need for each to be individually designed, it becomes boring after a while because our minds eventually adapt and figure out the underlying patterns very rapidly.
+
+Therefore, some amount of hand-crafting and artistically created content is needed to make content sufficiently interesting for a game, for example. However, one possible exception would be a more intricately simulation-oriented generation system (i.e. rather than simple mathematical functions to generate planet-resembling things, actually simulate gasses in space, gravity in space, star formation, planet formation, erosion, elements, etc. etc.) This could produce a system so complex that variation does become truly "novel" in some sense, simply from the sheer scale and detail of the simulation. However doing this would require far too much computational power to be feasible in real-time on even powerful gaming computers, let alone mobile/casual devices. It might be feasible though as a offline content creation tool to ease the work of artists, however. Or, it could be feasible if offloaded to a supercomputing "cloud", with the data streamed to users of the game world on-demand. Even then though, creating the rules for such a simulation would be no small feat in of itself.
+
+So for at least quite some time, I think most 3D worlds will need to have some aspect of human-guided design to be effectively interesting for games. This doesn't rule out procedurally generated content by any means, it just means you'll probably spend about as much time crafting procedural rules/equations as an artist would making it by hand anyway.
+
+
 ## Credits
 
 The following external open-source libraries were used in Kosmos:
