@@ -51,7 +51,7 @@ function jsMain() {
 		document.location = "http://judnich.github.io/KosmosMobile";
 	}
 
-	if ( OSName=="Windows" ) {
+	if ( OSName=="Windows" || !is_firefox ) {
 		if (_ignoreWarning != true) {
 			document.getElementById("browserErrorMessage").style.display = "block";
 			return;
