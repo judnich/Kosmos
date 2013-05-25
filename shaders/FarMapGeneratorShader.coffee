@@ -1,7 +1,7 @@
 # Copyright (C) 2013 John Judnich
 # Released under The MIT License - see "LICENSE" file for details.
 
-frag = """//precision highp float;
+frag = """precision highp float;
 
 varying vec3 vPos;
 varying vec3 vTangent;

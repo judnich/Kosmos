@@ -3,7 +3,7 @@
 
 hfunctions = []
 
-hfunctions[0] = """//precision highp float;
+hfunctions[0] = """precision highp float;
 
 float heightFunc(vec3 coord, vec3 rndSeed)
 {
@@ -41,7 +41,7 @@ float heightFunc(vec3 coord, vec3 rndSeed)
 
 """
 
-hfunctions[1] = """//precision highp float;
+hfunctions[1] = """precision highp float;
 
 float heightFunc(vec3 coord, vec3 rndSeed)
 {
@@ -83,7 +83,7 @@ float heightFunc(vec3 coord, vec3 rndSeed)
 
 """
 
-hfunctions[2] = """//precision highp float;
+hfunctions[2] = """precision highp float;
 
 float heightFunc(vec3 coord, vec3 rndSeed)
 {
