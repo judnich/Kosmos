@@ -118,6 +118,6 @@ All design and technologies of Kosmos (from UI/UX design and 3D engine implement
 
 ## License
 
-#### Kosmos is released as open source under [The MIT License](https://github.com/judnich/Kosmos/blob/master/LICENSE).
+#### Kosmos is released as open source under [The BSD License](https://github.com/judnich/Kosmos/blob/master/LICENSE).
 
 #### Copyright (C) 2013 John Judnich. All Rights Reserved.
