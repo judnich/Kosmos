@@ -126,9 +126,9 @@ root.kosmosResize = ->
 	devicePixelRatio = if enableRetina then window.devicePixelRatio || 1 else 1
 
 	# force supersampling to a minimum resolution
-	while (canvas.clientWidth * devicePixelRatio < 1440 and canvas.clientHeight * devicePixelRatio < 900)
+	while (canvas.clientWidth * devicePixelRatio < 800 and canvas.clientHeight * devicePixelRatio < 600)
 		devicePixelRatio++
-	if devicePixelRatio > 4 then devicePixelRatio = 4
+	if devicePixelRatio > 2 then devicePixelRatio = 2
 
 	canvas.width  = canvas.clientWidth * devicePixelRatio
 	canvas.height = canvas.clientHeight * devicePixelRatio
